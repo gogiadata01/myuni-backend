@@ -82,7 +82,7 @@
             public string Fasi { get; set; }
             public string Kodi { get; set; }
             public string ProgramisAgwera { get; set; }
-            public string Mizani { get; set; }
+            public string Mizani { get; set; } = ProgramisAgwera;
 
 
         }
