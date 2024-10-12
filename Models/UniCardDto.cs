@@ -58,7 +58,7 @@ namespace MyUni.Models
             public string Fasi { get; set; }
             public string Kodi { get; set; }
             public string ProgramisAgwera { get; set; }
-             public string Mizani { get; set; } = ProgramisAgwera;
+             public string Mizani { get; set; } = 'comming soon';
         }
 
         public class SavaldebuloSagnebiDto
