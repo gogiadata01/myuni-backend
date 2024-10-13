@@ -40,6 +40,34 @@ public async Task<IActionResult> GetAllProgramCards()
 
     return Ok(result);
 }
+[HttpGet("GetProgramCardDetails")]
+public async Task<IActionResult> GetProgramCardDetails()
+{
+    var programCardDetails = await dbContext.MyprogramCard
+        .Include(card => card.Fields)
+            .ThenInclude(field => field.ProgramNames)
+                .ThenInclude(program => program.CheckBoxes)
+        .Select(card => new 
+        {
+            ProgramCardId = card.Id,
+            ProgramNames = card.Fields.SelectMany(field => field.ProgramNames).Select(program => new 
+            {
+                ProgramName = program.programname,
+                CheckBoxes = program.CheckBoxes.Select(checkBox => new 
+                {
+                    CheckBoxName = checkBox.ChackBoxName
+                }).ToList()
+            }).ToList()
+        }).ToListAsync();
+
+    if (programCardDetails == null || !programCardDetails.Any())
+    {
+        return NotFound("No program cards found.");
+    }
+
+    return Ok(programCardDetails);
+}
+
 [HttpGet("GetFieldProgram")]
 public async Task<IActionResult> GetFieldProgram()
 {
