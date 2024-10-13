@@ -40,9 +40,14 @@ public async Task<IActionResult> GetAllProgramCards()
 
     return Ok(result);
 }
-[HttpGet("GetProgramCardDetails")]
-public async Task<IActionResult> GetProgramCardDetails()
+[HttpGet("GetProgramCardDetailsBySubjects")]
+public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] List<string> subjects)
 {
+    if (subjects == null || !subjects.Any())
+    {
+        return BadRequest("Please provide at least one subject.");
+    }
+
     var programCardDetails = await dbContext.MyprogramCard
         .Include(card => card.Fields)
             .ThenInclude(field => field.ProgramNames)
@@ -50,23 +55,30 @@ public async Task<IActionResult> GetProgramCardDetails()
         .Select(card => new 
         {
             ProgramCardId = card.Id,
-            ProgramNames = card.Fields.SelectMany(field => field.ProgramNames).Select(program => new 
-            {
-                ProgramName = program.programname,
-                CheckBoxes = program.CheckBoxes.Select(checkBox => new 
+            ProgramNames = card.Fields.SelectMany(field => field.ProgramNames)
+                .Where(program => program.CheckBoxes
+                    .Any(checkBox => subjects.Contains(checkBox.ChackBoxName)))
+                .Select(program => new 
                 {
-                    CheckBoxName = checkBox.ChackBoxName
+                    ProgramName = program.programname,
+                    CheckBoxes = program.CheckBoxes
+                        .Where(checkBox => subjects.Contains(checkBox.ChackBoxName))
+                        .Select(checkBox => new 
+                        {
+                            CheckBoxName = checkBox.ChackBoxName
+                        }).ToList()
                 }).ToList()
-            }).ToList()
-        }).ToListAsync();
+        }).Where(card => card.ProgramNames.Any()) // Filter out cards with no matching programs
+        .ToListAsync();
 
     if (programCardDetails == null || !programCardDetails.Any())
     {
-        return NotFound("No program cards found.");
+        return NotFound("No matching programs found.");
     }
 
     return Ok(programCardDetails);
 }
+
 
 [HttpGet("GetFieldProgram")]
 public async Task<IActionResult> GetFieldProgram()
