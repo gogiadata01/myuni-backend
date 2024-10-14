@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MyUni.Data;
 using MyUni.Models;
 using MyUni.Models.Entities;
+using System;
 using System.Globalization; // Add this for CultureInfo and DateTimeStyles
 using System.Linq; // Ensure this is included for FirstOrDefault
 
@@ -23,72 +24,71 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz
-         [HttpGet]
+        [HttpGet]
         public IActionResult GetAllQuizzes()
         {
             var quizzes = dbContext.MyQuiz
                 .Include(card => card.Questions)
-                .ThenInclude(incorectanswer => incorectanswer.IncorrectAnswers)
+                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
                 .ToList();
 
             return Ok(quizzes);
         }
 
-
-
         [HttpGet("reminder")]
         public IActionResult SendReminderForQuiz()
         {
-      try
-    {
-        // Fetch the quizzes from the database
-        var quizzes = dbContext.MyQuiz
-            .Include(card => card.Questions)
-            .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-            .ToList(); // Convert the IQueryable to a List
+            try
+            {
+                // Fetch the quizzes from the database
+                var quizzes = dbContext.MyQuiz
+                    .Include(card => card.Questions)
+                    .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+                    .ToList(); // Convert the IQueryable to a List
 
-        // Get the first quiz
-        var quiz = quizzes.FirstOrDefault();
+                // Get the first quiz
+                var quiz = quizzes.FirstOrDefault();
 
-        if (quiz == null)
-        {
-            return NotFound(new { Message = "Quiz not found." });
+                if (quiz == null)
+                {
+                    return NotFound(new { Message = "Quiz not found." });
+                }
+
+                Console.WriteLine("Received time for reminder: " + quiz.Time);
+
+                // Convert quiz.Time to DateTime
+                if (!DateTime.TryParse(quiz.Time, out DateTime quizTime))
+                {
+                    return BadRequest(new { Message = "Invalid quiz time format." });
+                }
+
+                // Calculate the reminder time (30 minutes before the quiz)
+                var reminderTime = quizTime.AddMinutes(-30);
+                var currentTime = DateTime.Now;
+
+                // Debugging output
+                Console.WriteLine($"Current Time: {currentTime}, Reminder Time: {reminderTime}");
+
+                // Check if it's time to send the reminder
+                if (currentTime >= reminderTime && currentTime <= quizTime)
+                {
+                    _emailService.SendEmailToAllUsers(
+                        "Reminder: ქვიზი დაიწყება მალე",
+                        "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
+                    );
+
+                    return Ok(new { Message = "Reminder emails have been sent to all users." });
+                }
+                else
+                {
+                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
+            }
         }
-
-        Console.WriteLine("Received time for reminder: " + quiz.Time);
-
-        // Assume quiz.Time is of type DateTime, if it's a string, modify accordingly
-        var quizTime = quiz.Time; // Directly use it if it's DateTime
-
-        // Calculate the reminder time (30 minutes before the quiz)
-        var reminderTime = quizTime.AddMinutes(-30);
-        var currentTime = DateTime.Now;
-
-        // Debugging output
-        Console.WriteLine($"Current Time: {currentTime}, Reminder Time: {reminderTime}");
-
-        // Check if it's time to send the reminder
-        if (currentTime >= reminderTime && currentTime <= quizTime)
-        {
-            _emailService.SendEmailToAllUsers(
-                "Reminder: ქვიზი დაიწყება მალე",
-                "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-            );
-
-            return Ok(new { Message = "Reminder emails have been sent to all users." });
-        }
-        else
-        {
-            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-        }
-    }
-          catch (Exception ex)
-    {
-        return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
-    }
-        }
-
-
 
         // GET: api/Quiz/5
         [HttpGet("{id}")]
@@ -178,6 +178,12 @@ namespace MyUni.Controllers
             {
                 time = Uri.UnescapeDataString(time);
                 Console.WriteLine("Received time: " + time);
+
+                // Convert time to DateTime if necessary (assuming it's a string representation of a time)
+                if (!DateTime.TryParse(time, out DateTime quizTime))
+                {
+                    return BadRequest(new { Message = "Invalid time format." });
+                }
 
                 var quizzes = dbContext.MyQuiz
                     .Include(card => card.Questions)
