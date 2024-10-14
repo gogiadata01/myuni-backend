@@ -21,16 +21,17 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz
-        [HttpGet]
-        public IActionResult GetAllQuizzes()
-        {
-            var quizzes = dbContext.MyQuiz
-                .Include(card => card.Questions)
-                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-                .ToList();
+[HttpGet]
+public List<Quiz> GetAllQuizzes()
+{
+    var quizzes = dbContext.MyQuiz
+        .Include(card => card.Questions)
+        .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+        .ToList();
 
-            return Ok(quizzes);
-        }
+    return quizzes;
+}
+
 
 [HttpGet("reminder")]
 public IActionResult SendReminderForQuiz()
