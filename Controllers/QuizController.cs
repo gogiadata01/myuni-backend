@@ -36,7 +36,7 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz/reminder
-        [HttpPost("reminder")]
+        [HttpGet("reminder")]
         public IActionResult SendReminderForQuiz()
         {
             // try
