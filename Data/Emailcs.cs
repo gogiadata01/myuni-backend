@@ -29,42 +29,24 @@ private void SendEmail(string email, string subject, string body)
 {
     try
     {
-        // using (var client = new SmtpClient("smtp.gmail.com", 587)) // Use Gmail's SMTP server
-        // {
-        //     client.UseDefaultCredentials = false; 
-        //     client.Credentials = new NetworkCredential("lukasordia@gmail.com", "kkki xudy ozln fesd"); // Use your App Password
-        //     client.EnableSsl = true; // Enable SSL/TLS
-
-        //     var mailMessage = new MailMessage
-        //     {
-        //         From = new MailAddress("lukasordia@gmail.com"), // Sender email
-        //         Subject = subject,
-        //         Body = body,
-        //         IsBodyHtml = false, // Set to true if the body contains HTML
-        //     };
-
-        //     mailMessage.To.Add(email); // Add recipient's email
-        //     client.Send(mailMessage);  // Send the email
-        // }
-        var smtpClient = new SmtpClient("smtp.gmail.com")
+        using (var client = new SmtpClient("smtp.gmail.com", 587)) // Use Gmail's SMTP server
         {
-            Port = 465,
-            Credentials = new NetworkCredential("lukasordia@myuni.com", "kkki xudy ozln fesd"),
-            EnableSsl = true,
-        };
-        
-          var mailMessage = new MailMessage
-        {
-            From = new MailAddress("lukasordia@myuni.com"),
-            Subject = "subject",
-            Body = "<h1>Hello</h1>",
-            IsBodyHtml = true,
-        };
-        mailMessage.To.Add("datagogia777@gmail.com");
+            client.UseDefaultCredentials = false; 
+            client.Credentials = new NetworkCredential("lukasordia@gmail.com", "kkki xudy ozln fesd"); // Use your App Password
+            client.EnableSsl = true; // Enable SSL/TLS
 
-        smtpClient.Send(mailMessage);
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress("lukasordia@gmail.com"), // Sender email
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = false, // Set to true if the body contains HTML
+            };
+
+            mailMessage.To.Add(email); // Add recipient's email
+            client.Send(mailMessage);  // Send the email
+        }
     }
-
   
     catch (SmtpException smtpEx)
     {
