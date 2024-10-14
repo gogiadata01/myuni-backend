@@ -22,7 +22,7 @@ namespace MyUni.Data
             // {
             //     SendEmail(user.Email, subject, body);
             // }
-            SendEmail("datagoia@gmail.com", "ylistavi", "momwove")
+            SendEmail("datagoia@gmail.com", "ylistavi", "momwove");
         }
 
 private void SendEmail(string email, string subject, string body)
