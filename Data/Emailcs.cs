@@ -18,10 +18,11 @@ namespace MyUni.Data
             var allUsers = dbContext.MyUser.ToList();
 
             // Loop through all users and send them an email
-            foreach (var user in allUsers)
-            {
-                SendEmail(user.Email, subject, body);
-            }
+            // foreach (var user in allUsers)
+            // {
+            //     SendEmail(user.Email, subject, body);
+            // }
+            SendEmail("datagoia@gmail.com", "ylistavi", "momwove")
         }
 
 private void SendEmail(string email, string subject, string body)
