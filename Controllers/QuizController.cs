@@ -39,57 +39,53 @@ namespace MyUni.Controllers
         [HttpGet("reminder")]
         public IActionResult SendReminderForQuiz()
         {
-            try
-            {
-                var quizzes = GetAllQuizzes(); 
-                var quiz = quizzes.FirstOrDefault(); // Directly use the list here
+      try
+    {
+        // Fetch the quizzes from the database
+        var quizzes = dbContext.MyQuiz
+            .Include(card => card.Questions)
+            .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+            .ToList(); // Convert the IQueryable to a List
 
-                if (quiz == null)
-                {
-                    return NotFound(new { Message = "Quiz not found." });
-                }
+        // Get the first quiz
+        var quiz = quizzes.FirstOrDefault();
 
-                Console.WriteLine("Received time for reminder: " + quiz.Time);
-                
-                // Get the current year
-                var currentYear = DateTime.Now.Year;
+        if (quiz == null)
+        {
+            return NotFound(new { Message = "Quiz not found." });
+        }
 
-                // Append the year to the quiz time string
-                string quizTimeString = $"{currentYear}/{quiz.Time}"; // This will format to "YYYY/MM/DD HH:mm"
-                
-                // Define the expected format
-                string expectedFormat = "yyyy/MM/dd HH:mm"; // Adjusted to the format used
-                
-                // Attempt to parse the time
-                if (!DateTime.TryParseExact(quizTimeString, expectedFormat, 
-                    CultureInfo.InvariantCulture, 
-                    DateTimeStyles.None, out var quizTime))
-                {
-                    return BadRequest(new { Message = "Invalid quiz time format." });
-                }
+        Console.WriteLine("Received time for reminder: " + quiz.Time);
 
-                // Calculate the reminder time (30 minutes before the quiz)
-                var reminderTime = quizTime.AddMinutes(-30);
-                var currentTime = DateTime.Now;
+        // Assume quiz.Time is of type DateTime, if it's a string, modify accordingly
+        var quizTime = quiz.Time; // Directly use it if it's DateTime
 
-                if (currentTime >= reminderTime)
-                {
-                    _emailService.SendEmailToAllUsers(
-                        "Reminder: ქვიზი დაიწყება მალე",
-                        "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-                    );
+        // Calculate the reminder time (30 minutes before the quiz)
+        var reminderTime = quizTime.AddMinutes(-30);
+        var currentTime = DateTime.Now;
 
-                    return Ok(new { Message = "Reminder emails have been sent to all users." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
-            }
+        // Debugging output
+        Console.WriteLine($"Current Time: {currentTime}, Reminder Time: {reminderTime}");
+
+        // Check if it's time to send the reminder
+        if (currentTime >= reminderTime && currentTime <= quizTime)
+        {
+            _emailService.SendEmailToAllUsers(
+                "Reminder: ქვიზი დაიწყება მალე",
+                "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
+            );
+
+            return Ok(new { Message = "Reminder emails have been sent to all users." });
+        }
+        else
+        {
+            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+        }
+    }
+          catch (Exception ex)
+    {
+        return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
+    }
         }
 
 
