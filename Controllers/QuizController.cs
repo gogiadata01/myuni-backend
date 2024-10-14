@@ -21,75 +21,72 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz
-[HttpGet]
-public List<Quiz> GetAllQuizzes()
-{
-    var quizzes = dbContext.MyQuiz
-        .Include(card => card.Questions)
-        .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-        .ToList();
-
-    return quizzes;
-}
-
-[HttpGet("reminder")]
-public IActionResult SendReminderForQuiz()
-{
-    try
-    {
-        var actionResult = GetAllQuizzes(); 
-        if (actionResult is OkObjectResult okResult && okResult.Value is List<Quiz> quizzes)
+        [HttpGet]
+        public List<Quiz> GetAllQuizzes()
         {
-            var quiz = quizzes.FirstOrDefault(); 
-            if (quiz == null)
+            return dbContext.MyQuiz
+                .Include(card => card.Questions)
+                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+                .ToList();
+        }
+
+
+
+        [HttpGet("reminder")]
+        public IActionResult SendReminderForQuiz()
+        {
+            try
             {
-                return NotFound(new { Message = "Quiz not found." });
+                var quizzes = GetAllQuizzes(); 
+                var quiz = quizzes.FirstOrDefault(); // Directly use the list here
+
+                if (quiz == null)
+                {
+                    return NotFound(new { Message = "Quiz not found." });
+                }
+
+                Console.WriteLine("Received time for reminder: " + quiz.Time);
+                
+                // Get the current year
+                var currentYear = DateTime.Now.Year;
+
+                // Append the year to the quiz time string
+                string quizTimeString = $"{currentYear}/{quiz.Time}"; // This will format to "YYYY/MM/DD HH:mm"
+                
+                // Define the expected format
+                string expectedFormat = "yyyy/MM/dd HH:mm"; // Adjusted to the format used
+                
+                // Attempt to parse the time
+                if (!DateTime.TryParseExact(quizTimeString, expectedFormat, 
+                    CultureInfo.InvariantCulture, 
+                    DateTimeStyles.None, out var quizTime))
+                {
+                    return BadRequest(new { Message = "Invalid quiz time format." });
+                }
+
+                // Calculate the reminder time (30 minutes before the quiz)
+                var reminderTime = quizTime.AddMinutes(-30);
+                var currentTime = DateTime.Now;
+
+                if (currentTime >= reminderTime)
+                {
+                    _emailService.SendEmailToAllUsers(
+                        "Reminder: ქვიზი დაიწყება მალე",
+                        "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
+                    );
+
+                    return Ok(new { Message = "Reminder emails have been sent to all users." });
+                }
+                else
+                {
+                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+                }
             }
-
-            Console.WriteLine("Received time for reminder: " + quiz.Time);
-            
-            // Get the current year
-            var currentYear = DateTime.Now.Year;
-
-            // Append the year to the quiz time string
-            string quizTimeString = $"{currentYear}/{quiz.Time}"; // This will format to "YYYY/MM/DD HH:mm"
-            
-            // Define the expected format
-            string expectedFormat = "yyyy/MM/dd HH:mm"; // Adjusted to the format used
-            
-            // Attempt to parse the time
-            if (!DateTime.TryParseExact(quizTimeString, expectedFormat, 
-                CultureInfo.InvariantCulture, 
-                DateTimeStyles.None, out var quizTime))
+            catch (Exception ex)
             {
-                return BadRequest(new { Message = "Invalid quiz time format." });
-            }
-
-            // Calculate the reminder time (30 minutes before the quiz)
-            var reminderTime = quizTime.AddMinutes(-30);
-            var currentTime = DateTime.Now;
-
-            if (currentTime >= reminderTime)
-            {
-                _emailService.SendEmailToAllUsers(
-                    "Reminder: ქვიზი დაიწყება მალე",
-                    "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-                );
-
-                return Ok(new { Message = "Reminder emails have been sent to all users." });
-            }
-            else
-            {
-                return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
             }
         }
-        return BadRequest(new { Message = "Could not retrieve quizzes." });
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
-    }
-}
 
 
 
