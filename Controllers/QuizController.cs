@@ -32,43 +32,55 @@ namespace MyUni.Controllers
             return Ok(quizzes);
         }
 
-        [HttpGet("reminder/{time}")]
-        public IActionResult SendReminderForQuiz(string time)
+[HttpGet("reminder")]
+public IActionResult SendReminderForQuiz()
+{
+    try
+    {
+        // Retrieve all quizzes
+        var quizzes = GetAllQuizzes(); // Assuming this returns a List<Quiz>
+        
+        // Find the quiz you're interested in (you might want to filter or search by some criteria)
+        var quiz = quizzes.FirstOrDefault(); // Replace with actual logic to find the specific quiz
+        if (quiz == null)
         {
-            try
-            {
-                // Decode the time parameter
-                time = Uri.UnescapeDataString(time);
-                Console.WriteLine("Received time for reminder: " + time);
-
-                // Parse the time string into a DateTime object
-                var quizTime = DateTime.Parse(time);
-
-                // Calculate the reminder time (30 minutes before the quiz)
-                var reminderTime = quizTime.AddMinutes(-30);
-
-                // Check if the current time is past the reminder time
-                var currentTime = DateTime.Now;
-                if (currentTime >= reminderTime)
-                {
-                    // Send email notification to all users
-                    _emailService.SendEmailToAllUsers(
-                        "Reminder: ქვიზი დაიწყება მალე",
-                        "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-                    );
-
-                    return Ok(new { Message = "Reminder emails have been sent to all users." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
-            }
+            return NotFound(new { Message = "Quiz not found." });
         }
+
+        // Assume quiz.time is in a format that can be parsed
+        Console.WriteLine("Received time for reminder: " + quiz.time);
+
+        // Parse the time string into a DateTime object
+        if (!DateTime.TryParse(quiz.time, out var quizTime))
+        {
+            return BadRequest(new { Message = "Invalid quiz time format." });
+        }
+
+        // Calculate the reminder time (30 minutes before the quiz)
+        var reminderTime = quizTime.AddMinutes(-30);
+
+        // Check if the current time is past the reminder time
+        var currentTime = DateTime.Now;
+        if (currentTime >= reminderTime)
+        {
+            // Send email notification to all users
+            _emailService.SendEmailToAllUsers(
+                "Reminder: ქვიზი დაიწყება მალე",
+                "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
+            );
+
+            return Ok(new { Message = "Reminder emails have been sent to all users." });
+        }
+        else
+        {
+            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+        }
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
+    }
+}
 
         // GET: api/Quiz/5
         [HttpGet("{id}")]
