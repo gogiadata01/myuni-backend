@@ -5,8 +5,8 @@ using MyUni.Data;
 using MyUni.Models;
 using MyUni.Models.Entities;
 using System;
-using System.Globalization; // Add this for CultureInfo and DateTimeStyles
-using System.Linq; // Ensure this is included for FirstOrDefault
+using System.Globalization;
+using System.Linq;
 
 namespace MyUni.Controllers
 {
@@ -15,12 +15,12 @@ namespace MyUni.Controllers
     public class QuizController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly Emailcs _emailService;  // Correctly declare the service
+        private readonly Emailcs _emailService;
 
-        public QuizController(ApplicationDbContext dbContext, Emailcs emailService)  // Inject both services
+        public QuizController(ApplicationDbContext dbContext, Emailcs emailService)
         {
             this.dbContext = dbContext;
-            _emailService = emailService;  // Assign the email service
+            _emailService = emailService;
         }
 
         // GET: api/Quiz
@@ -35,6 +35,7 @@ namespace MyUni.Controllers
             return Ok(quizzes);
         }
 
+        // GET: api/Quiz/reminder
         [HttpGet("reminder")]
         public IActionResult SendReminderForQuiz()
         {
@@ -44,7 +45,7 @@ namespace MyUni.Controllers
                 var quizzes = dbContext.MyQuiz
                     .Include(card => card.Questions)
                     .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-                    .ToList(); // Convert the IQueryable to a List
+                    .ToList();
 
                 // Get the first quiz
                 var quiz = quizzes.FirstOrDefault();
@@ -54,10 +55,20 @@ namespace MyUni.Controllers
                     return NotFound(new { Message = "Quiz not found." });
                 }
 
-                Console.WriteLine("Received time for reminder: " + quiz.Time);
+                Console.WriteLine($"Attempting to parse time: {quiz.Time}");
 
-                // Convert quiz.Time to DateTime
-                if (!DateTime.TryParse(quiz.Time, out DateTime quizTime))
+                // Get the current year
+                var currentYear = DateTime.Now.Year;
+
+                // Append the year to the time string for parsing
+                var timeWithYear = $"{currentYear}/{quiz.Time}";
+
+                // Parse the time string with the added year
+                if (!DateTime.TryParseExact(timeWithYear, 
+                                             "MM/dd HH:mm", // Adjusted to include year
+                                             CultureInfo.InvariantCulture, 
+                                             DateTimeStyles.None, 
+                                             out DateTime quizTime))
                 {
                     return BadRequest(new { Message = "Invalid quiz time format." });
                 }
@@ -66,7 +77,6 @@ namespace MyUni.Controllers
                 var reminderTime = quizTime.AddMinutes(-30);
                 var currentTime = DateTime.Now;
 
-                // Debugging output
                 Console.WriteLine($"Current Time: {currentTime}, Reminder Time: {reminderTime}");
 
                 // Check if it's time to send the reminder
@@ -156,7 +166,7 @@ namespace MyUni.Controllers
         {
             var quiz = dbContext.MyQuiz
                 .Include(q => q.Questions)
-                    .ThenInclude(q => q.IncorrectAnswers)
+                .ThenInclude(q => q.IncorrectAnswers)
                 .FirstOrDefault(q => q.Id == id);
 
             if (quiz == null)
@@ -178,12 +188,6 @@ namespace MyUni.Controllers
             {
                 time = Uri.UnescapeDataString(time);
                 Console.WriteLine("Received time: " + time);
-
-                // Convert time to DateTime if necessary (assuming it's a string representation of a time)
-                if (!DateTime.TryParse(time, out DateTime quizTime))
-                {
-                    return BadRequest(new { Message = "Invalid time format." });
-                }
 
                 var quizzes = dbContext.MyQuiz
                     .Include(card => card.Questions)
