@@ -48,7 +48,7 @@ private void SendEmail(string email, string subject, string body)
         // }
         var smtpClient = new SmtpClient("smtp.gmail.com")
         {
-            Port = 587,
+            Port = 465,
             Credentials = new NetworkCredential("lukasordia@myuni.com", "kkki xudy ozln fesd"),
             EnableSsl = true,
         };
