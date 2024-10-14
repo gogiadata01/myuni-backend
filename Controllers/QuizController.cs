@@ -32,9 +32,6 @@ public List<Quiz> GetAllQuizzes()
     return quizzes;
 }
 
-
-using System.Globalization; // Add this for CultureInfo
-
 [HttpGet("reminder")]
 public IActionResult SendReminderForQuiz()
 {
@@ -93,6 +90,7 @@ public IActionResult SendReminderForQuiz()
         return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
     }
 }
+
 
 
         // GET: api/Quiz/5
