@@ -33,7 +33,7 @@ private void SendEmail(string email, string subject, string body)
         {
             client.UseDefaultCredentials = false; 
             client.Credentials = new NetworkCredential("lukasordia@gmail.com", "zgem tmlt grtl dslc"); // Use your App Password
-            client.EnableSsl = true; // Enable SSL/TLS
+            client.EnableSsl = false; // Enable SSL/TLS
 
             var mailMessage = new MailMessage
             {
@@ -61,8 +61,6 @@ private void SendEmail(string email, string subject, string body)
         throw; // Rethrow the exception if necessary
     }
 }
-
-
 
     }
 }
