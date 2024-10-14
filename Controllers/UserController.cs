@@ -208,14 +208,6 @@ public class UserController : ControllerBase
         }
 
         // Helper function to hash the password using SHA256
-        private string HashPassword(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-            }
-        }
 
 
     [HttpPost("admin/login")] // New endpoint for admin login
