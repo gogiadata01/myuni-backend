@@ -29,7 +29,7 @@ private void SendEmail(string email, string subject, string body)
 {
     try
     {
-        using (var client = new SmtpClient("smtp.gmail.com", 465)) // Use Gmail's SMTP server
+        using (var client = new SmtpClient("smtp.gmail.com", 587)) // Use Gmail's SMTP server
         {
             client.UseDefaultCredentials = false; 
             client.Credentials = new NetworkCredential("lukasordia@gmail.com", "zgem tmlt grtl dslc"); // Use your App Password
