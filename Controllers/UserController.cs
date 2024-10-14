@@ -186,26 +186,27 @@ public class UserController : ControllerBase
 
         return Ok(new { message = "Coin value updated successfully", user });
     }
-     [HttpPost("recover-password")]
-        public IActionResult RecoverPassword(string email, string newPassword)
-        {
-            // 1. Check if the email exists in the database
-            var user = dbContext.MyUser.FirstOrDefault(u => u.Email == email);
-            if (user == null)
-            {
-                return NotFound(new { Message = "User with this email does not exist." });
-            }
+    
+[HttpPost("recover-password")]
+public IActionResult RecoverPassword([FromBody] UserRecoverPasswordDto recoverPasswordDto)
+{
+    // 1. Check if the email exists in the database
+    var user = dbContext.MyUser.FirstOrDefault(u => u.Email == recoverPasswordDto.Email);
+    if (user == null)
+    {
+        return NotFound(new { Message = "User with this email does not exist." });
+    }
 
-            // 2. Hash the new password (SHA256 or other algorithm)
-            string hashedPassword = HashPassword(newPassword);
+    // 2. Hash the new password (SHA256 or other algorithm)
+    string hashedPassword = HashPassword(recoverPasswordDto.NewPassword);
 
-            // 3. Update the user's password in the database
-            user.Password = hashedPassword;
-            dbContext.SaveChanges();
+    // 3. Update the user's password in the database
+    user.Password = hashedPassword;
+    dbContext.SaveChanges();
 
-            // Return a success message
-            return Ok(new { Message = "Password has been successfully updated." });
-        }
+    // Return a success message
+    return Ok(new { Message = "Password has been successfully updated." });
+}
 
         // Helper function to hash the password using SHA256
 
