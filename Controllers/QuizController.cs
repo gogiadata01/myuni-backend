@@ -7,7 +7,6 @@ using MyUni.Models.Entities;
 using System;
 using System.Globalization;
 using System.Linq;
-using System.TimeZoneInfo; // Make sure to include this namespace for TimeZoneInfo
 
 namespace MyUni.Controllers
 {
@@ -37,76 +36,72 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz/reminder
-[HttpGet("reminder")]
-public IActionResult SendReminderForQuiz()
-{
-    try
-    {
-        var quizzes = dbContext.MyQuiz
-            .Include(card => card.Questions)
-            .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-            .ToList();
-
-        var quiz = quizzes.FirstOrDefault();
-
-        if (quiz == null)
+        [HttpGet("reminder")]
+        public IActionResult SendReminderForQuiz()
         {
-            return NotFound(new { Message = "Quiz not found." });
+            try
+            {
+                var quizzes = dbContext.MyQuiz
+                    .Include(card => card.Questions)
+                    .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+                    .ToList();
+
+                var quiz = quizzes.FirstOrDefault();
+
+                if (quiz == null)
+                {
+                    return NotFound(new { Message = "Quiz not found." });
+                }
+
+                Console.WriteLine($"Attempting to parse time: {quiz.Time}");
+
+                // Get the current year and construct the time string
+                var currentYear = DateTime.Now.Year;
+                var timeWithYear = $"{quiz.Time}/{currentYear}";
+
+                // Parse the quiz time
+                if (!DateTime.TryParseExact(timeWithYear, 
+                                             "MM/dd HH:mm/yyyy", 
+                                             CultureInfo.InvariantCulture, 
+                                             DateTimeStyles.None, 
+                                             out DateTime quizTime))
+                {
+                    return BadRequest(new { Message = "Invalid quiz time format." });
+                }
+
+                // Convert quiz time to the appropriate time zone (adjust this according to your needs)
+                TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Georgia Standard Time");
+                DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
+
+                // Calculate the reminder time
+                var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
+                var currentTime = DateTime.UtcNow; // Get current UTC time
+
+                // Log times for debugging
+                Console.WriteLine($"Current Time (UTC): {currentTime}");
+                Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
+                Console.WriteLine($"Reminder Time (Local): {reminderTime}");
+
+                // Check if it's time to send the reminder
+                if (currentTime >= reminderTime.ToUniversalTime() && currentTime <= quizTimeInLocalZone.ToUniversalTime())
+                {
+                    _emailService.SendEmailToAllUsers(
+                        "Reminder: ქვიზი დაიწყება მალე",
+                        "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
+                    );
+
+                    return Ok(new { Message = "Reminder emails have been sent to all users." });
+                }
+                else
+                {
+                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
+            }
         }
-
-        Console.WriteLine($"Attempting to parse time: {quiz.Time}");
-
-        // Get the current year and construct the time string
-        var currentYear = DateTime.Now.Year;
-        var timeWithYear = $"{quiz.Time}/{currentYear}";
-
-        // Parse the quiz time
-        if (!DateTime.TryParseExact(timeWithYear, 
-                                     "MM/dd HH:mm/yyyy", 
-                                     CultureInfo.InvariantCulture, 
-                                     DateTimeStyles.None, 
-                                     out DateTime quizTime))
-        {
-            return BadRequest(new { Message = "Invalid quiz time format." });
-        }
-
-        // Convert quiz time to the appropriate time zone (adjust this according to your needs)
-        TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Georgia Standard Time");
-        DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
-
-        // Calculate the reminder time
-        var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
-        var currentTime = DateTime.UtcNow; // Get current UTC time
-
-        // Log times for debugging
-        Console.WriteLine($"Current Time (UTC): {currentTime}");
-        Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
-        Console.WriteLine($"Reminder Time (Local): {reminderTime}");
-
-        // Check if it's time to send the reminder
-        if (currentTime >= reminderTime.ToUniversalTime() && currentTime <= quizTimeInLocalZone.ToUniversalTime())
-        {
-            _emailService.SendEmailToAllUsers(
-                "Reminder: ქვიზი დაიწყება მალე",
-                "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-            );
-
-            return Ok(new { Message = "Reminder emails have been sent to all users." });
-        }
-        else
-        {
-            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-        }
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
-    }
-}
-
-
-
-
 
         // GET: api/Quiz/5
         [HttpGet("{id}")]
