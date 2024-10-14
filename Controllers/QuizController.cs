@@ -101,7 +101,7 @@ namespace MyUni.Controllers
                     "ah yeah"
                 );
 
-                return Ok(new {message = "chemi yle cheidevi chemi yle"})
+                return Ok(new {message = "chemi yle cheidevi chemi yle"});
             }
             catch (Exception ex)
             {
