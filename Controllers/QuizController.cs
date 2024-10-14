@@ -41,7 +41,7 @@ public IActionResult SendReminderForQuiz()
         var quizzes = GetAllQuizzes(); // Now this returns List<Quiz>
         
         // Find the quiz you're interested in (you might want to filter or search by some criteria)
-        var quiz = quizzes.FirstOrDefault(); // Replace with actual logic to find the specific quiz
+        var quiz = quizzes // Replace with actual logic to find the specific quiz
         if (quiz == null)
         {
             return NotFound(new { Message = "Quiz not found." });
