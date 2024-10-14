@@ -105,7 +105,7 @@ namespace MyUni.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
+                return ex
             }
         }
 
