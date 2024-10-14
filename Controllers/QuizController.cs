@@ -69,21 +69,21 @@ namespace MyUni.Controllers
                     return BadRequest(new { Message = "Invalid quiz time format." });
                 }
 
-                // Convert quiz time to the appropriate time zone (adjust this according to your needs)
-                TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Georgia Standard Time");
+                // Get the local time zone for Georgia
+                TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
                 DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
 
                 // Calculate the reminder time
                 var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
-                var currentTime = DateTime.UtcNow; // Get current UTC time
+                var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, localZone); // Get current local time
 
                 // Log times for debugging
-                Console.WriteLine($"Current Time (UTC): {currentTime}");
+                Console.WriteLine($"Current Time (Local): {currentTime}");
                 Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
                 Console.WriteLine($"Reminder Time (Local): {reminderTime}");
 
                 // Check if it's time to send the reminder
-                if (currentTime >= reminderTime.ToUniversalTime() && currentTime <= quizTimeInLocalZone.ToUniversalTime())
+                if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
                 {
                     _emailService.SendEmailToAllUsers(
                         "Reminder: ქვიზი დაიწყება მალე",
