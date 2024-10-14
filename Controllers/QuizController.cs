@@ -83,19 +83,23 @@ namespace MyUni.Controllers
                 Console.WriteLine($"Reminder Time (Local): {reminderTime}");
 
                 // Check if it's time to send the reminder
-                if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
-                {
-                    _emailService.SendEmailToAllUsers(
-                        "Reminder: ქვიზი დაიწყება მალე",
-                        "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
-                    );
+                // if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
+                // {
+                //     _emailService.SendEmailToAllUsers(
+                //         "Reminder: ქვიზი დაიწყება მალე",
+                //         "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
+                //     );
 
-                    return Ok(new { Message = "Reminder emails have been sent to all users." });
-                }
-                else
-                {
-                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-                }
+                //     return Ok(new { Message = "Reminder emails have been sent to all users." });
+                // }
+                // else
+                // {
+                //     return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+                // }
+                _emailService.SendEmailToAllUsers(
+                    "qe chamkari trakshi",
+                    "ah yeah"
+                )
             }
             catch (Exception ex)
             {
