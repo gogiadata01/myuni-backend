@@ -33,55 +33,67 @@ public List<Quiz> GetAllQuizzes()
 }
 
 
+using System.Globalization; // Add this for CultureInfo
+
 [HttpGet("reminder")]
 public IActionResult SendReminderForQuiz()
 {
     try
     {
-        // Retrieve all quizzes
-        var quizzes = GetAllQuizzes(); // Now this returns List<Quiz>
-        
-        // Find the quiz you're interested in
-        var quiz = quizzes.FirstOrDefault(); // Get the first quiz or implement your filtering logic
-        if (quiz == null)
+        var actionResult = GetAllQuizzes(); 
+        if (actionResult is OkObjectResult okResult && okResult.Value is List<Quiz> quizzes)
         {
-            return NotFound(new { Message = "Quiz not found." });
+            var quiz = quizzes.FirstOrDefault(); 
+            if (quiz == null)
+            {
+                return NotFound(new { Message = "Quiz not found." });
+            }
+
+            Console.WriteLine("Received time for reminder: " + quiz.Time);
+            
+            // Get the current year
+            var currentYear = DateTime.Now.Year;
+
+            // Append the year to the quiz time string
+            string quizTimeString = $"{currentYear}/{quiz.Time}"; // This will format to "YYYY/MM/DD HH:mm"
+            
+            // Define the expected format
+            string expectedFormat = "yyyy/MM/dd HH:mm"; // Adjusted to the format used
+            
+            // Attempt to parse the time
+            if (!DateTime.TryParseExact(quizTimeString, expectedFormat, 
+                CultureInfo.InvariantCulture, 
+                DateTimeStyles.None, out var quizTime))
+            {
+                return BadRequest(new { Message = "Invalid quiz time format." });
+            }
+
+            // Calculate the reminder time (30 minutes before the quiz)
+            var reminderTime = quizTime.AddMinutes(-30);
+            var currentTime = DateTime.Now;
+
+            if (currentTime >= reminderTime)
+            {
+                _emailService.SendEmailToAllUsers(
+                    "Reminder: ქვიზი დაიწყება მალე",
+                    "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
+                );
+
+                return Ok(new { Message = "Reminder emails have been sent to all users." });
+            }
+            else
+            {
+                return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+            }
         }
-
-        // Assume quiz.Time is in a format that can be parsed
-        Console.WriteLine("Received time for reminder: " + quiz.Time);
-
-        // Parse the time string into a DateTime object
-        if (!DateTime.TryParse(quiz.Time, out var quizTime))
-        {
-            return BadRequest(new { Message = "Invalid quiz time format." });
-        }
-
-        // Calculate the reminder time (30 minutes before the quiz)
-        var reminderTime = quizTime.AddMinutes(-30);
-
-        // Check if the current time is past the reminder time
-        var currentTime = DateTime.Now;
-        if (currentTime >= reminderTime)
-        {
-            // Send email notification to all users
-            _emailService.SendEmailToAllUsers(
-                "Reminder: ქვიზი დაიწყება მალე",
-                "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-            );
-
-            return Ok(new { Message = "Reminder emails have been sent to all users." });
-        }
-        else
-        {
-            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-        }
+        return BadRequest(new { Message = "Could not retrieve quizzes." });
     }
     catch (Exception ex)
     {
         return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
     }
 }
+
 
         // GET: api/Quiz/5
         [HttpGet("{id}")]
