@@ -57,15 +57,17 @@ namespace MyUni.Controllers
 
                 Console.WriteLine($"Attempting to parse time: {quiz.Time}");
 
-                // Get the current year
+                // Get the current year and current month/day to construct a complete date
                 var currentYear = DateTime.Now.Year;
+                var currentMonth = DateTime.Now.Month;
+                var currentDay = DateTime.Now.Day;
 
-                // Append the year to the time string for parsing
-                var timeWithYear = $"{currentYear}/{quiz.Time}";
+                // Create a date string in the format MM/dd/yyyy HH:mm
+                var timeWithYear = $"{currentMonth}/{currentDay}/{currentYear} {quiz.Time}";
 
                 // Parse the time string with the added year
                 if (!DateTime.TryParseExact(timeWithYear, 
-                                             "MM/dd HH:mm", // Adjusted to include year
+                                             "MM/dd/yyyy HH:mm", // Adjusted to include year
                                              CultureInfo.InvariantCulture, 
                                              DateTimeStyles.None, 
                                              out DateTime quizTime))
