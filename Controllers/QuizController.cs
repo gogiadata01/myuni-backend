@@ -99,7 +99,7 @@ namespace MyUni.Controllers
                 _emailService.SendEmailToAllUsers(
                     "qe chamkari trakshi",
                     "ah yeah"
-                )
+                );
             }
             catch (Exception ex)
             {
