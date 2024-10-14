@@ -23,13 +23,15 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz
-        [HttpGet]
-        public List<Quiz> GetAllQuizzes()
+         [HttpGet]
+        public IActionResult GetAllQuizzes()
         {
-            return dbContext.MyQuiz
+            var quizzes = dbContext.MyQuiz
                 .Include(card => card.Questions)
-                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+                .ThenInclude(incorectanswer => incorectanswer.IncorrectAnswers)
                 .ToList();
+
+            return Ok(quizzes);
         }
 
 
