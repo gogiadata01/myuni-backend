@@ -363,6 +363,29 @@ public IActionResult UpdateEventCard(int uniCardId, int eventId, [FromBody] Even
 
     return Ok(eventCard);
 }
+[HttpPut("{id}/update-maintext")]
+public IActionResult UpdateMainText(int id, [FromBody] string newMainText)
+{
+    if (string.IsNullOrWhiteSpace(newMainText))
+    {
+        return BadRequest("MainText cannot be null or empty.");
+    }
+
+    var uniCard = dbContext.MyUniCard.FirstOrDefault(card => card.Id == id);
+
+    if (uniCard == null)
+    {
+        return NotFound($"No UniCard found with ID {id}.");
+    }
+
+    // Update the main text
+    uniCard.MainText = newMainText;
+
+    dbContext.SaveChanges();
+
+    return Ok(uniCard);
+}
+
  [HttpPost("{uniCardId}/event")]
 public IActionResult PostEventCard(int uniCardId, [FromBody] EventDto newEvent)
 {
