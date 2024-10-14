@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using MyUni.Data;
 using MyUni.Models;
 using MyUni.Models.Entities;
+using System.Globalization; // Add this for CultureInfo and DateTimeStyles
+using System.Linq; // Ensure this is included for FirstOrDefault
 
 namespace MyUni.Controllers
 {
