@@ -40,14 +40,14 @@ public IActionResult SendReminderForQuiz()
         // Retrieve all quizzes
         var quizzes = GetAllQuizzes(); // Now this returns List<Quiz>
         
-        // Find the quiz you're interested in (you might want to filter or search by some criteria)
-        var quiz = quizzes // Replace with actual logic to find the specific quiz
+        // Find the quiz you're interested in
+        var quiz = quizzes.FirstOrDefault(); // Get the first quiz or implement your filtering logic
         if (quiz == null)
         {
             return NotFound(new { Message = "Quiz not found." });
         }
 
-        // Assume quiz.time is in a format that can be parsed
+        // Assume quiz.Time is in a format that can be parsed
         Console.WriteLine("Received time for reminder: " + quiz.Time);
 
         // Parse the time string into a DateTime object
@@ -81,6 +81,7 @@ public IActionResult SendReminderForQuiz()
         return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
     }
 }
+
         // GET: api/Quiz/5
         [HttpGet("{id}")]
         public IActionResult GetQuizById(int id)
