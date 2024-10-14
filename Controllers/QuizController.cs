@@ -57,25 +57,30 @@ public IActionResult SendReminderForQuiz()
 
         Console.WriteLine($"Attempting to parse time: {quiz.Time}");
 
-        // Construct the time string with the current year
+        // Get the current year
         var currentYear = DateTime.Now.Year;
-        var timeWithYear = $"{quiz.Time}/{currentYear}";  // Assumed format: "MM/dd HH:mm/yyyy"
 
-        // Try to parse the quiz time with the appended year
+        // Construct the time string with the correct format
+        var timeWithYear = $"{quiz.Time}/{currentYear}"; // Format: "10/14 18:30/2024"
+
+        // Parse the time string with the added year
         if (!DateTime.TryParseExact(timeWithYear, 
-                                    "MM/dd HH:mm/yyyy", 
-                                    CultureInfo.InvariantCulture, 
-                                    DateTimeStyles.None, 
-                                    out DateTime quizTime))
+                                     "MM/dd HH:mm/yyyy", // Update to include the year
+                                     CultureInfo.InvariantCulture, 
+                                     DateTimeStyles.None, 
+                                     out DateTime quizTime))
         {
-            return BadRequest(new { Message = "Invalid quiz time format. Expected format: MM/dd HH:mm" });
+            return BadRequest(new { Message = "Invalid quiz time format." });
         }
 
         // Calculate the reminder time (30 minutes before the quiz)
         var reminderTime = quizTime.AddMinutes(-30);
         var currentTime = DateTime.Now;
 
-        Console.WriteLine($"Current Time: {currentTime}, Reminder Time: {reminderTime}");
+        // Log times for debugging
+        Console.WriteLine($"Current Time: {currentTime}");
+        Console.WriteLine($"Quiz Time: {quizTime}");
+        Console.WriteLine($"Reminder Time: {reminderTime}");
 
         // Check if it's time to send the reminder
         if (currentTime >= reminderTime && currentTime <= quizTime)
@@ -87,13 +92,9 @@ public IActionResult SendReminderForQuiz()
 
             return Ok(new { Message = "Reminder emails have been sent to all users." });
         }
-        else if (currentTime < reminderTime)
-        {
-            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-        }
         else
         {
-            return BadRequest(new { Message = "The quiz has already started or passed." });
+            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
         }
     }
     catch (Exception ex)
@@ -101,6 +102,7 @@ public IActionResult SendReminderForQuiz()
         return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
     }
 }
+
 
 
 
