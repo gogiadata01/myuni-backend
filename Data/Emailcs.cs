@@ -26,7 +26,7 @@ namespace MyUni.Data
 
 private void SendEmail(string email, string subject, string body)
 {
-    using (var client = new SmtpClient("smtp.gmail.com", 587)) // Use Gmail's SMTP server
+    using (var client = new SmtpClient("smtp.gmail.com", 25)) // Use Gmail's SMTP server
     {
         client.UseDefaultCredentials = false;
         client.Credentials = new NetworkCredential("lukasordia@gmail.com", "kkki xudy ozln fesd"); // Use your App Password
