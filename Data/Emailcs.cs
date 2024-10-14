@@ -53,7 +53,6 @@ private void SendEmail(string email, string subject, string body)
             EnableSsl = true,
         };
         
-        smtpClient.Send("email", "recipient", "subject", "body");
           var mailMessage = new MailMessage
         {
             From = new MailAddress("lukasordia@myuni.com"),
