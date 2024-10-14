@@ -11,67 +11,64 @@ namespace MyUni.Controllers
     [ApiController]
     public class QuizController : ControllerBase
     {
-public class QuizController : ControllerBase
-{
-    private readonly ApplicationDbContext dbContext;
-    private readonly Emailcs _emailService;  // Correctly declare the service
+        private readonly ApplicationDbContext dbContext;
+        private readonly Emailcs _emailService;  // Correctly declare the service
 
-    public QuizController(ApplicationDbContext dbContext, Emailcs emailService)  // Inject both services
-    {
-        this.dbContext = dbContext;
-        _emailService = emailService;  // Assign the email service
-    }
+        public QuizController(ApplicationDbContext dbContext, Emailcs emailService)  // Inject both services
+        {
+            this.dbContext = dbContext;
+            _emailService = emailService;  // Assign the email service
+        }
 
-    // Your other methods...
-}
-
+        // GET: api/Quiz
         [HttpGet]
         public IActionResult GetAllQuizzes()
         {
             var quizzes = dbContext.MyQuiz
                 .Include(card => card.Questions)
-                .ThenInclude(incorectanswer => incorectanswer.IncorrectAnswers)
+                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
                 .ToList();
 
             return Ok(quizzes);
         }
+
         [HttpGet("reminder/{time}")]
-       public IActionResult SendReminderForQuiz(string time)
-       {
-           try
-           {
-               // Decode the time parameter
-               time = Uri.UnescapeDataString(time);
-               Console.WriteLine("Received time for reminder: " + time);
+        public IActionResult SendReminderForQuiz(string time)
+        {
+            try
+            {
+                // Decode the time parameter
+                time = Uri.UnescapeDataString(time);
+                Console.WriteLine("Received time for reminder: " + time);
 
-               // Parse the time string into a DateTime object
-               var quizTime = DateTime.Parse(time);
+                // Parse the time string into a DateTime object
+                var quizTime = DateTime.Parse(time);
 
-               // Calculate the reminder time (30 minutes before the quiz)
-               var reminderTime = quizTime.AddMinutes(-30);
+                // Calculate the reminder time (30 minutes before the quiz)
+                var reminderTime = quizTime.AddMinutes(-30);
 
-               // Check if the current time is past the reminder time
-               var currentTime = DateTime.Now;
-               if (currentTime >= reminderTime)
-               {
-                   // Send email notification to all users
-                   _emailService.SendEmailToAllUsers(
-                       "Reminder: ქვიზი დაიწყება მალე",
-                       "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
-                   );
+                // Check if the current time is past the reminder time
+                var currentTime = DateTime.Now;
+                if (currentTime >= reminderTime)
+                {
+                    // Send email notification to all users
+                    _emailService.SendEmailToAllUsers(
+                        "Reminder: ქვიზი დაიწყება მალე",
+                        "ქვიზის დაწყებამდე დარჩენიალია 30 წუთი."
+                    );
 
-                   return Ok(new { Message = "Reminder emails have been sent to all users." });
-               }
-               else
-               {
-                   return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-               }
-           }
-           catch (Exception ex)
-           {
-               return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
-           }
-       }
+                    return Ok(new { Message = "Reminder emails have been sent to all users." });
+                }
+                else
+                {
+                    return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while sending the reminder.", Error = ex.Message });
+            }
+        }
 
         // GET: api/Quiz/5
         [HttpGet("{id}")]
@@ -79,7 +76,7 @@ public class QuizController : ControllerBase
         {
             var quiz = dbContext.MyQuiz
                 .Include(card => card.Questions)
-                .ThenInclude(incorectanswer => incorectanswer.IncorrectAnswers)
+                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
                 .FirstOrDefault(card => card.Id == id);
 
             if (quiz == null)
@@ -137,23 +134,19 @@ public class QuizController : ControllerBase
         [HttpDelete("{id}")]
         public IActionResult DeleteQuiz(int id)
         {
-            // Find the Quiz by ID, including any related entities if necessary
             var quiz = dbContext.MyQuiz
                 .Include(q => q.Questions)
                     .ThenInclude(q => q.IncorrectAnswers)
                 .FirstOrDefault(q => q.Id == id);
 
-            // If the Quiz is not found, return a 404 Not Found response
             if (quiz == null)
             {
                 return NotFound();
             }
 
-            // Remove the Quiz from the database
             dbContext.MyQuiz.Remove(quiz);
             dbContext.SaveChanges();
 
-            // Return a 204 No Content response to indicate successful deletion
             return NoContent();
         }
 
@@ -163,14 +156,13 @@ public class QuizController : ControllerBase
         {
             try
             {
-                // Decode the time parameter
                 time = Uri.UnescapeDataString(time);
-                Console.WriteLine("Received time: " + time);  // Log the received time
+                Console.WriteLine("Received time: " + time);
 
                 var quizzes = dbContext.MyQuiz
                     .Include(card => card.Questions)
                     .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-                    .Where(quiz => quiz.Time == time) // Filter by time
+                    .Where(quiz => quiz.Time == time)
                     .ToList();
 
                 if (!quizzes.Any())
@@ -182,11 +174,8 @@ public class QuizController : ControllerBase
             }
             catch (Exception ex)
             {
-                // Log the exception (consider using a logging library)
                 return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
             }
         }
-
-
     }
 }
