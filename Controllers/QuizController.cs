@@ -11,12 +11,20 @@ namespace MyUni.Controllers
     [ApiController]
     public class QuizController : ControllerBase
     {
-        private readonly ApplicationDbContext dbContext;
-        public QuizController(ApplicationDbContext dbContext)
-        {
-            this.dbContext = dbContext;
+public class QuizController : ControllerBase
+{
+    private readonly ApplicationDbContext dbContext;
+    private readonly Emailcs _emailService;  // Correctly declare the service
 
-        }
+    public QuizController(ApplicationDbContext dbContext, Emailcs emailService)  // Inject both services
+    {
+        this.dbContext = dbContext;
+        _emailService = emailService;  // Assign the email service
+    }
+
+    // Your other methods...
+}
+
         [HttpGet]
         public IActionResult GetAllQuizzes()
         {
