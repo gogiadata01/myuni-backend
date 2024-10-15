@@ -32,7 +32,9 @@ public class UserController : ControllerBase
             {
                 user.Id,
                 user.Email,
-                user.Name
+                user.Name,
+                user.Img,
+                user.Coin,
             })
             .ToList();
 
