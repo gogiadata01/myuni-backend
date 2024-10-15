@@ -9,8 +9,8 @@ namespace MyUni.Data
         private readonly ApplicationDbContext dbContext;
         private const string SmtpServer = "smtp-relay.brevo.com";
         private const int SmtpPort = 587;
-        private const string SmtpUser = "7df940001@smtp-brevo.com";
-        private const string SmtpPass = "Vg3WdDaIvqzrLjY5"; // Your SMTP Master Password
+        private const string SmtpUser = "7df9dc001@smtp-brevo.com";
+        private const string SmtpPass = "xMyRkZOdmP7s6VKa"; // Your SMTP Master Password
 
         public Emailcs(ApplicationDbContext dbContext)
         {
