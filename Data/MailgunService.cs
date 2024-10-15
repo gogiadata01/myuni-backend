@@ -1,5 +1,5 @@
-﻿using MailgunSharp;
-using MailgunSharp.Messages;
+﻿using Mailgun.Net;
+using Mailgun.Net.Messages;
 using Microsoft.Extensions.Configuration;
 
 public class MailgunService

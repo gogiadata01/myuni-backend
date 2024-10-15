@@ -36,14 +36,26 @@ public QuizController(ApplicationDbContext dbContext, MailgunService emailServic
             return Ok(quizzes);
         }
         // In the SendReminderForQuiz method
-public async Task<IActionResult> SendReminderForQuiz() // Make the method async
-{
-    // Other code...
+    public async Task<IActionResult> SendReminderForQuiz() // Make the method async
+    {
+        try
+        {
+            // Assuming you have some logic to determine the recipient and quiz details
+            string recipientEmail = "recipient@example.com"; // Replace with actual recipient email
+            string subject = "Quiz Reminder"; // You can customize the subject
+            string body = "Don't forget to complete your quiz!"; // Customize your message
 
-    await _emailService.SendEmailAsync("ah", "test"); // Await the async call
-    return Ok("asd");
-}
-
+            await _emailService.SendEmailAsync(recipientEmail, subject, body); // Await the async call
+            
+            return Ok("Reminder email sent successfully."); // Respond with success
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (consider using a logging framework)
+            // You can also return a more specific error message if needed
+            return StatusCode(500, "An error occurred while sending the email: " + ex.Message);
+        }
+    }
 
         // GET: api/Quiz/reminder
         // [HttpGet("reminder")]
