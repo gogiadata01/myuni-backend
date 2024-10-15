@@ -15,14 +15,13 @@ namespace MyUni.Controllers
     public class QuizController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly MailgunService _emailService;
+        private readonly Emailcs _emailService;
 
-public QuizController(ApplicationDbContext dbContext, MailgunService emailService) // Removed trailing comma
-{
-    this.dbContext = dbContext;
-    _emailService = emailService; // Assign the injected email service
-}
-
+        public QuizController(ApplicationDbContext dbContext, Emailcs emailService)
+        {
+            this.dbContext = dbContext;
+            _emailService = emailService;
+        }
 
         // GET: api/Quiz
         [HttpGet]
@@ -35,104 +34,158 @@ public QuizController(ApplicationDbContext dbContext, MailgunService emailServic
 
             return Ok(quizzes);
         }
-        // In the SendReminderForQuiz method
-    public async Task<IActionResult> SendReminderForQuiz() // Make the method async
-    {
-        try
-        {
-            // Assuming you have some logic to determine the recipient and quiz details
-            string recipientEmail = "recipient@example.com"; // Replace with actual recipient email
-            string subject = "Quiz Reminder"; // You can customize the subject
-            string body = "Don't forget to complete your quiz!"; // Customize your message
-
-            await _emailService.SendEmailAsync(recipientEmail, subject, body); // Await the async call
-            
-            return Ok("Reminder email sent successfully."); // Respond with success
-        }
-        catch (Exception ex)
-        {
-            // Log the exception (consider using a logging framework)
-            // You can also return a more specific error message if needed
-            return StatusCode(500, "An error occurred while sending the email: " + ex.Message);
-        }
-    }
 
         // GET: api/Quiz/reminder
         // [HttpGet("reminder")]
         // public IActionResult SendReminderForQuiz()
         // {
-        //     // try
-        //     // {
-        //     //     var quizzes = dbContext.MyQuiz
-        //     //         .Include(card => card.Questions)
-        //     //         .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-        //     //         .ToList();
+        //     try
+        //     {
+        //         var quizzes = dbContext.MyQuiz
+        //             .Include(card => card.Questions)
+        //             .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+        //             .ToList();
 
-        //     //     var quiz = quizzes.FirstOrDefault();
+        //         var quiz = quizzes.FirstOrDefault();
 
-        //     //     if (quiz == null)
-        //     //     {
-        //     //         return NotFound(new { Message = "Quiz not found." });
-        //     //     }
+        //         if (quiz == null)
+        //         {
+        //             return NotFound(new { Message = "Quiz not found." });
+        //         }
 
-        //     //     Console.WriteLine($"Attempting to parse time: {quiz.Time}");
+        //         Console.WriteLine($"Attempting to parse time: {quiz.Time}");
 
-        //     //     // Get the current year and construct the time string
-        //     //     var currentYear = DateTime.Now.Year;
-        //     //     var timeWithYear = $"{quiz.Time}/{currentYear}";
+        //         // Get the current year and construct the time string
+        //         var currentYear = DateTime.Now.Year;
+        //         var timeWithYear = $"{quiz.Time}/{currentYear}";
 
-        //     //     // Parse the quiz time
-        //     //     // if (!DateTime.TryParseExact(timeWithYear, 
-        //     //     //                              "MM/dd HH:mm/yyyy", 
-        //     //     //                              CultureInfo.InvariantCulture, 
-        //     //     //                              DateTimeStyles.None, 
-        //     //     //                              out DateTime quizTime))
-        //     //     // {
-        //     //     //     return BadRequest(new { Message = "Invalid quiz time format." });
-        //     //     // }
+        //         Parse the quiz time
+        //         if (!DateTime.TryParseExact(timeWithYear, 
+        //                                      "MM/dd HH:mm/yyyy", 
+        //                                      CultureInfo.InvariantCulture, 
+        //                                      DateTimeStyles.None, 
+        //                                      out DateTime quizTime))
+        //         {
+        //             return BadRequest(new { Message = "Invalid quiz time format." });
+        //         }
 
-        //     //     // // Get the local time zone for Georgia
-        //     //     // TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
-        //     //     // DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
+        //         // Get the local time zone for Georgia
+        //         TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
+        //         DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
 
-        //     //     // // Calculate the reminder time
-        //     //     // var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
-        //     //     // var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, localZone); // Get current local time
+        //         // Calculate the reminder time
+        //         var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
+        //         var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, localZone); // Get current local time
 
-        //     //     // // Log times for debugging
-        //     //     // Console.WriteLine($"Current Time (Local): {currentTime}");
-        //     //     // Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
-        //     //     // Console.WriteLine($"Reminder Time (Local): {reminderTime}");
+        //         // Log times for debugging
+        //         Console.WriteLine($"Current Time (Local): {currentTime}");
+        //         Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
+        //         Console.WriteLine($"Reminder Time (Local): {reminderTime}");
 
-        //     //     // Check if it's time to send the reminder
-        //     //     // if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
-        //     //     // {
-        //     //     //     _emailService.SendEmailToAllUsers(
-        //     //     //         "Reminder: ქვიზი დაიწყება მალე",
-        //     //     //         "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
-        //     //     //     );
+        //         Check if it's time to send the reminder
+        //         if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
+        //         {
+        //             _emailService.SendEmailToAllUsers(
+        //                 "Reminder: ქვიზი დაიწყება მალე",
+        //                 "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
+        //             );
 
-        //     //     //     return Ok(new { Message = "Reminder emails have been sent to all users." });
-        //     //     // }
-        //     //     // else
-        //     //     // {
-        //     //     //     return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-        //     //     // }
-        //     //     _emailService.SendEmailToAllUsers(
-        //     //         "qe chamkari trakshi",
-        //     //         "ah yeah"
-        //     //     );
+        //             return Ok(new { Message = "Reminder emails have been sent to all users." });
+        //         }
+        //         else
+        //         {
+        //             return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+        //         }
+        //         _emailService.SendEmailToAllUsers(
+        //             "qe chamkari trakshi",
+        //             "ah yeah"
+        //         );
 
-        //     //     return Ok(new {message = "chemi yle cheidevi chemi yle"});
-        //     // }
-        //     // catch (Exception ex)
-        //     // {
-        //     //     Console.WriteLine(ex.Message);
-        //     // }
+        //         return Ok(new {message = "chemi yle cheidevi chemi yle"});
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine(ex.Message);
+        //     }
 
-        //    _emailService.SendEmailAsync("ah","test");
+        //    _emailService.SendEmailToAllUsers("ah","test");
         //    return Ok("asd");
         // }
+        [HttpGet("reminder")]
+public async Task<IActionResult> SendReminderForQuiz()
+{
+    try
+    {
+        var quizzes = await dbContext.MyQuiz
+            .Include(card => card.Questions)
+            .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+            .ToListAsync();
+
+        var quiz = quizzes.FirstOrDefault();
+
+        if (quiz == null)
+        {
+            return NotFound(new { Message = "Quiz not found." });
+        }
+
+        Console.WriteLine($"Attempting to parse time: {quiz.Time}");
+
+        // Get the current year and construct the time string
+        var currentYear = DateTime.Now.Year;
+        var timeWithYear = $"{quiz.Time}/{currentYear}";
+
+        // Parse the quiz time
+        if (!DateTime.TryParseExact(timeWithYear, 
+                                     "MM/dd HH:mm/yyyy", 
+                                     CultureInfo.InvariantCulture, 
+                                     DateTimeStyles.None, 
+                                     out DateTime quizTime))
+        {
+            return BadRequest(new { Message = "Invalid quiz time format." });
+        }
+
+        // Get the local time zone for Georgia
+        TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
+        DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
+
+        // Calculate the reminder time
+        var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
+        var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, localZone); // Get current local time
+
+        // Log times for debugging
+        Console.WriteLine($"Current Time (Local): {currentTime}");
+        Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
+        Console.WriteLine($"Reminder Time (Local): {reminderTime}");
+
+        // Check if it's time to send the reminder
+        if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
+        {
+            await _emailService.SendEmailToAllUsers(
+                "Reminder: ქვიზი დაიწყება მალე",
+                "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
+            );
+
+            return Ok(new { Message = "Reminder emails have been sent to all users." });
+        }
+        else
+        {
+            return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+        return StatusCode(500, new { Message = "An error occurred while sending reminders." });
+    }
+}
+//         using Microsoft.AspNetCore.Mvc;
+// using Microsoft.EntityFrameworkCore;
+// using System;
+// using System.Globalization;
+// using System.Linq;
+// using System.Threading.Tasks;
+
+    
 
         // GET: api/Quiz/5
         [HttpGet("{id}")]
