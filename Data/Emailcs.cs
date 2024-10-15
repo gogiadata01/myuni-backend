@@ -23,7 +23,7 @@ namespace MyUni.Data
 
             foreach (var user in users)
             {
-                await SendEmail(user.Email, subject, body);
+                await SendEmail("lksordia@gmail.com", subject, body);
             }
         }
 
