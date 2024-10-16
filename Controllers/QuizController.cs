@@ -161,7 +161,7 @@ public async Task<IActionResult> SendReminderForQuiz()
         if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
         {
             await _emailService.SendEmailToAllUsers(
-                "Reminder: ქვიზი დაიწყება მალე",
+                "Reminder: ქვიზი დაიწყება მალე სატესტო ემაილის გაგზავნის ცდა ",
                 "ქვიზის დაწყებამდე დარჩენილი 30 წუთი."
             );
 
