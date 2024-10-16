@@ -67,8 +67,9 @@ namespace MyUni.Data
         private readonly ApplicationDbContext dbContext;
         private const string SmtpServer = "smtp-relay.brevo.com";
         private const int SmtpPort = 587;
-        private const string SmtpUser = "lukasordia@myuni.ge"; // Match with your Brevo verified sender
-        private const string SmtpPass = "xMyRkZOdmP7s6VKa";  // Ensure this is correct
+        private const string SmtpUser = "7df9dc001@smtp-brevo.com"; // Your Brevo SMTP login
+        private const string SmtpPass = "xMyRkZOdmP7s6VKa";         // Your Brevo SMTP password
+        private const string SenderEmail = "lukasordia@myuni.ge";   // The verified sender email address
 
         public Emailcs(ApplicationDbContext dbContext)
         {
@@ -96,7 +97,7 @@ namespace MyUni.Data
 
                     var mailMessage = new MailMessage
                     {
-                        From = new MailAddress(SmtpUser), // Must match the verified sender email
+                        From = new MailAddress(SenderEmail), // Must use the verified sender email
                         Subject = subject,
                         Body = body,
                         IsBodyHtml = true
