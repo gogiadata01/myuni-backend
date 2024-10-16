@@ -40,6 +40,42 @@ public async Task<IActionResult> GetAllProgramCards()
 
     return Ok(result);
 }
+[HttpGet("getProgramCardWithProgramName/{programname}")]
+public IActionResult GetProgramCardWithProgramName(string programname)
+{
+    // Find ProgramCard that has the searched program name
+    var programCards = dbContext.MyprogramCard
+        .Include(card => card.Fields)
+            .ThenInclude(field => field.ProgramNames)
+        .Where(card => card.Fields.Any(field => field.ProgramNames
+            .Any(program => program.programname == programname)))
+        .Select(card => new
+        {
+            card.Id, // You can include other ProgramCard details if needed
+            Fields = card.Fields
+                .Where(field => field.ProgramNames.Any(program => program.programname == programname))
+                .Select(field => new 
+                {
+                    FieldName = field.FieldName,
+                    ProgramNames = field.ProgramNames
+                        .Where(program => program.programname == programname)
+                        .Select(program => new 
+                        {
+                            ProgramName = program.programname
+                        }).ToList()
+                }).ToList()
+        })
+        .ToList();
+
+    // If no matching records are found, return NotFound
+    if (programCards == null || !programCards.Any())
+    {
+        return NotFound($"No program found with the name '{programname}'.");
+    }
+
+    return Ok(programCards);
+}
+
 [HttpGet("GetProgramCardDetailsBySubjects")]
 public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] List<string> subjects)
 {
