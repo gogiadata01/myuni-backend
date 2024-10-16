@@ -217,6 +217,37 @@ public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [
         return StatusCode(500, "Internal server error");
     }
 }
+[HttpGet("searchByTitleMainTextUrl")]
+public IActionResult GetUniCardByTitleMainTextUrl([FromQuery] string title)
+{
+    try
+    {
+        // Fetch UniCards that match the title and select only the required fields
+        var result = dbContext.MyUniCard
+            .Where(card => card.Title.Contains(title)) // Searching with partial match (use .Equals() if you want exact match)
+            .Select(card => new
+            {
+                card.Title,
+                card.MainText,
+                card.Url
+            })
+            .ToList();
+
+        if (!result.Any())
+        {
+            return NotFound("No UniCards found with the specified title.");
+        }
+
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        // Log the exception if needed
+        Console.Error.WriteLine($"Error: {ex.Message}");
+        return StatusCode(500, "Internal server error");
+    }
+}
+
 [HttpGet("searchById")]
 public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery] string programName)
 {
