@@ -44,37 +44,32 @@ public async Task<IActionResult> GetAllProgramCards()
 public IActionResult GetProgramCardWithProgramName(string programname)
 {
     // Find ProgramCard that has the searched program name
-    var programCards = dbContext.MyprogramCard
+    var result = dbContext.MyprogramCard
         .Include(card => card.Fields)
             .ThenInclude(field => field.ProgramNames)
         .Where(card => card.Fields.Any(field => field.ProgramNames
             .Any(program => program.programname == programname)))
-        .Select(card => new
-        {
-            card.Id, // You can include other ProgramCard details if needed
-            Fields = card.Fields
-                .Where(field => field.ProgramNames.Any(program => program.programname == programname))
-                .Select(field => new 
-                {
-                    FieldName = field.FieldName,
-                    ProgramNames = field.ProgramNames
-                        .Where(program => program.programname == programname)
-                        .Select(program => new 
-                        {
-                            ProgramName = program.programname
-                        }).ToList()
-                }).ToList()
-        })
+        .SelectMany(card => card.Fields
+            .Where(field => field.ProgramNames.Any(program => program.programname == programname))
+            .Select(field => new 
+            {
+                FieldName = field.FieldName,
+                ProgramName = field.ProgramNames
+                    .Where(program => program.programname == programname)
+                    .Select(program => program.programname)
+                    .FirstOrDefault() // This ensures you only get the program name once
+            }))
         .ToList();
 
     // If no matching records are found, return NotFound
-    if (programCards == null || !programCards.Any())
+    if (!result.Any())
     {
         return NotFound($"No program found with the name '{programname}'.");
     }
 
-    return Ok(programCards);
+    return Ok(result);
 }
+
 
 [HttpGet("GetProgramCardDetailsBySubjects")]
 public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] List<string> subjects)
