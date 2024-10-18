@@ -33,7 +33,6 @@ public async Task<IActionResult> GetAllProgramCards()
             field.FieldName, // Only include FieldName
             ProgramNames = field.ProgramNames.Select(program => new
             {
-                program.Id,
                 program.programname // Only include programname
             }).ToList()
         }).ToList()
