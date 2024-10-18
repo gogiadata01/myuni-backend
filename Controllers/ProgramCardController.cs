@@ -76,6 +76,7 @@ public async Task<IActionResult> DeleteProgramNameById(int programId)
     // Find the ProgramName by searching through the Fields and their ProgramNames
     var program = await dbContext.MyprogramCard
         .SelectMany(card => card.Fields.SelectMany(field => field.ProgramNames))
+        .Include(p => p.CheckBoxes) // Include related CheckBoxes
         .FirstOrDefaultAsync(p => p.Id == programId);
 
     if (program == null)
@@ -83,14 +84,18 @@ public async Task<IActionResult> DeleteProgramNameById(int programId)
         return NotFound($"Program with ID {programId} not found.");
     }
 
-    // Remove the program from the database
+    // Remove related CheckBoxes first
+    dbContext.RemoveRange(program.CheckBoxes);
+
+    // Remove the ProgramName from the database
     dbContext.Remove(program);
 
     // Save the changes to the database
     await dbContext.SaveChangesAsync();
 
-    return Ok($"Program with ID {programId} deleted successfully.");
+    return Ok($"Program with ID {programId} and its related CheckBoxes deleted successfully.");
 }
+
 
 
 
