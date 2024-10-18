@@ -72,9 +72,9 @@ public IActionResult GetProgramCardWithProgramName(string programname)
 [HttpDelete("DeleteProgramName/{programId}")]
 public async Task<IActionResult> DeleteProgramNameById(int programId)
 {
-    // Find the program by its ID
+    // Find the ProgramName by searching through the Fields and their ProgramNames
     var program = await dbContext.MyprogramCard
-        .SelectMany(card => card.ProgramNames)
+        .SelectMany(card => card.Fields.SelectMany(field => field.ProgramNames))
         .FirstOrDefaultAsync(p => p.Id == programId);
 
     if (program == null)
@@ -90,6 +90,7 @@ public async Task<IActionResult> DeleteProgramNameById(int programId)
 
     return Ok($"Program with ID {programId} deleted successfully.");
 }
+
 
 
 
