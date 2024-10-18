@@ -69,6 +69,28 @@ public IActionResult GetProgramCardWithProgramName(string programname)
 
     return Ok(result);
 }
+[HttpDelete("DeleteProgramName/{programId}")]
+public async Task<IActionResult> DeleteProgramNameById(int programId)
+{
+    // Find the program by its ID
+    var program = await dbContext.MyprogramCard
+        .SelectMany(card => card.ProgramNames)
+        .FirstOrDefaultAsync(p => p.Id == programId);
+
+    if (program == null)
+    {
+        return NotFound($"Program with ID {programId} not found.");
+    }
+
+    // Remove the program from the database
+    dbContext.Remove(program);
+
+    // Save the changes to the database
+    await dbContext.SaveChangesAsync();
+
+    return Ok($"Program with ID {programId} deleted successfully.");
+}
+
 
 
 [HttpGet("GetProgramCardDetailsBySubjects")]

@@ -35,6 +35,50 @@ namespace MyUni.Controllers
 
             return Ok(AllUniCard);
         }
+[HttpPut("{uniCardId}/update-programname-only/{programNameId}")]
+public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [FromBody] string newProgramName)
+{
+    if (string.IsNullOrEmpty(newProgramName))
+    {
+        return BadRequest("ProgramName is required.");
+    }
+
+    // Find the UniCard by ID
+    var uniCard = dbContext.MyUniCard
+        .Include(card => card.Sections)
+        .ThenInclude(section => section.ProgramNames)
+        .FirstOrDefault(card => card.Id == uniCardId);
+
+    if (uniCard == null)
+    {
+        return NotFound($"No UniCard found with ID {uniCardId}.");
+    }
+
+    // Find the section and the program name by ID
+    var sectionWithProgramName = uniCard.Sections
+        .FirstOrDefault(section => section.ProgramNames.Any(pn => pn.Id == programNameId));
+
+    if (sectionWithProgramName == null)
+    {
+        return NotFound($"No ProgramName found with ID {programNameId} in UniCard {uniCardId}.");
+    }
+
+    // Find the actual program name
+    var programNameToUpdate = sectionWithProgramName.ProgramNames.FirstOrDefault(pn => pn.Id == programNameId);
+
+    if (programNameToUpdate == null)
+    {
+        return NotFound($"No ProgramName found with ID {programNameId}.");
+    }
+
+    // Update only the ProgramName field
+    programNameToUpdate.ProgramName = newProgramName;
+
+    // Save changes to the database
+    dbContext.SaveChanges();
+
+    return Ok(programNameToUpdate);
+}
 
         [HttpGet("{id}")]
         public IActionResult GetUniCardDetailsById(int id)
