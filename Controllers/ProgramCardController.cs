@@ -40,6 +40,44 @@ public async Task<IActionResult> GetAllProgramCards()
 
     return Ok(result);
 }
+[HttpPut("UpdateProgramNameByFieldName")]
+public async Task<IActionResult> UpdateProgramNameByFieldName([FromBody] UpdateProgramNameDto updateProgramDto)
+{
+    if (string.IsNullOrWhiteSpace(updateProgramDto.NewProgramName))
+    {
+        return BadRequest("New program name cannot be empty.");
+    }
+
+    // Find the specific Field and ProgramName by FieldName and current ProgramName
+    var field = await dbContext.MyprogramCard
+        .Include(card => card.Fields)
+            .ThenInclude(f => f.ProgramNames)
+        .Where(card => card.Fields.Any(f => f.FieldName == updateProgramDto.FieldName))
+        .SelectMany(card => card.Fields)
+        .FirstOrDefaultAsync(f => f.FieldName == updateProgramDto.FieldName && 
+                                  f.ProgramNames.Any(p => p.programname == updateProgramDto.CurrentProgramName));
+
+    if (field == null)
+    {
+        return NotFound($"Field '{updateProgramDto.FieldName}' with Program '{updateProgramDto.CurrentProgramName}' not found.");
+    }
+
+    // Find the specific Program to update
+    var program = field.ProgramNames.FirstOrDefault(p => p.programname == updateProgramDto.CurrentProgramName);
+    if (program == null)
+    {
+        return NotFound($"Program '{updateProgramDto.CurrentProgramName}' not found in field '{updateProgramDto.FieldName}'.");
+    }
+
+    // Update the Program Name
+    program.programname = updateProgramDto.NewProgramName;
+
+    // Save changes to the database
+    await dbContext.SaveChangesAsync();
+
+    return Ok($"Program '{updateProgramDto.CurrentProgramName}' in Field '{updateProgramDto.FieldName}' updated to '{updateProgramDto.NewProgramName}' successfully.");
+}
+
 [HttpGet("getProgramCardWithProgramName/{programname}")]
 public IActionResult GetProgramCardWithProgramName(string programname)
 {
