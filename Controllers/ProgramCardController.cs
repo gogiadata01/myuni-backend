@@ -40,46 +40,34 @@ public async Task<IActionResult> GetAllProgramCards()
 
     return Ok(result);
 }
-[HttpPut("UpdateProgramNameByFieldName")]
-public async Task<IActionResult> UpdateProgramNameByFieldName([FromBody] ProgramCard updateRequest)
+[HttpPut("UpdateProgramNameById/{id}")]
+public async Task<IActionResult> UpdateProgramNameById(int id, [FromBody] string newProgramName)
 {
-    if (updateRequest == null || updateRequest.Fields == null || !updateRequest.Fields.Any())
+    if (string.IsNullOrWhiteSpace(newProgramName))
     {
-        return BadRequest("Invalid input data.");
+        return BadRequest("New program name cannot be empty.");
     }
 
-    var field = updateRequest.Fields.FirstOrDefault();
-    if (field == null || string.IsNullOrWhiteSpace(field.FieldName))
-    {
-        return BadRequest("Field name is required.");
-    }
-
-    var programName = field.ProgramNames.FirstOrDefault();
-    if (programName == null || string.IsNullOrWhiteSpace(programName.programname))
-    {
-        return BadRequest("Old program name and new program name are required.");
-    }
-
-    // Find the program by field name and old program name in the database
-    var existingProgram = await dbContext.MyprogramCard
-        .SelectMany(card => card.Fields)
-        .Where(f => f.FieldName == field.FieldName)
+    // Find the program name by its Id in the database
+    var programToUpdate = await dbContext.MyprogramCard
+        .SelectMany(pc => pc.Fields)
         .SelectMany(f => f.ProgramNames)
-        .FirstOrDefaultAsync(p => p.programname == programName.programname);
+        .FirstOrDefaultAsync(p => p.Id == id);
 
-    if (existingProgram == null)
+    if (programToUpdate == null)
     {
-        return NotFound($"Program '{programName.programname}' not found in field '{field.FieldName}'.");
+        return NotFound($"Program with Id '{id}' not found.");
     }
 
     // Update the program name
-    existingProgram.programname = programName.programname; // Assuming the new name is passed in the same object
+    programToUpdate.programname = newProgramName;
 
-    // Save changes to the database
+    // Save the changes to the database
     await dbContext.SaveChangesAsync();
 
-    return Ok($"Program name updated to '{programName.programname}' successfully.");
+    return Ok($"Program name updated to '{newProgramName}' successfully.");
 }
+
 
 
 [HttpGet("getProgramCardWithProgramName/{programname}")]
