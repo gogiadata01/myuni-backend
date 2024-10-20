@@ -100,8 +100,8 @@ public async Task<IActionResult> RegisterUser([FromForm] UserDto userDto, IFormF
     };
 
     // Add the user to the database
-    _context.Users.Add(user);
-    await _context.SaveChangesAsync();
+        dbContext.MyUser.Add(newUser);
+        dbContext.SaveChanges();
 
     return Ok(user);
 }
