@@ -74,7 +74,7 @@ public IActionResult Register([FromForm] UserDto newUserDto, [FromForm] IFormFil
 
     string hashedPassword = HashPassword(newUserDto.Password);
 
-    // Save the image to a file system or process it as needed
+    // Save the image and get the file path
     string filePath = SaveImage(img); // Implement SaveImage function
 
     var newUser = new User
@@ -83,7 +83,7 @@ public IActionResult Register([FromForm] UserDto newUserDto, [FromForm] IFormFil
         Email = newUserDto.Email,
         Password = hashedPassword,
         Type = newUserDto.Type,
-        Img = filePath, // Assuming you save the file path or store the file in some way
+        Img = filePath, // Store the image path in the user record
         Coin = newUserDto.Coin,
         ResetToken = newUserDto.ResetToken,
     };
@@ -92,6 +92,38 @@ public IActionResult Register([FromForm] UserDto newUserDto, [FromForm] IFormFil
     dbContext.SaveChanges();
 
     return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+}
+
+private string SaveImage(IFormFile img)
+{
+    if (img == null || img.Length == 0)
+    {
+        return null;
+    }
+
+    // Define the folder path to save the image
+    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+    // Ensure the directory exists
+    if (!Directory.Exists(uploadsFolder))
+    {
+        Directory.CreateDirectory(uploadsFolder);
+    }
+
+    // Generate a unique filename to avoid overwriting files
+    var uniqueFileName = Guid.NewGuid().ToString() + "_" + img.FileName;
+
+    // Combine the folder path with the file name
+    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+    // Save the file
+    using (var fileStream = new FileStream(filePath, FileMode.Create))
+    {
+        img.CopyTo(fileStream);
+    }
+
+    // Return the relative file path (you can adjust this to fit your needs)
+    return Path.Combine("uploads", uniqueFileName).Replace("\\", "/");
 }
 
     // [HttpPost("register")]
