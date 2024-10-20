@@ -108,6 +108,38 @@ public IActionResult Register(
 }
 
 
+private string SaveImage(IFormFile img)
+{
+    if (img == null || img.Length == 0)
+    {
+        return null;
+    }
+
+    // Define the folder path to save the image
+    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+    // Ensure the directory exists
+    if (!Directory.Exists(uploadsFolder))
+    {
+        Directory.CreateDirectory(uploadsFolder);
+    }
+
+    // Generate a unique filename to avoid overwriting files
+    var uniqueFileName = Guid.NewGuid().ToString() + "_" + img.FileName;
+
+    // Combine the folder path with the file name
+    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+    // Save the file
+    using (var fileStream = new FileStream(filePath, FileMode.Create))
+    {
+        img.CopyTo(fileStream);
+    }
+
+    // Return the relative file path (you can adjust this to fit your needs)
+    return Path.Combine("uploads", uniqueFileName).Replace("\\", "/");
+}
+
     // [HttpPost("register")]
     // public IActionResult Register([FromBody] UserDto newUserDto)
     // {
