@@ -57,8 +57,9 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
+
 [HttpPost("register")]
-public async Task<IActionResult> Register([FromForm] UserDto newUserDto, IFormFile Img)
+public IActionResult Register([FromForm] UserDto newUserDto, [FromForm] IFormFile img)
 {
     if (newUserDto == null)
     {
@@ -73,25 +74,8 @@ public async Task<IActionResult> Register([FromForm] UserDto newUserDto, IFormFi
 
     string hashedPassword = HashPassword(newUserDto.Password);
 
-    // Save the file (Img) if provided
-    if (Img != null && Img.Length > 0)
-    {
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-        if (!Directory.Exists(uploadsFolder))
-        {
-            Directory.CreateDirectory(uploadsFolder);
-        }
-
-        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Img.FileName);
-        var filePath = Path.Combine(uploadsFolder, fileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await Img.CopyToAsync(fileStream);
-        }
-
-        newUserDto.Img = fileName;  // Save the file name or path in the database
-    }
+    // Save the image to a file system or process it as needed
+    string filePath = SaveImage(img); // Implement SaveImage function
 
     var newUser = new User
     {
@@ -99,7 +83,7 @@ public async Task<IActionResult> Register([FromForm] UserDto newUserDto, IFormFi
         Email = newUserDto.Email,
         Password = hashedPassword,
         Type = newUserDto.Type,
-        Img = newUserDto.Img,
+        Img = filePath, // Assuming you save the file path or store the file in some way
         Coin = newUserDto.Coin,
         ResetToken = newUserDto.ResetToken,
     };
