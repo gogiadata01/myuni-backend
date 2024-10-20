@@ -59,33 +59,47 @@ public class UserController : ControllerBase
     }
 
 [HttpPost("register")]
-public async Task<IActionResult> RegisterUser([FromForm] RegisterUserDto userDto, IFormFile file)
+public async Task<IActionResult> RegisterUser([FromForm] UserDto userDto, IFormFile file)
 {
+    // Validate user input
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    // Handle image upload if a file is provided
     if (file != null && file.Length > 0)
     {
-        // Save the file to the uploads folder
+        // Define the folder to save the uploaded file
         var uploadsFolder = Path.Combine("wwwroot", "uploads");
+        Directory.CreateDirectory(uploadsFolder); // Ensure directory exists
+
+        // Create a unique file name to avoid overwriting existing files
         var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
+        // Save the uploaded image file to the server
         using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(fileStream);
         }
 
-        // Save the relative path of the image
+        // Save the relative path of the image to the UserDto
         userDto.Img = "uploads/" + uniqueFileName;
     }
 
-    // Save the user in the database
+    // Create a new User object based on the provided UserDto
     var user = new User
     {
         Name = userDto.Name,
         Email = userDto.Email,
-        Img = userDto.Img, // Save image path
-        Coin = userDto.Coin
+        Password = userDto.Password, // Make sure to hash the password!
+        Img = userDto.Img,
+        Coin = userDto.Coin,
+        ResetToken = userDto.ResetToken
     };
 
+    // Add the user to the database
     _context.Users.Add(user);
     await _context.SaveChangesAsync();
 
