@@ -107,7 +107,7 @@ public class UserController : ControllerBase
 
         var tokenString = GenerateJwtToken(user);
 
-        return Ok(new { Token = tokenString, UserId = user.Id, UserName = user.Name,Type = user.Type, Coin = user.Coin,Email = user.Email });
+        return Ok(new { Token = tokenString, UserId = user.Id, UserName = user.Name,Type = user.Type, Coin = user.Coin,Email = user.Email,Img = user.Img });
     }
 
     private bool VerifyPassword(string inputPassword, string storedHashedPassword)
