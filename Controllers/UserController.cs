@@ -104,13 +104,12 @@ public async Task<IActionResult> RegisterUser([FromForm] UserDto userDto, IFormF
 
         var newUser = new User
         {
-            Name = UserName,
+            Name = Name,
             Email = Email,
             Password = hashedPassword,
             Type = Type,
             Img = Img,
             Coin = Coin,
-            ResetToken = ResetToken,
         };
 
         dbContext.MyUser.Add(newUser);
