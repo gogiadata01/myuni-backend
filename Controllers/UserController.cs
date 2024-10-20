@@ -59,53 +59,88 @@ public class UserController : ControllerBase
     }
 
 [HttpPost("register")]
-public IActionResult Register(
-    [FromForm] string UserName,
-    [FromForm] string Email,
-    [FromForm] string Password,
-    [FromForm] string Type,
-    [FromForm] IFormFile Img,
-    [FromForm] int Coin,
-    [FromForm] string ResetToken)
+public async Task<IActionResult> RegisterUser([FromForm] RegisterUserDto userDto, IFormFile file)
 {
-    try
+    if (file != null && file.Length > 0)
     {
-        if (Email == null)
+        // Save the file to the uploads folder
+        var uploadsFolder = Path.Combine("wwwroot", "uploads");
+        var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
-            return BadRequest("User data is required.");
+            await file.CopyToAsync(fileStream);
         }
 
-        var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == Email);
-        if (existingUser != null)
-        {
-            return Conflict("A user with the same email already exists.");
-        }
-
-        string hashedPassword = HashPassword(Password);
-        string filePath = SaveImage(Img);
-
-        var newUser = new User
-        {
-            Name = UserName,
-            Email = Email,
-            Password = hashedPassword,
-            Type = Type,
-            Img = filePath,
-            Coin = Coin,
-            ResetToken = ResetToken,
-        };
-
-        dbContext.MyUser.Add(newUser);
-        dbContext.SaveChanges();
-
-        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+        // Save the relative path of the image
+        userDto.Img = "uploads/" + uniqueFileName;
     }
-    catch (Exception ex)
+
+    // Save the user in the database
+    var user = new User
     {
-        // Log the exact exception here for debugging
-        return BadRequest($"Error: {ex.Message}");
-    }
+        Name = userDto.Name,
+        Email = userDto.Email,
+        Img = userDto.Img, // Save image path
+        Coin = userDto.Coin
+    };
+
+    _context.Users.Add(user);
+    await _context.SaveChangesAsync();
+
+    return Ok(user);
 }
+
+// ტვირთავს ფოტოს მაგრმა ვერ აჩენს სწორად
+// [HttpPost("register")]
+// public IActionResult Register(
+//     [FromForm] string UserName,
+//     [FromForm] string Email,
+//     [FromForm] string Password,
+//     [FromForm] string Type,
+//     [FromForm] IFormFile Img,
+//     [FromForm] int Coin,
+//     [FromForm] string ResetToken)
+// {
+//     try
+//     {
+//         if (Email == null)
+//         {
+//             return BadRequest("User data is required.");
+//         }
+
+//         var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == Email);
+//         if (existingUser != null)
+//         {
+//             return Conflict("A user with the same email already exists.");
+//         }
+
+//         string hashedPassword = HashPassword(Password);
+//         string filePath = SaveImage(Img);
+
+//         var newUser = new User
+//         {
+//             Name = UserName,
+//             Email = Email,
+//             Password = hashedPassword,
+//             Type = Type,
+//             Img = filePath,
+//             Coin = Coin,
+//             ResetToken = ResetToken,
+//         };
+
+//         dbContext.MyUser.Add(newUser);
+//         dbContext.SaveChanges();
+
+//         return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+//     }
+//     catch (Exception ex)
+//     {
+//         // Log the exact exception here for debugging
+//         return BadRequest($"Error: {ex.Message}");
+//     }
+// }
 
 
 private string SaveImage(IFormFile img)
@@ -140,6 +175,8 @@ private string SaveImage(IFormFile img)
     return Path.Combine("uploads", uniqueFileName).Replace("\\", "/");
 }
 
+
+// მუშა ლოგიკა ფოტოს ატვირთვის გარეშე
     // [HttpPost("register")]
     // public IActionResult Register([FromBody] UserDto newUserDto)
     // {
