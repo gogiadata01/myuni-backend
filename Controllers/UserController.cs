@@ -87,23 +87,42 @@ public async Task<IActionResult> RegisterUser([FromForm] UserDto userDto, IFormF
         // Save the relative path of the image to the UserDto
         userDto.Img = "uploads/" + uniqueFileName;
     }
-
-    // Create a new User object based on the provided UserDto
-    var user = new User
+     try
     {
-        Name = userDto.Name,
-        Email = userDto.Email,
-        Password = userDto.Password, // Make sure to hash the password!
-        Img = userDto.Img,
-        Coin = userDto.Coin,
-        ResetToken = userDto.ResetToken
-    };
+        if (Email == null)
+        {
+            return BadRequest("User data is required.");
+        }
 
-    // Add the user to the database
+        var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == Email);
+        if (existingUser != null)
+        {
+            return Conflict("A user with the same email already exists.");
+        }
+
+        string hashedPassword = HashPassword(Password);
+
+        var newUser = new User
+        {
+            Name = UserName,
+            Email = Email,
+            Password = hashedPassword,
+            Type = Type,
+            Img = Img,
+            Coin = Coin,
+            ResetToken = ResetToken,
+        };
+
         dbContext.MyUser.Add(newUser);
         dbContext.SaveChanges();
 
-    return Ok(user);
+        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+    }
+    catch (Exception ex)
+    {
+        // Log the exact exception here for debugging
+        return BadRequest($"Error: {ex.Message}");
+    }
 }
 
 // ტვირთავს ფოტოს მაგრმა ვერ აჩენს სწორად
