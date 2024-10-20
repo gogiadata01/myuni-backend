@@ -60,7 +60,7 @@ public class UserController : ControllerBase
 
 [HttpPost("register")]
 public IActionResult Register(
-    [FromForm] string Name,
+    [FromForm] string UserName, // Renamed from Name to UserName
     [FromForm] string Email,
     [FromForm] string Password,
     [FromForm] string Type,
@@ -86,7 +86,7 @@ public IActionResult Register(
 
     var newUser = new User
     {
-        Name = Name,
+        Name = UserName, // Renamed from Name to UserName
         Email = Email,
         Password = hashedPassword,
         Type = Type,
