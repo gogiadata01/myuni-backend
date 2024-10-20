@@ -59,33 +59,40 @@ public class UserController : ControllerBase
     }
 
 [HttpPost("register")]
-public IActionResult Register([FromForm] UserDto newUserDto, [FromForm] IFormFile img)
+public IActionResult Register(
+    [FromForm] string Name,
+    [FromForm] string Email,
+    [FromForm] string Password,
+    [FromForm] string Type,
+    [FromForm] IFormFile Img, // Explicitly bind the image file
+    [FromForm] int Coin,
+    [FromForm] string ResetToken)
 {
-    if (newUserDto == null)
+    if (Email == null)
     {
         return BadRequest("User data is required.");
     }
 
-    var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == newUserDto.Email);
+    var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == Email);
     if (existingUser != null)
     {
         return Conflict("A user with the same email already exists.");
     }
 
-    string hashedPassword = HashPassword(newUserDto.Password);
+    string hashedPassword = HashPassword(Password);
 
     // Save the image and get the file path
-    string filePath = SaveImage(img); // Implement SaveImage function
+    string filePath = SaveImage(Img); // Use the SaveImage function
 
     var newUser = new User
     {
-        Name = newUserDto.Name,
-        Email = newUserDto.Email,
+        Name = Name,
+        Email = Email,
         Password = hashedPassword,
-        Type = newUserDto.Type,
+        Type = Type,
         Img = filePath, // Store the image path in the user record
-        Coin = newUserDto.Coin,
-        ResetToken = newUserDto.ResetToken,
+        Coin = Coin,
+        ResetToken = ResetToken,
     };
 
     dbContext.MyUser.Add(newUser);
@@ -93,6 +100,7 @@ public IActionResult Register([FromForm] UserDto newUserDto, [FromForm] IFormFil
 
     return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
 }
+
 
 private string SaveImage(IFormFile img)
 {
