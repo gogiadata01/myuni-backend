@@ -58,71 +58,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-[HttpPost("register")]
-public async Task<IActionResult> RegisterUser([FromForm] UserDto userDto, IFormFile file)
-{
-    // Validate user input
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(ModelState);
-    }
 
-    // Handle image upload if a file is provided
-    if (file != null && file.Length > 0)
-    {
-        // Define the folder to save the uploaded file
-        var uploadsFolder = Path.Combine("wwwroot", "uploads");
-        Directory.CreateDirectory(uploadsFolder); // Ensure directory exists
-
-        // Create a unique file name to avoid overwriting existing files
-        var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        // Save the uploaded image file to the server
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-
-        // Save the relative path of the image to the UserDto
-        userDto.Img = "uploads/" + uniqueFileName;
-    }
-     try
-    {
-        if (Email == null)
-        {
-            return BadRequest("User data is required.");
-        }
-
-        var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == Email);
-        if (existingUser != null)
-        {
-            return Conflict("A user with the same email already exists.");
-        }
-
-        string hashedPassword = HashPassword(Password);
-
-        var newUser = new User
-        {
-            Name = Name,
-            Email = Email,
-            Password = hashedPassword,
-            Type = Type,
-            Img = Img,
-            Coin = Coin,
-        };
-
-        dbContext.MyUser.Add(newUser);
-        dbContext.SaveChanges();
-
-        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
-    }
-    catch (Exception ex)
-    {
-        // Log the exact exception here for debugging
-        return BadRequest($"Error: {ex.Message}");
-    }
-}
 
 // ტვირთავს ფოტოს მაგრმა ვერ აჩენს სწორად
 // [HttpPost("register")]
@@ -175,72 +111,72 @@ public async Task<IActionResult> RegisterUser([FromForm] UserDto userDto, IFormF
 // }
 
 
-private string SaveImage(IFormFile img)
-{
-    if (img == null || img.Length == 0)
-    {
-        return null;
-    }
+// private string SaveImage(IFormFile img)
+// {
+//     if (img == null || img.Length == 0)
+//     {
+//         return null;
+//     }
 
-    // Define the folder path to save the image
-    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+//     // Define the folder path to save the image
+//     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
-    // Ensure the directory exists
-    if (!Directory.Exists(uploadsFolder))
-    {
-        Directory.CreateDirectory(uploadsFolder);
-    }
+//     // Ensure the directory exists
+//     if (!Directory.Exists(uploadsFolder))
+//     {
+//         Directory.CreateDirectory(uploadsFolder);
+//     }
 
-    // Generate a unique filename to avoid overwriting files
-    var uniqueFileName = Guid.NewGuid().ToString() + "_" + img.FileName;
+//     // Generate a unique filename to avoid overwriting files
+//     var uniqueFileName = Guid.NewGuid().ToString() + "_" + img.FileName;
 
-    // Combine the folder path with the file name
-    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+//     // Combine the folder path with the file name
+//     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-    // Save the file
-    using (var fileStream = new FileStream(filePath, FileMode.Create))
-    {
-        img.CopyTo(fileStream);
-    }
+//     // Save the file
+//     using (var fileStream = new FileStream(filePath, FileMode.Create))
+//     {
+//         img.CopyTo(fileStream);
+//     }
 
-    // Return the relative file path (you can adjust this to fit your needs)
-    return Path.Combine("uploads", uniqueFileName).Replace("\\", "/");
-}
+//     // Return the relative file path (you can adjust this to fit your needs)
+//     return Path.Combine("uploads", uniqueFileName).Replace("\\", "/");
+// }
 
 
 // მუშა ლოგიკა ფოტოს ატვირთვის გარეშე
-    // [HttpPost("register")]
-    // public IActionResult Register([FromBody] UserDto newUserDto)
-    // {
-    //     if (newUserDto == null)
-    //     {
-    //         return BadRequest("User data is required.");
-    //     }
+    [HttpPost("register")]
+    public IActionResult Register([FromBody] UserDto newUserDto)
+    {
+        if (newUserDto == null)
+        {
+            return BadRequest("User data is required.");
+        }
 
-    //     var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == newUserDto.Email);
-    //     if (existingUser != null)
-    //     {
-    //         return Conflict("A user with the same email already exists.");
-    //     }
+        var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == newUserDto.Email);
+        if (existingUser != null)
+        {
+            return Conflict("A user with the same email already exists.");
+        }
 
-    //     string hashedPassword = HashPassword(newUserDto.Password);
+        string hashedPassword = HashPassword(newUserDto.Password);
 
-    //     var newUser = new User
-    //     {
-    //         Name = newUserDto.Name,
-    //         Email = newUserDto.Email,
-    //         Password = hashedPassword,
-    //         Type = newUserDto.Type,
-    //         Img = newUserDto.Img,
-    //         Coin = newUserDto.Coin,
-    //         ResetToken = newUserDto.ResetToken,
-    //     };
+        var newUser = new User
+        {
+            Name = newUserDto.Name,
+            Email = newUserDto.Email,
+            Password = hashedPassword,
+            Type = newUserDto.Type,
+            Img = newUserDto.Img,
+            Coin = newUserDto.Coin,
+            ResetToken = newUserDto.ResetToken,
+        };
 
-    //     dbContext.MyUser.Add(newUser);
-    //     dbContext.SaveChanges();
+        dbContext.MyUser.Add(newUser);
+        dbContext.SaveChanges();
 
-    //     return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
-    // }
+        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+    }
 
     [HttpPost("signin")]
     public IActionResult SignIn([FromBody] UserSignInDto loginDto)
