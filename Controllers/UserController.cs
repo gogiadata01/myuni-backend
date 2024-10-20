@@ -57,39 +57,91 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
-
-    [HttpPost("register")]
-    public IActionResult Register([FromBody] UserDto newUserDto)
+[HttpPost("register")]
+public async Task<IActionResult> Register([FromForm] UserDto newUserDto, IFormFile Img)
+{
+    if (newUserDto == null)
     {
-        if (newUserDto == null)
-        {
-            return BadRequest("User data is required.");
-        }
-
-        var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == newUserDto.Email);
-        if (existingUser != null)
-        {
-            return Conflict("A user with the same email already exists.");
-        }
-
-        string hashedPassword = HashPassword(newUserDto.Password);
-
-        var newUser = new User
-        {
-            Name = newUserDto.Name,
-            Email = newUserDto.Email,
-            Password = hashedPassword,
-            Type = newUserDto.Type,
-            Img = newUserDto.Img,
-            Coin = newUserDto.Coin,
-            ResetToken = newUserDto.ResetToken,
-        };
-
-        dbContext.MyUser.Add(newUser);
-        dbContext.SaveChanges();
-
-        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+        return BadRequest("User data is required.");
     }
+
+    var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == newUserDto.Email);
+    if (existingUser != null)
+    {
+        return Conflict("A user with the same email already exists.");
+    }
+
+    string hashedPassword = HashPassword(newUserDto.Password);
+
+    // Save the file (Img) if provided
+    if (Img != null && Img.Length > 0)
+    {
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Img.FileName);
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await Img.CopyToAsync(fileStream);
+        }
+
+        newUserDto.Img = fileName;  // Save the file name or path in the database
+    }
+
+    var newUser = new User
+    {
+        Name = newUserDto.Name,
+        Email = newUserDto.Email,
+        Password = hashedPassword,
+        Type = newUserDto.Type,
+        Img = newUserDto.Img,
+        Coin = newUserDto.Coin,
+        ResetToken = newUserDto.ResetToken,
+    };
+
+    dbContext.MyUser.Add(newUser);
+    dbContext.SaveChanges();
+
+    return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+}
+
+    // [HttpPost("register")]
+    // public IActionResult Register([FromBody] UserDto newUserDto)
+    // {
+    //     if (newUserDto == null)
+    //     {
+    //         return BadRequest("User data is required.");
+    //     }
+
+    //     var existingUser = dbContext.MyUser.FirstOrDefault(u => u.Email == newUserDto.Email);
+    //     if (existingUser != null)
+    //     {
+    //         return Conflict("A user with the same email already exists.");
+    //     }
+
+    //     string hashedPassword = HashPassword(newUserDto.Password);
+
+    //     var newUser = new User
+    //     {
+    //         Name = newUserDto.Name,
+    //         Email = newUserDto.Email,
+    //         Password = hashedPassword,
+    //         Type = newUserDto.Type,
+    //         Img = newUserDto.Img,
+    //         Coin = newUserDto.Coin,
+    //         ResetToken = newUserDto.ResetToken,
+    //     };
+
+    //     dbContext.MyUser.Add(newUser);
+    //     dbContext.SaveChanges();
+
+    //     return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+    // }
 
     [HttpPost("signin")]
     public IActionResult SignIn([FromBody] UserSignInDto loginDto)
