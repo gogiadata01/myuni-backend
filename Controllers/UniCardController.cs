@@ -135,7 +135,7 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
     try
     {
         // Find the UniCard by its ID
-        var uniCard = _context.UniCards
+        var uniCard = dbContext.MyUniCard
             .Include(uc => uc.Sections) // Include the sections of the UniCard
                 .ThenInclude(section => section.ProgramNames) // Include the program names within the sections
             .FirstOrDefault(uc => uc.Id == id);
@@ -164,7 +164,7 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
         sectionToUpdate.ProgramNames.Add(newProgram);
 
         // Save changes to the database
-        _context.SaveChanges();
+        dbContext.SaveChanges();
 
         return Ok($"Program '{newProgram.ProgramName}' added successfully to UniCard ID {id}.");
     }
