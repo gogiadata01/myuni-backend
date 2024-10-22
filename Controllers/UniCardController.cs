@@ -406,7 +406,7 @@ public IActionResult GetUniCardByTitleMainTextUrl([FromQuery] string title)
             .Where(card => card.Title.Contains(title)) // Searching with partial match (use .Equals() if you want exact match)
             .Select(card => new
             {
-                card.Id
+                card.Id,
                 card.Title,
                 card.MainText,
                 card.Url
