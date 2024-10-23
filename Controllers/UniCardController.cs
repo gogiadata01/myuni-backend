@@ -174,51 +174,6 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
     }
 }
 
-// [HttpPut("{id}/addProgram")]
-// public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programname newProgram)
-// {
-//     try
-//     {
-//         // Find the UniCard by its ID
-//         var uniCard = dbContext.MyUniCard
-//             .Include(uc => uc.Sections) // Include the sections of the UniCard
-//                 .ThenInclude(section => section.ProgramNames) // Include the program names within the sections
-//             .FirstOrDefault(uc => uc.Id == id);
-
-//         if (uniCard == null)
-//         {
-//             return NotFound($"No UniCard found with ID {id}");
-//         }
-
-//         // For simplicity, assuming we add the new Programname to the first section.
-//         // You can modify this logic to target specific sections based on some criteria
-//         var sectionToUpdate = uniCard.Sections.FirstOrDefault();
-
-//         if (sectionToUpdate == null)
-//         {
-//             return NotFound("No sections found in the UniCard.");
-//         }
-
-//         // Check if the program already exists (by ProgramName)
-//         if (sectionToUpdate.ProgramNames.Any(p => p.ProgramName == newProgram.ProgramName))
-//         {
-//             return BadRequest($"Program with the name '{newProgram.ProgramName}' already exists in the section.");
-//         }
-
-//         // Add the new Programname to the section
-//         sectionToUpdate.ProgramNames.Add(newProgram);
-
-//         // Save changes to the database
-//         dbContext.SaveChanges();
-
-//         return Ok($"Program '{newProgram.ProgramName}' added successfully to UniCard ID {id}.");
-//     }
-//     catch (Exception ex)
-//     {
-//         return StatusCode(500, $"Internal server error: {ex.Message}");
-//     }
-// }
-
         [HttpPost]
         public IActionResult AddUniCard([FromBody] UniCardDto addUniCardDto)
         {
