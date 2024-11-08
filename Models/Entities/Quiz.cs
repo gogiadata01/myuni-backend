@@ -26,8 +26,6 @@
 //         }
 //     }
 // }
-using System.Collections.Generic;
-
 namespace MyUni.Models.Entities
 {
     public class Quiz
@@ -35,7 +33,7 @@ namespace MyUni.Models.Entities
         public int Id { get; set; }
         public string Time { get; set; }
         public ICollection<Question> Questions { get; set; }
-        public BonusQuestion BonusQuestion { get; set; }
+        public BonusQuestionDetails BonusQuestion { get; set; } // Changed type to renamed inner class
 
         public class Question
         {
@@ -52,8 +50,8 @@ namespace MyUni.Models.Entities
             public string InccorectAnswer { get; set; }
         }
 
-        // New class for Bonus Question
-        public class BonusQuestion
+        // Renamed inner class for Bonus Question
+        public class BonusQuestionDetails
         {
             public int Id { get; set; }
             public string question { get; set; }
@@ -64,3 +62,4 @@ namespace MyUni.Models.Entities
         }
     }
 }
+

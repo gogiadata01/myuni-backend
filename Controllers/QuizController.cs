@@ -182,32 +182,33 @@ public async Task<IActionResult> SendReminderForQuiz()
         }
 
         // GET: api/Quiz/time/{time}
-        [HttpGet("time/{time}")]
-        public IActionResult GetQuizByTime(string time)
+[HttpGet("time/{time}")]
+public IActionResult GetQuizByTime(string time)
+{
+    try
+    {
+        time = Uri.UnescapeDataString(time);
+        Console.WriteLine("Received time: " + time);
+
+        var quizzes = dbContext.MyQuiz
+            .Include(card => card.Questions)
+            .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+            .Include(q => q.BonusQuestionDetails) // Updated to match the new class name
+            .Where(quiz => quiz.Time == time)
+            .ToList();
+
+        if (!quizzes.Any())
         {
-            try
-            {
-                time = Uri.UnescapeDataString(time);
-                Console.WriteLine("Received time: " + time);
-
-                var quizzes = dbContext.MyQuiz
-                    .Include(card => card.Questions)
-                    .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-                    .Include(q => q.BonusQuestion)
-                    .Where(quiz => quiz.Time == time)
-                    .ToList();
-
-                if (!quizzes.Any())
-                {
-                    return NotFound(new { Message = "No quizzes found for the specified time." });
-                }
-
-                return Ok(quizzes);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
-            }
+            return NotFound(new { Message = "No quizzes found for the specified time." });
         }
+
+        return Ok(quizzes);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
+    }
+}
+
     }
 }
