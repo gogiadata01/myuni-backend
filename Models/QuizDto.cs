@@ -11,12 +11,12 @@
             public string question { get; set; }
             public string correctanswer { get; set; }
             public string img { get; set; }
-            public ICollection<IncorrectAnswers> IncorrectAnswers { get; set; }
+            public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
         }
 
-        public class IncorrectAnswers
+        public class IncorrectAnswer
         {
-            public string IncorrectAnswer { get; set; }  // Fixed typo here
+            public string Answer { get; set; }  // Fixed typo here
         }
 
         public class BonusQuestionDetails
