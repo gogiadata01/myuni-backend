@@ -40,7 +40,7 @@ namespace MyUni.Models.Entities
             public int Id { get; set; }
             public string question { get; set; }
             public string correctanswer { get; set; }
-            public string img { get; set; }
+            public string img { get; set; } = null
             public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
         }
 

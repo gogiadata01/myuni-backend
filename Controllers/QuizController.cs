@@ -136,7 +136,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         Console.WriteLine($"Correct Answer: {question.correctanswer}");
         foreach (var incorrectAnswer in question.IncorrectAnswers)
         {
-            Console.WriteLine($"Incorrect Answer: {incorrectAnswer.InccorectAnswer}"); // Correct typo here
+            Console.WriteLine($"Incorrect Answer: {incorrectAnswer.IncorrectAnswer}"); // Fixed typo here
         }
     }
 
@@ -148,9 +148,9 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             question = q.question,
             correctanswer = q.correctanswer,
             img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer // Correct the casing here
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer // Corrected casing here
             {
-                InccorectAnswer = ia.InccorectAnswer // Correct the casing here
+                IncorrectAnswer = ia.IncorrectAnswer // Corrected casing here
             }).ToList()
         }).ToList()
     };
@@ -160,6 +160,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
 
 
         // DELETE: api/Quiz/5
