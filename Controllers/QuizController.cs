@@ -119,47 +119,48 @@ public async Task<IActionResult> SendReminderForQuiz()
         }
 
         // POST: api/Quiz
-        [HttpPost]
-        public IActionResult PostQuiz([FromBody] QuizDto quizDto)
+[HttpPost]
+public IActionResult PostQuiz([FromBody] QuizDto quizDto)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    // Log incoming data
+    Console.WriteLine("Received QuizDto:");
+    Console.WriteLine($"Time: {quizDto.Time}");
+    foreach (var question in quizDto.Questions)
+    {
+        Console.WriteLine($"Question: {question.question}");
+        Console.WriteLine($"Correct Answer: {question.correctanswer}");
+        foreach (var incorrectAnswer in question.IncorrectAnswers)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Log incoming data
-            Console.WriteLine("Received QuizDto:");
-            Console.WriteLine($"Time: {quizDto.Time}");
-            foreach (var question in quizDto.Questions)
-            {
-                Console.WriteLine($"Question: {question.question}");
-                Console.WriteLine($"Correct Answer: {question.correctanswer}");
-                foreach (var incorrectAnswer in question.IncorrectAnswers)
-                {
-                    Console.WriteLine($"Incorrect Answer: {incorrectAnswer.InccorectAnswer}");
-                }
-            }
-
-            var quizEntity = new Quiz
-            {
-                Time = quizDto.Time,
-                Questions = quizDto.Questions?.Select(q => new Quiz.Question
-                {
-                    question = q.question,
-                    correctanswer = q.correctanswer,
-                    img = q.img,
-                    IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.inccorectanswer
-                    {
-                        InccorectAnswer = ia.InccorectAnswer
-                    }).ToList()
-                }).ToList()
-            };
-
-            dbContext.MyQuiz.Add(quizEntity);
-            dbContext.SaveChanges();
-
-            return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
+            Console.WriteLine($"Incorrect Answer: {incorrectAnswer.InccorectAnswer}"); // Correct typo here
         }
+    }
+
+    var quizEntity = new Quiz
+    {
+        Time = quizDto.Time,
+        Questions = quizDto.Questions?.Select(q => new Quiz.Question
+        {
+            question = q.question,
+            correctanswer = q.correctanswer,
+            img = q.img,
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer // Correct the casing here
+            {
+                InccorectAnswer = ia.InccorectAnswer // Correct the casing here
+            }).ToList()
+        }).ToList()
+    };
+
+    dbContext.MyQuiz.Add(quizEntity);
+    dbContext.SaveChanges();
+
+    return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
+}
+
 
         // DELETE: api/Quiz/5
         [HttpDelete("{id}")]
