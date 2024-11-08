@@ -192,8 +192,8 @@ public IActionResult GetQuizByTime(string time)
 
         var quizzes = dbContext.MyQuiz
             .Include(card => card.Questions)
-            .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-            .Include(q => q.BonusQuestionDetails) // Updated to match the new class name
+            .ThenInclude(q => q.IncorrectAnswers)
+            .Include(q => q.BonusQuestion) // Updated to match the property name
             .Where(quiz => quiz.Time == time)
             .ToList();
 
@@ -209,6 +209,7 @@ public IActionResult GetQuizByTime(string time)
         return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
     }
 }
+
 
     }
 }

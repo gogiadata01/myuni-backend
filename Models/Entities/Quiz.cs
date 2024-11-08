@@ -33,7 +33,7 @@ namespace MyUni.Models.Entities
         public int Id { get; set; }
         public string Time { get; set; }
         public ICollection<Question> Questions { get; set; }
-        public BonusQuestionDetails BonusQuestion { get; set; } // Changed type to renamed inner class
+        public BonusQuestionDetails BonusQuestion { get; set; } // Match this name with the controller
 
         public class Question
         {
@@ -47,11 +47,10 @@ namespace MyUni.Models.Entities
         public class IncorrectAnswer
         {
             public int Id { get; set; }
-            public string InccorectAnswer { get; set; }
+            public string InccorectAnswer { get; set; } // Ensure spelling is consistent
         }
 
-        // Renamed inner class for Bonus Question
-        public class BonusQuestionDetails
+        public class BonusQuestionDetails // Use this class name consistently in both model and controller
         {
             public int Id { get; set; }
             public string question { get; set; }
