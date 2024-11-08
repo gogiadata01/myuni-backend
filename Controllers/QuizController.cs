@@ -127,19 +127,21 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    // Log incoming data
+    // Log incoming data for debugging
     Console.WriteLine("Received QuizDto:");
     Console.WriteLine($"Time: {quizDto.Time}");
+
     foreach (var question in quizDto.Questions)
     {
         Console.WriteLine($"Question: {question.question}");
         Console.WriteLine($"Correct Answer: {question.correctanswer}");
         foreach (var incorrectAnswer in question.IncorrectAnswers)
         {
-            Console.WriteLine($"Incorrect Answer: {incorrectAnswer.IncorrectAnswer}"); // Corrected property name
+            Console.WriteLine($"Incorrect Answer: {incorrectAnswer.Answer}");
         }
     }
 
+    // Map QuizDto to Quiz entity
     var quizEntity = new Quiz
     {
         Time = quizDto.Time,
@@ -150,9 +152,22 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                IncorrectAnswer = ia.IncorrectAnswer  // Corrected property name
+                InccorectAnswer = ia.Answer  // Mapping IncorrectAnswer to InccorectAnswer
             }).ToList()
-        }).ToList()
+        }).ToList(),
+        
+        // Map the BonusQuestion if present in the DTO
+        BonusQuestion = quizDto.BonusQuestion != null ? new Quiz.BonusQuestionDetails
+        {
+            question = quizDto.BonusQuestion.question,
+            correctanswer = quizDto.BonusQuestion.correctanswer,
+            img = quizDto.BonusQuestion.img,
+            IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
+            {
+                InccorectAnswer = ia.Answer  // Map IncorrectAnswer
+            }).ToList(),
+            Coins = quizDto.BonusQuestion.Coins // Bonus coins for the question
+        } : null
     };
 
     dbContext.MyQuiz.Add(quizEntity);
@@ -160,6 +175,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
 
 
 
