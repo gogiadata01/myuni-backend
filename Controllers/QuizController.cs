@@ -211,9 +211,10 @@ public IActionResult GetQuizByTime(string time)
         Console.WriteLine("Received time: " + time);
 
         var quizzes = dbContext.MyQuiz
-            .Include(card => card.Questions)
-            .ThenInclude(q => q.IncorrectAnswers)  // Reference IncorrectAnswer here
-            .Include(q => q.BonusQuestion) // Make sure BonusQuestion is included
+            .Include(quiz => quiz.Questions)
+                .ThenInclude(q => q.IncorrectAnswers) // Load IncorrectAnswers for Questions
+            .Include(quiz => quiz.BonusQuestion)
+                .ThenInclude(bq => bq.IncorrectAnswers) // Load IncorrectAnswers for BonusQuestion
             .Where(quiz => quiz.Time == time)
             .ToList();
 
@@ -227,7 +228,7 @@ public IActionResult GetQuizByTime(string time)
         {
             if (quiz.BonusQuestion != null && quiz.BonusQuestion.IncorrectAnswers == null)
             {
-                quiz.BonusQuestion.IncorrectAnswers = new List<Quiz.IncorrectAnswer>(); // Use fully qualified name for IncorrectAnswer
+                quiz.BonusQuestion.IncorrectAnswers = new List<Quiz.IncorrectAnswer>(); // Initialize IncorrectAnswers if null
             }
         }
 
@@ -238,6 +239,7 @@ public IActionResult GetQuizByTime(string time)
         return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
     }
 }
+
 
 
 
