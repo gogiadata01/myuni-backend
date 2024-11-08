@@ -11,10 +11,10 @@
             public string question { get; set; }
             public string correctanswer { get; set; }
             public string img { get; set; }
-            public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
+            public ICollection<IncorrectAnswers> IncorrectAnswers { get; set; }
         }
 
-        public class IncorrectAnswer
+        public class IncorrectAnswers
         {
             public string IncorrectAnswer { get; set; }  // Fixed typo here
         }
