@@ -201,6 +201,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         }
 
         // GET: api/Quiz/time/{time}
+// GET: api/Quiz/time/{time}
 [HttpGet("time/{time}")]
 public IActionResult GetQuizByTime(string time)
 {
@@ -237,6 +238,7 @@ public IActionResult GetQuizByTime(string time)
         return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
     }
 }
+
 
 
 
