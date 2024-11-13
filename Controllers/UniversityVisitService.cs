@@ -1,8 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using MyUni.Data;
-using MyUni.Models;  // Ensure this is here to use UniversityVisit
+using MyUni.Models.entities;  // Ensure this is here to use UniversityVisit
 using Microsoft.EntityFrameworkCore;
+
 
 namespace MyUni.Controllers  // or your preferred namespace
 {
