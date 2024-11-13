@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
-namespace MyUni.Services
+namespace MyUni.Controllers
 {
     public class UniversityVisitService
     {

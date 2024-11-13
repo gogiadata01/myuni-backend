@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MyUni.Services;  // Assuming you moved the logic to a service
+using MyUni.Controllers;  // Assuming you moved the logic to a service
 using System;
 using System.Threading.Tasks;
 using MyUni.Models;
