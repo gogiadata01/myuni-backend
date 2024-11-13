@@ -1,11 +1,10 @@
+using MyUni.Data;
+using MyUni.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
-using MyUni.Data;
-using MyUni.Models.Entities;  // Ensure this is here to use UniversityVisit
-using Microsoft.EntityFrameworkCore;
 
-
-namespace MyUni.Controllers  // or your preferred namespace
+namespace MyUni.Services
 {
     public class UniversityVisitService
     {
@@ -16,12 +15,12 @@ namespace MyUni.Controllers  // or your preferred namespace
             _context = context;
         }
 
-        public async Task LogVisitAsync(string universityName, string userId)
+        // Method to log a visit asynchronously (no UserId)
+        public async Task LogVisitAsync(string universityName)
         {
             var visit = new UniversityVisit
             {
                 UniversityName = universityName,
-                UserId = userId,
                 VisitDate = DateTime.UtcNow
             };
 
@@ -29,6 +28,7 @@ namespace MyUni.Controllers  // or your preferred namespace
             await _context.SaveChangesAsync();
         }
 
+        // Method to get the visit count for a specific university
         public async Task<int> GetVisitCountAsync(string universityName)
         {
             return await _context.UniversityVisits
