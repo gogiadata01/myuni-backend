@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using MyUni.Data;
-using MyUni.Models.entities;  // Ensure this is here to use UniversityVisit
+using MyUni.Models.Entities;  // Ensure this is here to use UniversityVisit
 using Microsoft.EntityFrameworkCore;
 
 
