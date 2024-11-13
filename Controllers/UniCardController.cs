@@ -14,10 +14,14 @@ namespace MyUni.Controllers
     public class UniCardController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-        
-        public UniCardController(ApplicationDbContext dbContext)
+          
+        private readonly UniversityVisitService _visitService;
+
+        public UniCardController(ApplicationDbContext dbContext,UniversityVisitService visitService)
         {
             this.dbContext = dbContext; 
+            _visitService = visitService;
+
         }
 
         [HttpGet]
@@ -35,6 +39,32 @@ namespace MyUni.Controllers
 
             return Ok(AllUniCard);
         }
+        
+                [HttpGet("{universityName}")]
+        public async Task<IActionResult> GetUniversityDetails(string universityName)
+        {
+            // Assume `GetUniversityByName` retrieves university details
+            var universityDetails = await _context.MyUniCard
+                .FirstOrDefaultAsync(u => u.Title == universityName);
+
+            if (universityDetails == null)
+            {
+                return NotFound();
+            }
+
+            // Log the visit
+            var userId = User.Identity?.Name ?? "Anonymous";
+            await _visitService.LogVisitAsync(universityName, userId);
+
+            return Ok(universityDetails);
+        }
+        [HttpGet("visit-count/{universityName}")]
+public async Task<IActionResult> GetVisitCount(string universityName)
+{
+    var count = await _visitService.GetVisitCountAsync(universityName);
+    return Ok(new { University = universityName, VisitCount = count });
+}
+
 [HttpPut("{uniCardId}/update-programname-only/{programNameId}")]
 public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [FromBody] string newProgramName)
 {
