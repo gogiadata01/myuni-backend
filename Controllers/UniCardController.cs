@@ -16,12 +16,10 @@ namespace MyUni.Controllers
     {
         private readonly ApplicationDbContext dbContext;
           
-        private readonly UniversityVisitService _visitService;
 
-        public UniCardController(ApplicationDbContext dbContext,UniversityVisitService visitService)
+        public UniCardController(ApplicationDbContext dbContext, )
         {
             this.dbContext = dbContext; 
-            _visitService = visitService;
 
         }
 
