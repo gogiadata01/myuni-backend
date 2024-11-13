@@ -15,9 +15,7 @@ namespace MyUni.Controllers
     public class UniCardController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
-          
-
-        public UniCardController(ApplicationDbContext dbContext, )
+        public UniCardController(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext; 
 
