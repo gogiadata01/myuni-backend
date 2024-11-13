@@ -6,6 +6,7 @@ using MyUni.Models;
 using MyUni.Models.Entities;
 using System.Xml;
 using Newtonsoft.Json;
+using MyUni.Controllers
 
 namespace MyUni.Controllers
 {
