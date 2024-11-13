@@ -21,6 +21,5 @@ namespace MyUni.Data
         public DbSet<Quiz> MyQuiz { get; set; }
         
         public DbSet<UniversityVisit> UniversityVisits { get; set; }  // UniversityVisit should be recognized now
-
     }
 }

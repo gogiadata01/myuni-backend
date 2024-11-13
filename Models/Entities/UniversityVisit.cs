@@ -1,4 +1,4 @@
-namespace MyUni.Models
+namespace MyUni.Models.Entities
 {
     public class UniversityVisit
     {
