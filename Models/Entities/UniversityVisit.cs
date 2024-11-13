@@ -1,4 +1,4 @@
-namespace MyUni.Models  // Ensure it's this or a similar namespace
+namespace MyUni.Models
 {
     public class UniversityVisit
     {
