@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using MyUni.Services;  // Assuming you moved the logic to a service
 using System;
 using System.Threading.Tasks;
+using MyUni.Models;
+using MyUni.Models.Entities;
 
 namespace MyUni.Controllers
 {
@@ -18,7 +20,7 @@ namespace MyUni.Controllers
 
         // Endpoint to log a visit (no UserId required)
         [HttpPost("log")]
-        public async Task<IActionResult> LogVisitAsync([FromBody] UniversityVisitDto visitDto)
+        public async Task<IActionResult> LogVisitAsync([FromBody] UniversityVisit visitDto)
         {
             if (visitDto == null || string.IsNullOrEmpty(visitDto.UniversityName))
             {
