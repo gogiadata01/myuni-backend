@@ -21,7 +21,6 @@ namespace MyUni.Controllers
             var visit = new UniversityVisit
             {
                 UniversityName = universityName,
-                VisitDate = DateTime.UtcNow
             };
 
             await _context.UniversityVisits.AddAsync(visit);
