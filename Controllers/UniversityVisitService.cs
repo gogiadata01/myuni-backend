@@ -1,11 +1,10 @@
-// Services/UniversityVisitService.cs
 using System;
 using System.Threading.Tasks;
 using MyUni.Data;
-using MyUni.Models;
+using MyUni.Models;  // Ensure this is here to use UniversityVisit
 using Microsoft.EntityFrameworkCore;
 
-namespace MyUni.Controllers
+namespace MyUni.Controllers  // or your preferred namespace
 {
     public class UniversityVisitService
     {
