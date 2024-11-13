@@ -44,7 +44,7 @@ namespace MyUni.Controllers
         public async Task<IActionResult> GetUniversityDetails(string universityName)
         {
             // Assume `GetUniversityByName` retrieves university details
-            var universityDetails = await _context.MyUniCard
+            var universityDetails = await dbContext.MyUniCard
                 .FirstOrDefaultAsync(u => u.Title == universityName);
 
             if (universityDetails == null)
