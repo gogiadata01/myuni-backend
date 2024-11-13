@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using MyUni.Controllers;  // Assuming you moved the logic to a service
+using MyUni.Data;  // For ApplicationDbContext
+using MyUni.Models.Entities;  // For UniversityVisit
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using MyUni.Models;
-using MyUni.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyUni.Controllers
 {
@@ -11,16 +12,17 @@ namespace MyUni.Controllers
     [ApiController]
     public class UniversityVisitController : ControllerBase
     {
-        private readonly UniversityVisitService _universityVisitService;
+        private readonly ApplicationDbContext _context;
 
-        public UniversityVisitController(UniversityVisitService universityVisitService)
+        // Constructor to inject ApplicationDbContext
+        public UniversityVisitController(ApplicationDbContext context)
         {
-            _universityVisitService = universityVisitService;
+            _context = context;
         }
 
         // Endpoint to log a visit (no UserId required)
         [HttpPost("log")]
-        public async Task<IActionResult> LogVisitAsync([FromBody] UniversityVisit visitDto)
+        public async Task<IActionResult> LogVisitAsync([FromBody] UniversityVisitDto visitDto)
         {
             if (visitDto == null || string.IsNullOrEmpty(visitDto.UniversityName))
             {
@@ -29,8 +31,17 @@ namespace MyUni.Controllers
 
             try
             {
-                // Call the service method to log the visit
-                await _universityVisitService.LogVisitAsync(visitDto.UniversityName);
+                // Create a new UniversityVisit entity and log the visit
+                var visit = new UniversityVisit
+                {
+                    UniversityName = visitDto.UniversityName,
+                    VisitDate = DateTime.UtcNow
+                };
+
+                // Add the new visit to the context and save the changes
+                await _context.UniversityVisits.AddAsync(visit);
+                await _context.SaveChangesAsync();
+
                 return Ok("Visit logged successfully.");
             }
             catch (Exception ex)
@@ -50,8 +61,11 @@ namespace MyUni.Controllers
 
             try
             {
-                // Get the visit count from the service
-                var visitCount = await _universityVisitService.GetVisitCountAsync(universityName);
+                // Get the visit count for the university
+                var visitCount = await _context.UniversityVisits
+                    .Where(v => v.UniversityName == universityName)
+                    .CountAsync();
+
                 return Ok(new { UniversityName = universityName, VisitCount = visitCount });
             }
             catch (Exception ex)
