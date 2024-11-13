@@ -5,7 +5,7 @@ using MyUni.Data;
 using MyUni.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MyUni.Services
+namespace MyUni.Controllers
 {
     public class UniversityVisitService
     {
