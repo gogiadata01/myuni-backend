@@ -32,7 +32,7 @@ namespace MyUni.Controllers
             try
             {
                 // Create a new UniversityVisit entity and log the visit
-                var visit = new UniversityVisit
+                var visit = new UniversityProgramVisit
                 {
                     UniversityName = visitDto.UniversityName,
                     ProgramName = visitDto.ProgramName,
