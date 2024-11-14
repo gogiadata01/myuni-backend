@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using MyUni.Data; // For ApplicationDbContext
-using MyUni.Models.Entities; // For UniversityVisit
+using MyUni.Data; 
+using MyUni.Models.Entities; 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
