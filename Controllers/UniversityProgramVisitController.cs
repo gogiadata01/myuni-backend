@@ -40,7 +40,7 @@ namespace MyUni.Controllers
                 };
 
                 // Add the new visit to the context and save the changes
-                await _context.UniversityProgramVisit.AddAsync(visit);
+                await _context.UniversityProgramVisits.AddAsync(visit);
                 await _context.SaveChangesAsync();
 
                 return Ok("Visit logged successfully.");
@@ -63,7 +63,7 @@ namespace MyUni.Controllers
             try
             {
                 // Get the visit count for the university and program combination
-                var visitCount = await _context.UniversityProgramVisit
+                var visitCount = await _context.UniversityProgramVisits
                     .Where(v => v.UniversityName == universityName && v.ProgramName == programName)
                     .CountAsync();
 
