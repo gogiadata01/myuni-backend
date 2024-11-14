@@ -22,7 +22,7 @@ namespace MyUni.Data
         
         public DbSet<UniversityVisit> UniversityVisits { get; set; }  // UniversityVisit should be recognized now
         
-        public DbSet<UniversityProgramVisit> UniversityProgramVisit { get; set; }  // UniversityVisit should be recognized now
+        public DbSet<UniversityProgramVisit> UniversityProgramVisits { get; set; }  // UniversityVisit should be recognized now
 
     }
 }
