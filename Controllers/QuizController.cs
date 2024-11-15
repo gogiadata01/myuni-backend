@@ -204,10 +204,10 @@ public async Task<IActionResult> SendReminderForQuiz()
                 var quizzes = dbContext.MyQuiz
                     .Include(q => q.Questions)
                         .ThenInclude(qa => qa.IncorrectAnswers)
-                    .Include(q => q.BonusQuestion)
-                        .ThenInclude(bq => bq.CorrectAnswers)
-                    .Include(q => q.BonusQuestion)
-                        .ThenInclude(bq => bq.IncorrectAnswers)
+                    // .Include(q => q.BonusQuestion)
+                    //     .ThenInclude(bq => bq.CorrectAnswers)
+                    // .Include(q => q.BonusQuestion)
+                    //     .ThenInclude(bq => bq.IncorrectAnswers)
                     .Where(q => q.Time == time)
                     .ToList();
 
