@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string Time { get; set; }
         public ICollection<Question> Questions { get; set; }
-        public BonusQuestionDetails BonusQuestion { get; set; } // Match this name with the controller
+        public BonusQuestionDetails? BonusQuestion { get; set; } // Match this name with the controller
 
         public class Question
         {
@@ -25,10 +25,10 @@
         public class BonusQuestionDetails // Use this class name consistently in both model and controller
         {
             public int Id { get; set; }
-            public string question { get; set; }
-            public ICollection<correctanswers> CorrectAnswers { get; set; }
-            public string img { get; set; }
-            public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
+            public string? question { get; set; }
+            public ICollection<correctanswers>? CorrectAnswers { get; set; }
+            public string? img { get; set; }
+            public ICollection<IncorrectAnswer>? IncorrectAnswers { get; set; }
             public int Coins { get; set; } = 3; // Bonus question worth 3 coins
         }
         public class correctanswers {
