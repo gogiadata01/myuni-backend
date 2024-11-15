@@ -28,8 +28,12 @@ namespace MyUni.Controllers
         public IActionResult GetAllQuizzes()
         {
             var quizzes = dbContext.MyQuiz
-                .Include(card => card.Questions)
-                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+                .Include(q => q.Questions)
+                    .ThenInclude(qa => qa.IncorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                    .ThenInclude(bq => bq.CorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                    .ThenInclude(bq => bq.IncorrectAnswers)
                 .ToList();
 
             return Ok(quizzes);
@@ -106,9 +110,13 @@ public async Task<IActionResult> SendReminderForQuiz()
         public IActionResult GetQuizById(int id)
         {
             var quiz = dbContext.MyQuiz
-                .Include(card => card.Questions)
-                .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-                .FirstOrDefault(card => card.Id == id);
+                .Include(q => q.Questions)
+                    .ThenInclude(qa => qa.IncorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                    .ThenInclude(bq => bq.CorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                    .ThenInclude(bq => bq.IncorrectAnswers)
+                .FirstOrDefault(q => q.Id == id);
 
             if (quiz == null)
             {
@@ -117,76 +125,62 @@ public async Task<IActionResult> SendReminderForQuiz()
 
             return Ok(quiz);
         }
-
-        // POST: api/Quiz
-[HttpPost]
-public IActionResult PostQuiz([FromBody] QuizDto quizDto)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(ModelState);
-    }
-
-    // Log incoming data for debugging
-    Console.WriteLine("Received QuizDto:");
-    Console.WriteLine($"Time: {quizDto.Time}");
-
-    foreach (var question in quizDto.Questions)
-    {
-        Console.WriteLine($"Question: {question.question}");
-        Console.WriteLine($"Correct Answer: {question.correctanswer}");
-        foreach (var incorrectAnswer in question.IncorrectAnswers)
+      [HttpPost]
+        public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         {
-            Console.WriteLine($"Incorrect Answer: {incorrectAnswer.Answer}");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Map QuizDto to Quiz entity
+            var quizEntity = new Quiz
+            {
+                Time = quizDto.Time,
+                Questions = quizDto.Questions?.Select(q => new Quiz.Question
+                {
+                    question = q.question,
+                    correctanswer = q.correctanswer,
+                    img = q.img,
+                    IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
+                    {
+                        InccorectAnswer = ia.Answer
+                    }).ToList()
+                }).ToList(),
+
+                BonusQuestion = quizDto.BonusQuestion != null ? new Quiz.BonusQuestionDetails
+                {
+                    question = quizDto.BonusQuestion.question,
+                    img = quizDto.BonusQuestion.img,
+                    CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.correctanswers
+                    {
+                        correctanswer = ca.correctanswer
+                    }).ToList(),
+                    IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
+                    {
+                        InccorectAnswer = ia.Answer
+                    }).ToList(),
+                    Coins = quizDto.BonusQuestion.Coins
+                } : null
+            };
+
+            dbContext.MyQuiz.Add(quizEntity);
+            dbContext.SaveChanges();
+
+            return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
         }
-    }
-
-    // Map QuizDto to Quiz entity
-    var quizEntity = new Quiz
-    {
-        Time = quizDto.Time,
-        Questions = quizDto.Questions?.Select(q => new Quiz.Question
-        {
-            question = q.question,
-            correctanswer = q.correctanswer,
-            img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
-            {
-                InccorectAnswer = ia.Answer  // Mapping IncorrectAnswer to InccorectAnswer
-            }).ToList()
-        }).ToList(),
-        
-        // Map the BonusQuestion if present in the DTO
-        BonusQuestion = quizDto.BonusQuestion != null ? new Quiz.BonusQuestionDetails
-        {
-            question = quizDto.BonusQuestion.question,
-            correctanswer = quizDto.BonusQuestion.correctanswer,
-            img = quizDto.BonusQuestion.img,
-            IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
-            {
-                InccorectAnswer = ia.Answer  // Map IncorrectAnswer
-            }).ToList(),
-            Coins = quizDto.BonusQuestion.Coins // Bonus coins for the question
-        } : null
-    };
-
-    dbContext.MyQuiz.Add(quizEntity);
-    dbContext.SaveChanges();
-
-    return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
-}
 
 
 
 
-
-        // DELETE: api/Quiz/5
-        [HttpDelete("{id}")]
+      [HttpDelete("{id}")]
         public IActionResult DeleteQuiz(int id)
         {
             var quiz = dbContext.MyQuiz
                 .Include(q => q.Questions)
-                .ThenInclude(q => q.IncorrectAnswers)
+                .ThenInclude(qa => qa.IncorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.IncorrectAnswers)
                 .FirstOrDefault(q => q.Id == id);
 
             if (quiz == null)
@@ -199,46 +193,37 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 
             return NoContent();
         }
-
-        // GET: api/Quiz/time/{time}
-// GET: api/Quiz/time/{time}
-[HttpGet("time/{time}")]
-public IActionResult GetQuizByTime(string time)
-{
-    try
-    {
-        time = Uri.UnescapeDataString(time);
-        Console.WriteLine("Received time: " + time);
-
-        var quizzes = dbContext.MyQuiz
-            .Include(quiz => quiz.Questions)
-                .ThenInclude(q => q.IncorrectAnswers) // Load IncorrectAnswers for Questions
-            .Include(quiz => quiz.BonusQuestion)
-                .ThenInclude(bq => bq.IncorrectAnswers) // Load IncorrectAnswers for BonusQuestion
-            .Where(quiz => quiz.Time == time)
-            .ToList();
-
-        if (!quizzes.Any())
+        [HttpGet("time/{time}")]
+        public IActionResult GetQuizByTime(string time)
         {
-            return NotFound(new { Message = "No quizzes found for the specified time." });
-        }
-
-        // Ensure that the BonusQuestion's IncorrectAnswers is not null
-        foreach (var quiz in quizzes)
-        {
-            if (quiz.BonusQuestion != null && quiz.BonusQuestion.IncorrectAnswers == null)
+            try
             {
-                quiz.BonusQuestion.IncorrectAnswers = new List<Quiz.IncorrectAnswer>(); // Initialize IncorrectAnswers if null
+                time = Uri.UnescapeDataString(time);
+                Console.WriteLine("Received time: " + time);
+
+                var quizzes = dbContext.MyQuiz
+                    .Include(q => q.Questions)
+                        .ThenInclude(qa => qa.IncorrectAnswers)
+                    .Include(q => q.BonusQuestion)
+                        .ThenInclude(bq => bq.CorrectAnswers)
+                    .Include(q => q.BonusQuestion)
+                        .ThenInclude(bq => bq.IncorrectAnswers)
+                    .Where(q => q.Time == time)
+                    .ToList();
+
+                if (!quizzes.Any())
+                {
+                    return NotFound(new { Message = "No quizzes found for the specified time." });
+                }
+
+                return Ok(quizzes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
             }
         }
 
-        return Ok(quizzes);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
-    }
-}
 
 
 

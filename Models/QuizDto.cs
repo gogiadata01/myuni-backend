@@ -22,10 +22,13 @@
         public class BonusQuestionDetails
         {
             public string question { get; set; }
-            public string correctanswer { get; set; }
+            public ICollection<correctanswers> CorrectAnswers { get; set; }
             public string img { get; set; }
             public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
             public int Coins { get; set; } = 3; // Bonus question worth 3 coins
+        }
+                public class correctanswers {
+            public string correctanswer { get; set; }
         }
     }
 }
