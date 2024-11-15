@@ -16,13 +16,17 @@
 
         public class IncorrectAnswer
         {
-            public string Answer { get; set; }  // Fixed typo here
+            public string Answer { get; set; }
         }
-
+        public class correctanswers {
+            public int Id { get; set; }
+            public string correctanswer { get; set; }
+        }
         public class BonusQuestionDetails
         {
             public string? question { get; set; }
-            public string? correctanswer { get; set; }
+            public string? correctanswer { get; set; }  // Single correct answer
+            public ICollection<correctanswers>? CorrectAnswers { get; set; } // Add collection for multiple correct answers
             public string? img { get; set; }
             public ICollection<IncorrectAnswer>? IncorrectAnswers { get; set; }
             public int Coins { get; set; } = 3; // Bonus question worth 3 coins
