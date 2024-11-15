@@ -27,7 +27,8 @@
             public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
             public int Coins { get; set; } = 3; // Bonus question worth 3 coins
         }
-                public class correctanswers {
+             
+        public class correctanswers {
             public string correctanswer { get; set; }
         }
     }
