@@ -41,8 +41,12 @@ namespace MyUni.Controllers
         [HttpGet("reminder")]
 public async Task<IActionResult> SendReminderForQuiz()
 {
-    try
-    {
+            await _emailService.SendEmailToAllUsers(
+                "Reminder: მოგესალმებით ქვიზი დაიწყება მალე.",
+                "ქვიზის დაწყებამდე დარჩენილია 30 წუთი."
+            );
+    // try
+    // {
         // var quizzes = await dbContext.MyQuiz
         //     .Include(card => card.Questions)
         //     .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
@@ -71,10 +75,6 @@ public async Task<IActionResult> SendReminderForQuiz()
         //     return BadRequest(new { Message = "Invalid quiz time format." });
         // }
 
-            await _emailService.SendEmailToAllUsers(
-                "Reminder: მოგესალმებით ქვიზი დაიწყება მალე.",
-                "ქვიზის დაწყებამდე დარჩენილია 30 წუთი."
-            );
         // Get the local time zone for Georgia
     //     TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
     //     DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
