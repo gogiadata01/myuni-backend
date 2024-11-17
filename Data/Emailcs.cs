@@ -144,77 +144,77 @@ namespace MyUni.Data
         }
 
         // Send emails in batches with retry logic
-        public async Task SendEmailsAsync(List<string> emails, string subject, string body, int batchSize = 50)
+public async Task SendEmailsAsync(List<string> emails, string subject, string body, int batchSize = 50)
+{
+    for (int i = 0; i < emails.Count; i += batchSize)
+    {
+        var batch = emails.Skip(i).Take(batchSize).ToList();
+
+        foreach (var email in batch)
         {
-            for (int i = 0; i < emails.Count; i += batchSize)
-            {
-                var batch = emails.Skip(i).Take(batchSize).ToList();
-
-                foreach (var email in batch)
-                {
-                    // Send each email with retry logic
-                    await SendEmailWithRetryAsync(email, subject, body);
-                }
-
-                // Add a delay between batches to avoid breaching Brevo's rate limits
-                await Task.Delay(5000); // 5-second delay between batches
-            }
+            // Send each email with retry logic
+            await SendEmailWithRetryAsync(email, subject, body);
         }
 
-        // Send a single email with retry logic
-        private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
+        // Add a delay between batches to avoid breaching Brevo's rate limits
+        await Task.Delay(5000); // 5-second delay between batches
+    }
+}
+
+private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
+{
+    int attempt = 0;
+    bool success = false;
+
+    while (attempt < maxRetries && !success)
+    {
+        try
         {
-            int attempt = 0;
-            bool success = false;
-
-            while (attempt < maxRetries && !success)
+            using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
             {
-                try
+                smtpClient.Credentials = new NetworkCredential(SmtpUser, SmtpPass);
+                smtpClient.EnableSsl = true;
+
+                using (var mailMessage = new MailMessage())
                 {
-                    using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
-                    {
-                        smtpClient.Credentials = new NetworkCredential(SmtpUser, SmtpPass);
-                        smtpClient.EnableSsl = true;
+                    mailMessage.From = new MailAddress(SenderEmail);
+                    mailMessage.To.Add(email);
+                    mailMessage.Subject = subject;
+                    mailMessage.Body = body;
+                    mailMessage.IsBodyHtml = true;
 
-                        using (var mailMessage = new MailMessage())
-                        {
-                            mailMessage.From = new MailAddress(SenderEmail);
-                            mailMessage.To.Add(email);
-                            mailMessage.Subject = subject;
-                            mailMessage.Body = body;
-                            mailMessage.IsBodyHtml = true;
-
-                            // Send email asynchronously
-                            await smtpClient.SendMailAsync(mailMessage);
-                            success = true;
-                            Console.WriteLine($"Email sent to {email} successfully.");
-                        }
-                    }
+                    // Send email asynchronously
+                    await smtpClient.SendMailAsync(mailMessage);
+                    success = true;
+                    Console.WriteLine($"Email sent to {email} successfully.");
                 }
-                catch (SmtpException ex)
-                {
-                    attempt++;
-                    Console.WriteLine($"Attempt {attempt} failed: {ex.Message}");
-                    
-                    // Retry on specific SMTP errors
-                    if (ex.Message.Contains("rate limit"))
-                    {
-                        // Handle rate limit error with longer delay
-                        await Task.Delay(30000); // 30-second delay for rate limit issues
-                    }
-                    else
-                    {
-                        // Handle other SMTP errors with a shorter delay
-                        await Task.Delay(5000); // 5-second delay for other errors
-                    }
-                }
-            }
-
-            // If after retries the email still hasn't been sent, log an error
-            if (!success)
-            {
-                Console.WriteLine($"Failed to send email to {email} after {maxRetries} attempts.");
             }
         }
+        catch (SmtpException ex)
+        {
+            attempt++;
+            Console.WriteLine($"Attempt {attempt} failed: {ex.Message}");
+            
+            // Retry on specific SMTP errors
+            if (ex.Message.Contains("rate limit"))
+            {
+                // Handle rate limit error with longer delay
+                await Task.Delay(30000); // 30-second delay for rate limit issues
+            }
+            else
+            {
+                // Handle other SMTP errors with a shorter delay
+                await Task.Delay(5000); // 5-second delay for other errors
+            }
+        }
+    }
+
+    // If after retries the email still hasn't been sent, log an error
+    if (!success)
+    {
+        Console.WriteLine($"Failed to send email to {email} after {maxRetries} attempts.");
+    }
+}
+
     }
 }

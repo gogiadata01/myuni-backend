@@ -16,11 +16,15 @@ namespace MyUni.Controllers
     {
         private readonly ApplicationDbContext dbContext;
         private readonly Emailcs _emailService;
+            private readonly ILogger<QuizController> _logger;  // Declare the logger
+
 
         public QuizController(ApplicationDbContext dbContext, Emailcs emailService)
         {
             this.dbContext = dbContext;
             _emailService = emailService;
+                    _logger = logger;  // Initialize the logger
+
         }
 
         // GET: api/Quiz
