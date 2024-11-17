@@ -123,7 +123,12 @@ namespace MyUni.Controllers
                 return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
             }
         }
-
+    public class EmailRequestDto
+    {
+        public string Subject { get; set; }
+        public string Body { get; set; }
+        public List<string> Emails { get; set; } // Optional: List of specific email addresses
+    }
         [HttpGet("{id}")]
         public IActionResult GetQuizById(int id)
         {
