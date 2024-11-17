@@ -38,73 +38,91 @@ namespace MyUni.Controllers
 
             return Ok(quizzes);
         }
-        [HttpGet("reminder")]
-public async Task<IActionResult> SendReminderForQuiz()
-{
-            await _emailService.SendEmailToAllUsers(
-                "Reminder: მოგესალმებით ქვიზი დაიწყება მალე.",
-                "ქვიზის დაწყებამდე დარჩენილია 30 წუთი."
-            );
-    // try
-    // {
-        // var quizzes = await dbContext.MyQuiz
-        //     .Include(card => card.Questions)
-        //     .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
-        //     .ToListAsync();
+//         [HttpGet("reminder")]
+// public async Task<IActionResult> SendReminderForQuiz()
+// {
+//     try
+//     {
+//         var quizzes = await dbContext.MyQuiz
+//             .Include(card => card.Questions)
+//             .ThenInclude(incorrectAnswer => incorrectAnswer.IncorrectAnswers)
+//             .ToListAsync();
 
-        // var quiz = quizzes.FirstOrDefault();
+//         var quiz = quizzes.FirstOrDefault();
 
-        // if (quiz == null)
-        // {
-        //     return NotFound(new { Message = "Quiz not found." });
-        // }
+//         if (quiz == null)
+//         {
+//             return NotFound(new { Message = "Quiz not found." });
+//         }
 
-        // Console.WriteLine($"Attempting to parse time: {quiz.Time}");
+//         Console.WriteLine($"Attempting to parse time: {quiz.Time}");
 
-        // // Get the current year and construct the time string
-        // var currentYear = DateTime.Now.Year;
-        // var timeWithYear = $"{quiz.Time}/{currentYear}";
+//         // Get the current year and construct the time string
+//         var currentYear = DateTime.Now.Year;
+//         var timeWithYear = $"{quiz.Time}/{currentYear}";
 
-        // // Parse the quiz time
-        // if (!DateTime.TryParseExact(timeWithYear, 
-        //                              "MM/dd HH:mm/yyyy", 
-        //                              CultureInfo.InvariantCulture, 
-        //                              DateTimeStyles.None, 
-        //                              out DateTime quizTime))
-        // {
-        //     return BadRequest(new { Message = "Invalid quiz time format." });
-        // }
+//         // Parse the quiz time
+//         if (!DateTime.TryParseExact(timeWithYear, 
+//                                      "MM/dd HH:mm/yyyy", 
+//                                      CultureInfo.InvariantCulture, 
+//                                      DateTimeStyles.None, 
+//                                      out DateTime quizTime))
+//         {
+//             return BadRequest(new { Message = "Invalid quiz time format." });
+//         }
 
-        // Get the local time zone for Georgia
-    //     TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
-    //     DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
+//         Get the local time zone for Georgia
+//         TimeZoneInfo localZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Tbilisi");
+//         DateTime quizTimeInLocalZone = TimeZoneInfo.ConvertTime(quizTime, localZone);
 
-    //     // Calculate the reminder time
-    //     var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
-    //     var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, localZone); // Get current local time
+//         // Calculate the reminder time
+//         var reminderTime = quizTimeInLocalZone.AddMinutes(-30);
+//         var currentTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, localZone); // Get current local time
 
-    //     // Log times for debugging
-    //     Console.WriteLine($"Current Time (Local): {currentTime}");
-    //     Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
-    //     Console.WriteLine($"Reminder Time (Local): {reminderTime}");
+//         // Log times for debugging
+//         Console.WriteLine($"Current Time (Local): {currentTime}");
+//         Console.WriteLine($"Quiz Time (Local): {quizTimeInLocalZone}");
+//         Console.WriteLine($"Reminder Time (Local): {reminderTime}");
 
-    //     // Check if it's time to send the reminder
-    //     if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
-    //     {
+//         // Check if it's time to send the reminder
+//         if (currentTime >= reminderTime && currentTime <= quizTimeInLocalZone)
+//         {
+//             await _emailService.SendEmailToAllUsers(
+//                 "Reminder: მოგესალმებით ქვიზი დაიწყება მალე.",
+//                 "ქვიზის დაწყებამდე დარჩენილია 30 წუთი."
+//             );
 
-    //         return Ok(new { Message = "Reminder emails have been sent to all users." });
-    //     }
-    //     else
-    //     {
-    //         return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
-    //     }
-    // }
-    // catch (Exception ex)
-    // {
-    //     Console.WriteLine(ex.Message);
-    //     return StatusCode(500, new { Message = "An error occurred while sending reminders." });
-    // }
-}
+//             return Ok(new { Message = "Reminder emails have been sent to all users." });
+//         }
+//         else
+//         {
+//             return BadRequest(new { Message = "It's too early to send a reminder. Try again closer to the quiz time." });
+//         }
+//     }
+//     catch (Exception ex)
+//     {
+//         Console.WriteLine(ex.Message);
+//         return StatusCode(500, new { Message = "An error occurred while sending reminders." });
+//     }
+// }
+        [HttpPost("send-email")]
+        public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+        {
+            if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
+            {
+                return BadRequest(new { Message = "Subject and Body are required." });
+            }
+
+            try
+            {
+                await _emailService.SendEmailsAsync(emailRequest.Subject, emailRequest.Body, emailRequest.Emails);
+                return Ok(new { Message = "Emails have been sent successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
+            }
+        }
 
         [HttpGet("{id}")]
         public IActionResult GetQuizById(int id)
