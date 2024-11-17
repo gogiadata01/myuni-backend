@@ -170,14 +170,14 @@ private async Task SendEmailWithRetryAsync(string email, string subject, string 
     {
         try
         {
-            using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
+            using (var smtpClient = new SmtpClient("smtp-relay.brevo.com", 587)) // Brevo SMTP server
             {
-                smtpClient.Credentials = new NetworkCredential(SmtpUser, SmtpPass);
-                smtpClient.EnableSsl = true;
+                smtpClient.Credentials = new NetworkCredential("80107d001@smtp-brevo.com", "wpLhKzNrxGvmgbUD"); // Brevo credentials
+                smtpClient.EnableSsl = true; // Enable SSL for secure connection
 
                 using (var mailMessage = new MailMessage())
                 {
-                    mailMessage.From = new MailAddress(SenderEmail);
+                    mailMessage.From = new MailAddress("hello@myuni.ge"); // Replace with your sender email
                     mailMessage.To.Add(email);
                     mailMessage.Subject = subject;
                     mailMessage.Body = body;
@@ -185,7 +185,7 @@ private async Task SendEmailWithRetryAsync(string email, string subject, string 
 
                     // Send email asynchronously
                     await smtpClient.SendMailAsync(mailMessage);
-                    success = true;
+                    success = true; // Mark the email as successfully sent
                     Console.WriteLine($"Email sent to {email} successfully.");
                 }
             }
@@ -193,12 +193,12 @@ private async Task SendEmailWithRetryAsync(string email, string subject, string 
         catch (SmtpException ex)
         {
             attempt++;
-            Console.WriteLine($"Attempt {attempt} failed: {ex.Message}");
-            
+            Console.WriteLine($"Attempt {attempt} failed to send email to {email}: {ex.Message}");
+
             // Retry on specific SMTP errors
             if (ex.Message.Contains("rate limit"))
             {
-                // Handle rate limit error with longer delay
+                // Handle rate limit error with a longer delay
                 await Task.Delay(30000); // 30-second delay for rate limit issues
             }
             else
