@@ -144,51 +144,70 @@ namespace MyUni.Data
             this.dbContext = dbContext;
         }
 
-        // Method to send email to specified users or all users
-        public async Task SendEmailsAsync(string subject, string body, List<string> specificEmails = null)
-        {
-            // If specific emails are provided, use them; otherwise, get all user emails from the database
-            var emails = specificEmails?.Any() == true
-                ? specificEmails
-                : await dbContext.MyUser.Select(user => user.Email).ToListAsync();
-
-            foreach (var email in emails)
-            {
-                await SendEmailAsync(email, subject, body);
-            }
-        }
-
-private async Task SendEmailAsync(string email, string subject, string body)
+private async Task SendEmailsInBatchesAsync(List<string> emails, string subject, string body, int batchSize = 50)
 {
-    try
+    for (int i = 0; i < emails.Count; i += batchSize)
     {
-        using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
+        var batch = emails.Skip(i).Take(batchSize).ToList();
+
+        foreach (var email in batch)
         {
-            smtpClient.Credentials = new NetworkCredential(SmtpUser, SmtpPass);
-            smtpClient.EnableSsl = true;
-
-            using (var mailMessage = new MailMessage())
-            {
-                mailMessage.From = new MailAddress(SenderEmail);
-                mailMessage.To.Add(email);
-                mailMessage.Subject = subject;
-                mailMessage.Body = body;
-                mailMessage.IsBodyHtml = true;
-
-                await smtpClient.SendMailAsync(mailMessage);
-                Console.WriteLine($"Email sent successfully to {email}");
-            }
+            await SendEmailWithRetryAsync(email, subject, body);
         }
-    }
-    catch (SmtpException smtpEx)
-    {
-        Console.WriteLine($"SMTP Error for {email}: {smtpEx.Message}");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Failed to send email to {email}: {ex.Message}");
+
+        // Add a delay between batches to avoid breaching Brevo's rate limits
+        await Task.Delay(5000); // 5-second delay
     }
 }
+
+
+private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
+{
+    int attempt = 0;
+    bool success = false;
+
+    while (attempt < maxRetries && !success)
+    {
+        try
+        {
+            using (var smtpClient = new SmtpClient("smtp-relay.brevo.com", 587))
+            {
+                smtpClient.Credentials = new NetworkCredential("80107d001@smtp-brevo.com", "wpLhKzNrxGvmgbUD");
+                smtpClient.EnableSsl = true;
+
+                using (var mailMessage = new MailMessage())
+                {
+                    mailMessage.From = new MailAddress("your-email@example.com");
+                    mailMessage.To.Add(email);
+                    mailMessage.Subject = subject;
+                    mailMessage.Body = body;
+                    mailMessage.IsBodyHtml = true;
+
+                    await smtpClient.SendMailAsync(mailMessage);
+                    success = true;
+                }
+            }
+
+            Console.WriteLine($"Email sent to {email}");
+        }
+        catch (SmtpException ex)
+        {
+            attempt++;
+            Console.WriteLine($"Attempt {attempt} failed: {ex.Message}");
+            
+            // Handle rate limit errors with a longer delay
+            if (ex.Message.Contains("rate limit"))
+            {
+                await Task.Delay(30000); // 30-second delay for rate limit issues
+            }
+            else
+            {
+                await Task.Delay(5000); // 5-second delay for other errors
+            }
+        }
+    }
+}
+
 
     }
 }

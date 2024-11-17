@@ -113,12 +113,42 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
         return BadRequest(new { Message = "Subject and Body are required." });
     }
 
+    int maxRetries = 3;  // Maximum number of retries
+    int attempt = 0;
+    bool success = false;
+
     try
     {
         // Check if the emails list is null or empty. If so, send to all users.
         var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
 
-        await _emailService.SendEmailsAsync(emailRequest.Subject, emailRequest.Body, sendToAllUsers ? null : emailRequest.Emails);
+        // Retry logic
+        while (attempt < maxRetries && !success)
+        {
+            try
+            {
+                // Try sending emails
+                await _emailService.SendEmailsAsync(emailRequest.Subject, emailRequest.Body, sendToAllUsers ? null : emailRequest.Emails);
+                success = true;  // If successful, exit the loop
+            }
+            catch (Exception ex)
+            {
+                attempt++;
+                // Log the error or notify that the attempt failed
+                _logger.LogError($"Attempt {attempt} failed: {ex.Message}");
+
+                if (attempt < maxRetries)
+                {
+                    // Wait for a few seconds before retrying
+                    await Task.Delay(5000); // Delay for 5 seconds (adjust as needed)
+                }
+            }
+        }
+
+        if (!success)
+        {
+            return StatusCode(500, new { Message = "Failed to send email after maximum retries." });
+        }
 
         return Ok(new { Message = sendToAllUsers ? "Emails sent to all users." : "Emails sent to specified users." });
     }
@@ -127,6 +157,7 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
         return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
     }
 }
+
 
     public class EmailRequestDto
     {
