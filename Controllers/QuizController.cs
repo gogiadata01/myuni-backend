@@ -19,7 +19,7 @@ namespace MyUni.Controllers
             private readonly ILogger<QuizController> _logger;  // Declare the logger
 
 
-        public QuizController(ApplicationDbContext dbContext, Emailcs emailService)
+        public QuizController(ApplicationDbContext dbContext, Emailcs emailService,ILogger<QuizController> logger)
         {
             this.dbContext = dbContext;
             _emailService = emailService;
