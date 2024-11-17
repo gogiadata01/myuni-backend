@@ -105,24 +105,29 @@ namespace MyUni.Controllers
 //         return StatusCode(500, new { Message = "An error occurred while sending reminders." });
 //     }
 // }
-        [HttpPost("send-email")]
-        public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
-        {
-            if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
-            {
-                return BadRequest(new { Message = "Subject and Body are required." });
-            }
+[HttpPost("send-email")]
+public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+{
+    if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
+    {
+        return BadRequest(new { Message = "Subject and Body are required." });
+    }
 
-            try
-            {
-                await _emailService.SendEmailsAsync(emailRequest.Subject, emailRequest.Body, emailRequest.Emails);
-                return Ok(new { Message = "Emails have been sent successfully." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
-            }
-        }
+    try
+    {
+        // Check if the emails list is null or empty. If so, send to all users.
+        var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
+
+        await _emailService.SendEmailsAsync(emailRequest.Subject, emailRequest.Body, sendToAllUsers ? null : emailRequest.Emails);
+
+        return Ok(new { Message = sendToAllUsers ? "Emails sent to all users." : "Emails sent to specified users." });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
+    }
+}
+
     public class EmailRequestDto
     {
         public string Subject { get; set; }

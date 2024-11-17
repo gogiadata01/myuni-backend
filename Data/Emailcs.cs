@@ -158,36 +158,37 @@ namespace MyUni.Data
             }
         }
 
-        private async Task SendEmailAsync(string email, string subject, string body)
+private async Task SendEmailAsync(string email, string subject, string body)
+{
+    try
+    {
+        using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
         {
-            try
-            {
-                using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
-                {
-                    smtpClient.Credentials = new NetworkCredential(SmtpUser, SmtpPass);
-                    smtpClient.EnableSsl = true;
+            smtpClient.Credentials = new NetworkCredential(SmtpUser, SmtpPass);
+            smtpClient.EnableSsl = true;
 
-                    var mailMessage = new MailMessage
-                    {
-                        From = new MailAddress(SenderEmail),
-                        Subject = subject,
-                        Body = body,
-                        IsBodyHtml = true
-                    };
-
-                    mailMessage.To.Add(email);
-
-                    await smtpClient.SendMailAsync(mailMessage);
-                }
-            }
-            catch (SmtpException smtpEx)
+            using (var mailMessage = new MailMessage())
             {
-                Console.WriteLine($"SMTP Error: {smtpEx.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to send email to {email}: {ex.Message}");
+                mailMessage.From = new MailAddress(SenderEmail);
+                mailMessage.To.Add(email);
+                mailMessage.Subject = subject;
+                mailMessage.Body = body;
+                mailMessage.IsBodyHtml = true;
+
+                await smtpClient.SendMailAsync(mailMessage);
+                Console.WriteLine($"Email sent successfully to {email}");
             }
         }
+    }
+    catch (SmtpException smtpEx)
+    {
+        Console.WriteLine($"SMTP Error for {email}: {smtpEx.Message}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to send email to {email}: {ex.Message}");
+    }
+}
+
     }
 }
