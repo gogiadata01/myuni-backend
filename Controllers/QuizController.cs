@@ -112,6 +112,7 @@ namespace MyUni.Controllers
 [HttpPost("send-email")]
 public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 {
+    // Validate that subject and body are not empty
     if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
     {
         return BadRequest(new { Message = "Subject and Body are required." });
@@ -131,8 +132,12 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
         {
             try
             {
-                // Try sending emails
-                await _emailService.SendEmailsAsync(emailRequest.Subject, emailRequest.Body, sendToAllUsers ? null : emailRequest.Emails);
+                // Corrected method call with proper arguments
+                await _emailService.SendEmailsAsync(
+                    sendToAllUsers ? new List<string>() : emailRequest.Emails,  // List<string> emails
+                    emailRequest.Subject,  // string subject
+                    emailRequest.Body      // string body
+                );
                 success = true;  // If successful, exit the loop
             }
             catch (Exception ex)
@@ -149,18 +154,22 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
             }
         }
 
+        // If after retries the email still hasn't been sent, return an error
         if (!success)
         {
             return StatusCode(500, new { Message = "Failed to send email after maximum retries." });
         }
 
+        // If emails are successfully sent, return a success message
         return Ok(new { Message = sendToAllUsers ? "Emails sent to all users." : "Emails sent to specified users." });
     }
     catch (Exception ex)
     {
+        // Return a general error message if an unexpected error occurs
         return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
     }
 }
+
 
 
 
