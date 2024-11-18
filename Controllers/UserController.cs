@@ -275,6 +275,34 @@ public class UserController : ControllerBase
 
         return Ok(new { message = "Coin value updated successfully", user });
     }
+    [HttpPut("update-coins")]
+public IActionResult UpdateCoins([FromBody] UpdateCoinDto dto)
+{
+    if (dto.NewCoinValue < 0)
+    {
+        return BadRequest(new { message = "Coin value cannot be negative" });
+    }
+
+    // Fetch all users
+    var allUsers = dbContext.MyUser.ToList();
+    if (allUsers == null || !allUsers.Any())
+    {
+        return NotFound(new { message = "No users found." });
+    }
+
+    // Update the Coin for all users
+    foreach (var user in allUsers)
+    {
+        user.Coin = dto.NewCoinValue;
+    }
+
+    // Save the changes to the database
+    dbContext.SaveChanges();
+
+    // Return success message
+    return Ok(new { message = "Coin value updated for all users successfully." });
+}
+
     
 [HttpPost("recover-password")]
 public IActionResult RecoverPassword([FromBody] UserRecoverPasswordDto recoverPasswordDto)

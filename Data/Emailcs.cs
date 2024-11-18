@@ -119,6 +119,11 @@
 //         }
 //     }
 // }
+        // private const string SmtpServer = "smtp-relay.brevo.com";
+        // private const int SmtpPort = 587;
+        // private const string SmtpUser = "7df9dc001@smtp-brevo.com"; // Your Brevo SMTP login
+        // private const string SmtpPass = "xMyRkZOdmP7s6VKa";         // Your Brevo SMTP password
+        // private const string SenderEmail = "hello@myuni.ge";   // The verified sender email address
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,11 +137,6 @@ namespace MyUni.Data
     public class Emailcs
     {
         private readonly ApplicationDbContext dbContext;
-        private const string SmtpServer = "smtp-relay.brevo.com";
-        private const int SmtpPort = 587;
-        private const string SmtpUser = "7df9dc001@smtp-brevo.com"; // Your Brevo SMTP login
-        private const string SmtpPass = "xMyRkZOdmP7s6VKa";         // Your Brevo SMTP password
-        private const string SenderEmail = "hello@myuni.ge";   // The verified sender email address
 
         public Emailcs(ApplicationDbContext dbContext)
         {
