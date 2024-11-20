@@ -205,7 +205,6 @@ namespace MyUni.Controllers
 //     return Ok(new { Message = "Emails are being sent." });
 // }
 
-
 [HttpPost("send-email")]
 public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 {
@@ -223,13 +222,16 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
     {
         try
         {
-            // Fetch the email list
-            var emailList = sendToAllUsers
-                ? dbContext.MyUser.Select(u => u.Email).ToList() // Fetch all emails from the database
-                : emailRequest.Emails;
+var emailList = sendToAllUsers
+    ? dbContext.MyUser.Select(u => u.Email).ToList()
+    : emailRequest.Emails;
 
-            // Call the email service to send emails
-            await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body);
+const int batchSize = 100; // Adjust batch size based on your system's capacity
+foreach (var batch in emailList.Chunk(batchSize))
+{
+    await _emailService.SendEmailsAsync(batch, emailRequest.Subject, emailRequest.Body);
+}
+
         }
         catch (Exception ex)
         {
