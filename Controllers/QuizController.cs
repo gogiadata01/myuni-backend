@@ -169,6 +169,43 @@ namespace MyUni.Controllers
 //         return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
 //     }
 // }
+
+
+// ეს მუშაობს მხოლოდ ჩაწერაზე მეილის და ისე არ მუშაობს
+// [HttpPost("send-email")]
+// public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+// {
+//     // Validate that subject and body are not empty
+//     if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
+//     {
+//         return BadRequest(new { Message = "Subject and Body are required." });
+//     }
+
+//     // Check if the emails list is null or empty. If so, send to all users.
+//     var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
+
+//     // Fire-and-forget logic
+//     _ = Task.Run(async () =>
+//     {
+//         try
+//         {
+//             await _emailService.SendEmailsAsync(
+//                 sendToAllUsers ? new List<string>() : emailRequest.Emails,
+//                 emailRequest.Subject,
+//                 emailRequest.Body
+//             );
+//         }
+//         catch (Exception ex)
+//         {
+//             _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+//         }
+//     });
+
+//     // Return a response immediately
+//     return Ok(new { Message = "Emails are being sent." });
+// }
+
+
 [HttpPost("send-email")]
 public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 {
@@ -186,11 +223,13 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
     {
         try
         {
-            await _emailService.SendEmailsAsync(
-                sendToAllUsers ? new List<string>() : emailRequest.Emails,
-                emailRequest.Subject,
-                emailRequest.Body
-            );
+            // Fetch the email list
+            var emailList = sendToAllUsers
+                ? _dbContext.Users.Select(u => u.Email).ToList() // Fetch all emails from the database
+                : emailRequest.Emails;
+
+            // Call the email service to send emails
+            await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body);
         }
         catch (Exception ex)
         {
