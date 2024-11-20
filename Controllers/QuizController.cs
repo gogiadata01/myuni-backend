@@ -110,66 +110,66 @@ namespace MyUni.Controllers
 //     }
 // }
 
-[HttpPost("send-email")]
-public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
-{
-    // Validate that subject and body are not empty
-    if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
-    {
-        return BadRequest(new { Message = "Subject and Body are required." });
-    }
+// [HttpPost("send-email")]
+// public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+// {
+//     // Validate that subject and body are not empty
+//     if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
+//     {
+//         return BadRequest(new { Message = "Subject and Body are required." });
+//     }
 
-    int maxRetries = 3;  // Maximum number of retries
-    int attempt = 0;
-    bool success = false;
+//     int maxRetries = 3;  // Maximum number of retries
+//     int attempt = 0;
+//     bool success = false;
 
-    try
-    {
-        // Check if the emails list is null or empty. If so, send to all users.
-        var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
+//     try
+//     {
+//         // Check if the emails list is null or empty. If so, send to all users.
+//         var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
 
-        // Retry logic
-        while (attempt < maxRetries && !success)
-        {
-            try
-            {
-                // Corrected method call with proper arguments
-                await _emailService.SendEmailsAsync(
-                    sendToAllUsers ? new List<string>() : emailRequest.Emails,  // List<string> emails
-                    emailRequest.Subject,  // string subject
-                    emailRequest.Body      // string body
-                );
-                success = true;  // If successful, exit the loop
-            }
-            catch (Exception ex)
-            {
-                attempt++;
-                // Log the error or notify that the attempt failed
-                _logger.LogError($"Attempt {attempt} failed: {ex.Message}");
+//         // Retry logic
+//         while (attempt < maxRetries && !success)
+//         {
+//             try
+//             {
+//                 // Corrected method call with proper arguments
+//                 await _emailService.SendEmailsAsync(
+//                     sendToAllUsers ? new List<string>() : emailRequest.Emails,  // List<string> emails
+//                     emailRequest.Subject,  // string subject
+//                     emailRequest.Body      // string body
+//                 );
+//                 success = true;  // If successful, exit the loop
+//             }
+//             catch (Exception ex)
+//             {
+//                 attempt++;
+//                 // Log the error or notify that the attempt failed
+//                 _logger.LogError($"Attempt {attempt} failed: {ex.Message}");
 
-                if (attempt < maxRetries)
-                {
-                    // Wait for a few seconds before retrying
-                    await Task.Delay(5000); // Delay for 5 seconds (adjust as needed)
-                }
-            }
-        }
+//                 if (attempt < maxRetries)
+//                 {
+//                     // Wait for a few seconds before retrying
+//                     await Task.Delay(5000); // Delay for 5 seconds (adjust as needed)
+//                 }
+//             }
+//         }
 
-        // If after retries the email still hasn't been sent, return an error
-        if (!success)
-        {
-            return StatusCode(500, new { Message = "Failed to send email after maximum retries." });
-        }
+//         // If after retries the email still hasn't been sent, return an error
+//         if (!success)
+//         {
+//             return StatusCode(500, new { Message = "Failed to send email after maximum retries." });
+//         }
 
-        // If emails are successfully sent, return a success message
-        return Ok(new { Message = sendToAllUsers ? "Emails sent to all users." : "Emails sent to specified users." });
-    }
-    catch (Exception ex)
-    {
-        // Return a general error message if an unexpected error occurs
-        return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
-    }
-}
+//         // If emails are successfully sent, return a success message
+//         return Ok(new { Message = sendToAllUsers ? "Emails sent to all users." : "Emails sent to specified users." });
+//     }
+//     catch (Exception ex)
+//     {
+//         // Return a general error message if an unexpected error occurs
+//         return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
+//     }
+// }
 
 
 // ეს მუშაობს მხოლოდ ჩაწერაზე მეილის და ისე არ მუშაობს
@@ -243,6 +243,40 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
     //     // Immediately return response
     //     return Ok(new { Message = "Emails are being sent to all users." });
     // }
+[HttpPost("send-email")]
+public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+{
+    // Validate that subject and body are not empty
+    if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
+    {
+        return BadRequest(new { Message = "Subject and Body are required." });
+    }
+
+    try
+    {
+        // Fetch all users' emails if no specific emails are provided
+        List<string> emailsToSend = emailRequest.Emails != null && emailRequest.Emails.Any()
+            ? emailRequest.Emails
+            : dbContext.MyUser
+                .Select(user => user.Email)
+                .ToList();
+
+        if (!emailsToSend.Any())
+        {
+            return BadRequest(new { Message = "No emails found to send." });
+        }
+
+        // Use Emailcs to send the emails
+        await _emailService.SendEmailsAsync(emailsToSend, emailRequest.Subject, emailRequest.Body);
+
+        return Ok(new { Message = $"{emailsToSend.Count} emails sent successfully." });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+        return StatusCode(500, new { Message = "An error occurred while sending emails." });
+    }
+}
 
 
 
