@@ -232,19 +232,7 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
             }
 
             const int batchSize = 100; // Define batch size for sending emails
-            foreach (var batch in emailList.Chunk(batchSize))
-            {
-                try
-                {
-                    // Send emails in batches
-                    await _emailService.SendEmailsAsync(batch.ToList(), emailRequest.Subject, emailRequest.Body);
-                    _logger.LogInformation($"Successfully sent email batch of {batch.Count()} recipients.");
-                }
-                catch (Exception batchEx)
-                {
-                    _logger.LogError($"Error sending batch: {batchEx.Message}");
-                }
-            }
+            await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body, batchSize);
         }
         catch (Exception ex)
         {

@@ -411,21 +411,17 @@ public class Emailcs
             return;
         }
 
-        // Process emails in batches
-        var batches = emails
-            .Chunk(batchSize)
-            .ToList();
-
+        var batches = emails.Chunk(batchSize).ToList();
         foreach (var batch in batches)
         {
             try
             {
                 await SendEmailBatchAsync(batch.ToList(), subject, body);
-                _logger.LogInformation($"Successfully sent email batch of {batch.Count()} recipients.");
+                _logger.LogInformation($"Successfully sent email batch of {batch.Count} recipients.");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error sending batch: {ex.Message}");
+                _logger.LogError($"Error sending email batch: {ex.Message}");
             }
         }
     }
@@ -434,16 +430,14 @@ public class Emailcs
     private async Task SendEmailBatchAsync(List<string> batch, string subject, string body)
     {
         var tasks = batch.Select(email => SendEmailWithRetryAsync(email, subject, body));
-        await Task.WhenAll(tasks); // Wait for all tasks in the batch to complete
+        await Task.WhenAll(tasks);
     }
 
     // Method to send a single email with retry logic
     private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
     {
         int attempt = 0;
-        bool success = false;
-
-        while (attempt < maxRetries && !success)
+        while (attempt < maxRetries)
         {
             try
             {
@@ -464,24 +458,20 @@ public class Emailcs
                 mailMessage.To.Add(email);
 
                 await smtpClient.SendMailAsync(mailMessage);
-                success = true; // Mark as successful
                 _logger.LogInformation($"Email sent to {email}.");
+                return; // Exit the retry loop if successful
             }
             catch (SmtpException ex)
             {
                 attempt++;
                 _logger.LogWarning($"Attempt {attempt} failed for email {email}: {ex.Message}");
-
-                // Handle rate limits or other retry-specific conditions
                 await Task.Delay(ex.Message.Contains("rate limit") ? 30000 : 5000);
             }
         }
 
-        if (!success)
-        {
-            _logger.LogError($"Failed to send email to {email} after {maxRetries} attempts.");
-        }
+        _logger.LogError($"Failed to send email to {email} after {maxRetries} attempts.");
     }
 }
+
 
 }
