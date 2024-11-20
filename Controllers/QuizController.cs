@@ -279,20 +279,21 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
             // Get the current batch
             var emailBatch = emailsToSend.Skip(i).Take(batchSize).ToList();
 
-            foreach (var email in emailBatch)
-            {
-                try
-                {
-_logger.LogInformation($"[{DateTime.UtcNow}] Sending email to {email}");
-                await _emailService.SendEmailsAsync(email, emailRequest.Subject, emailRequest.Body);
-                _logger.LogInformation($"[{DateTime.UtcNow}] Email successfully sent to {email}");
-                    successCount++;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Failed to send email to {email}: {ex.Message}");
-                }
-            }
+foreach (var email in emailBatch)
+{
+    try
+    {
+        _logger.LogInformation($"[{DateTime.UtcNow}] Sending email to {email}");
+        await _emailService.SendEmailsAsync(new List<string> { email }, emailRequest.Subject, emailRequest.Body);
+        _logger.LogInformation($"[{DateTime.UtcNow}] Email successfully sent to {email}");
+        successCount++;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError($"Failed to send email to {email}: {ex.Message}");
+    }
+}
+
         }
 
         _logger.LogInformation($"Finished sending emails. Total successfully sent: {successCount}");
