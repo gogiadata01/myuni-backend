@@ -220,7 +220,7 @@ namespace MyUni.Controllers
         {
             try
             {
-                var emailList = await _dbContext.MyUser
+                var emailList = await dbContext.MyUser
                     .Select(u => u.Email)
                     .ToListAsync();
                     Console.WriteLine(u.Email);
