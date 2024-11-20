@@ -223,8 +223,6 @@ namespace MyUni.Controllers
                 var emailList = await dbContext.MyUser
                     .Select(u => u.Email)
                     .ToListAsync();
-                    Console.WriteLine(u.Email);
-
                 if (!emailList.Any())
                 {
                     _logger.LogWarning("No valid email addresses found in the database.");
