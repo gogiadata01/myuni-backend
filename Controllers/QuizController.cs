@@ -186,17 +186,11 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
     {
         try
         {
-            // Use a scoped DbContext for database operations
-
-
-                // Fetch the email list
-                var emailList = sendToAllUsers
-                    ? scopedDbContext.Users.Select(u => u.Email).ToList() // Fetch all emails from the database
-                    : emailRequest.Emails;
-
-                // Call the email service to send emails
-                await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body);
-            
+            await _emailService.SendEmailsAsync(
+                sendToAllUsers ? new List<string>() : emailRequest.Emails,
+                emailRequest.Subject,
+                emailRequest.Body
+            );
         }
         catch (Exception ex)
         {
