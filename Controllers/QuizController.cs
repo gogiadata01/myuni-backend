@@ -283,9 +283,9 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
             {
                 try
                 {
-                    _logger.LogInformation($"Sending email to {email}");
-                    await _emailService.SendEmailAsync(email, emailRequest.Subject, emailRequest.Body);
-                    _logger.LogInformation($"Email successfully sent to {email}");
+_logger.LogInformation($"[{DateTime.UtcNow}] Sending email to {email}");
+                await _emailService.SendEmailAsync(email, emailRequest.Subject, emailRequest.Body);
+                _logger.LogInformation($"[{DateTime.UtcNow}] Email successfully sent to {email}");
                     successCount++;
                 }
                 catch (Exception ex)
