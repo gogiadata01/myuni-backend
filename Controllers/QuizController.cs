@@ -173,79 +173,79 @@ namespace MyUni.Controllers
 
 
 // ეს მუშაობს მხოლოდ ჩაწერაზე მეილის და ისე არ მუშაობს
-// [HttpPost("send-email")]
-// public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
-// {
-//     // Validate that subject and body are not empty
-//     if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
-//     {
-//         return BadRequest(new { Message = "Subject and Body are required." });
-//     }
-
-//     // Check if the emails list is null or empty. If so, send to all users.
-//     var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
-
-//     // Fire-and-forget logic
-//     _ = Task.Run(async () =>
-//     {
-//         try
-//         {
-//             await _emailService.SendEmailsAsync(
-//                 sendToAllUsers ? new List<string>() : emailRequest.Emails,
-//                 emailRequest.Subject,
-//                 emailRequest.Body
-//             );
-//         }
-//         catch (Exception ex)
-//         {
-//             _logger.LogError($"Error occurred while sending emails: {ex.Message}");
-//         }
-//     });
-
-//     // Return a response immediately
-//     return Ok(new { Message = "Emails are being sent." });
-// }
-
-    [HttpPost("send-email")]
-    public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+[HttpPost("send-email")]
+public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+{
+    // Validate that subject and body are not empty
+    if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
     {
-        // Validate input
-        if (string.IsNullOrWhiteSpace(emailRequest.Subject) || string.IsNullOrWhiteSpace(emailRequest.Body))
-        {
-            return BadRequest(new { Message = "Subject and Body are required." });
-        }
-
-        // Fire-and-forget task to send emails asynchronously
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                // Retrieve all valid email addresses from the database
-                var emailList = await _dbContext.MyUser
-                    .Where(u => !string.IsNullOrEmpty(u.Email)) // Filter for valid emails
-                    .Select(u => u.Email)
-                    .ToListAsync();
-
-                if (!emailList.Any())
-                {
-                    _logger.LogWarning("No valid email addresses found in the database.");
-                    return;
-                }
-
-                // Send emails in batches
-                const int batchSize = 100;
-                await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body, batchSize);
-            }
-            catch (Exception ex)
-            {
-                // Log any unexpected errors
-                _logger.LogError($"Error occurred while sending emails: {ex.Message}");
-            }
-        });
-
-        // Immediately return response
-        return Ok(new { Message = "Emails are being sent to all users." });
+        return BadRequest(new { Message = "Subject and Body are required." });
     }
+
+    // Check if the emails list is null or empty. If so, send to all users.
+    var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
+
+    // Fire-and-forget logic
+    _ = Task.Run(async () =>
+    {
+        try
+        {
+            await _emailService.SendEmailsAsync(
+                sendToAllUsers ? new List<string>() : emailRequest.Emails,
+                emailRequest.Subject,
+                emailRequest.Body
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+        }
+    });
+
+    // Return a response immediately
+    return Ok(new { Message = "Emails are being sent." });
+}
+
+    // [HttpPost("send-email")]
+    // public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
+    // {
+    //     // Validate input
+    //     if (string.IsNullOrWhiteSpace(emailRequest.Subject) || string.IsNullOrWhiteSpace(emailRequest.Body))
+    //     {
+    //         return BadRequest(new { Message = "Subject and Body are required." });
+    //     }
+
+    //     // Fire-and-forget task to send emails asynchronously
+    //     _ = Task.Run(async () =>
+    //     {
+    //         try
+    //         {
+    //             // Retrieve all valid email addresses from the database
+    //             var emailList = await _dbContext.MyUser
+    //                 .Where(u => !string.IsNullOrEmpty(u.Email)) // Filter for valid emails
+    //                 .Select(u => u.Email)
+    //                 .ToListAsync();
+
+    //             if (!emailList.Any())
+    //             {
+    //                 _logger.LogWarning("No valid email addresses found in the database.");
+    //                 return;
+    //             }
+
+    //             // Send emails in batches
+    //             const int batchSize = 100;
+    //             await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body, batchSize);
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             // Log any unexpected errors
+    //             _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+    //         }
+    //     });
+
+    //     // Immediately return response
+    //     return Ok(new { Message = "Emails are being sent to all users." });
+    // }
 
 
 
@@ -255,7 +255,9 @@ public class EmailRequestDto
 {
     public string Subject { get; set; }
     public string Body { get; set; }
+    public List<string> Emails { get; set; } // Optional: specify email addresses or leave empty for all users
 }
+
 
         [HttpGet("{id}")]
         public IActionResult GetQuizById(int id)
