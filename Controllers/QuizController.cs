@@ -246,7 +246,7 @@ namespace MyUni.Controllers
 [HttpPost("send-email")]
 public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 {
-    // Validate that subject and body are not empty
+    // Validate that subject and body are provided
     if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
     {
         return BadRequest(new { Message = "Subject and Body are required." });
@@ -254,29 +254,58 @@ public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emai
 
     try
     {
-        // Fetch all users' emails if no specific emails are provided
+        // Fetch emails: Use provided emails or fetch all users' emails from the database
         List<string> emailsToSend = emailRequest.Emails != null && emailRequest.Emails.Any()
             ? emailRequest.Emails
             : dbContext.MyUser
                 .Select(user => user.Email)
                 .ToList();
 
+        // Ensure there are emails to send
         if (!emailsToSend.Any())
         {
             return BadRequest(new { Message = "No emails found to send." });
         }
 
-        // Use Emailcs to send the emails
-        await _emailService.SendEmailsAsync(emailsToSend, emailRequest.Subject, emailRequest.Body);
+        // Log the number of emails being sent
+        _logger.LogInformation($"Starting to send emails to {emailsToSend.Count} recipients.");
 
-        return Ok(new { Message = $"{emailsToSend.Count} emails sent successfully." });
+        // Send emails in batches for better control and logging
+        const int batchSize = 50; // Adjust batch size as needed
+        int successCount = 0;
+
+        for (int i = 0; i < emailsToSend.Count; i += batchSize)
+        {
+            // Get the current batch
+            var emailBatch = emailsToSend.Skip(i).Take(batchSize).ToList();
+
+            foreach (var email in emailBatch)
+            {
+                try
+                {
+                    _logger.LogInformation($"Sending email to {email}");
+                    await _emailService.SendEmailAsync(email, emailRequest.Subject, emailRequest.Body);
+                    _logger.LogInformation($"Email successfully sent to {email}");
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Failed to send email to {email}: {ex.Message}");
+                }
+            }
+        }
+
+        _logger.LogInformation($"Finished sending emails. Total successfully sent: {successCount}");
+
+        return Ok(new { Message = $"{successCount}/{emailsToSend.Count} emails sent successfully." });
     }
     catch (Exception ex)
     {
-        _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+        _logger.LogError($"An error occurred while sending emails: {ex.Message}");
         return StatusCode(500, new { Message = "An error occurred while sending emails." });
     }
 }
+
 
 
 
