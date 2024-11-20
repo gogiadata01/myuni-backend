@@ -109,6 +109,7 @@ namespace MyUni.Controllers
 //         return StatusCode(500, new { Message = "An error occurred while sending reminders." });
 //     }
 // }
+
 // [HttpPost("send-email")]
 // public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 // {
@@ -205,46 +206,46 @@ namespace MyUni.Controllers
 //     return Ok(new { Message = "Emails are being sent." });
 // }
 
-[HttpPost("send-email")]
-public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
-{
-    // Validate the input payload
-    if (string.IsNullOrWhiteSpace(emailRequest.Subject) || string.IsNullOrWhiteSpace(emailRequest.Body))
+    [HttpPost("send-email")]
+    public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
     {
-        return BadRequest(new { Message = "Subject and Body are required." });
-    }
-
-    // Fire-and-forget logic to send emails
-    _ = Task.Run(async () =>
-    {
-        try
+        // Validate input
+        if (string.IsNullOrWhiteSpace(emailRequest.Subject) || string.IsNullOrWhiteSpace(emailRequest.Body))
         {
-            // Retrieve all email addresses of users in the system
-            var emailList = await dbContext.MyUser
-                .Where(u => !string.IsNullOrEmpty(u.Email)) // Ensure that email is not null or empty
-                .Select(u => u.Email)
-                .ToListAsync();
+            return BadRequest(new { Message = "Subject and Body are required." });
+        }
 
-            if (!emailList.Any())
+        // Fire-and-forget task to send emails asynchronously
+        _ = Task.Run(async () =>
+        {
+            try
             {
-                _logger.LogWarning("No valid email addresses found to send the email.");
-                return;
+                // Retrieve all valid email addresses from the database
+                var emailList = await _dbContext.MyUser
+                    .Where(u => !string.IsNullOrEmpty(u.Email)) // Filter for valid emails
+                    .Select(u => u.Email)
+                    .ToListAsync();
+
+                if (!emailList.Any())
+                {
+                    _logger.LogWarning("No valid email addresses found in the database.");
+                    return;
+                }
+
+                // Send emails in batches
+                const int batchSize = 100;
+                await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body, batchSize);
             }
+            catch (Exception ex)
+            {
+                // Log any unexpected errors
+                _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+            }
+        });
 
-            const int batchSize = 100; // Define batch size for sending emails
-            await _emailService.SendEmailsAsync(emailList, emailRequest.Subject, emailRequest.Body, batchSize);
-        }
-        catch (Exception ex)
-        {
-            // Log the overall exception
-            _logger.LogError($"Error occurred while processing email sending task: {ex.Message}");
-        }
-    });
-
-    // Return a response immediately
-    return Ok(new { Message = "Emails are being sent." });
-}
-
+        // Immediately return response
+        return Ok(new { Message = "Emails are being sent to all users." });
+    }
 
 
 
