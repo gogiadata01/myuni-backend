@@ -223,7 +223,7 @@ namespace MyUni.Controllers
                 var emailList = await _dbContext.MyUser
                     .Select(u => u.Email)
                     .ToListAsync();
-                    Console.WriteLine(u.Email)
+                    Console.WriteLine(u.Email);
 
                 if (!emailList.Any())
                 {
