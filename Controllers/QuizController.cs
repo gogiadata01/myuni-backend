@@ -220,7 +220,6 @@ namespace MyUni.Controllers
         {
             try
             {
-                // Retrieve all valid email addresses from the database
                 var emailList = await _dbContext.MyUser
                     .Select(u => u.Email)
                     .ToListAsync();
