@@ -222,19 +222,21 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
     {
         try
         {
-var emailList = sendToAllUsers
-    ? dbContext.MyUser.Select(u => u.Email).ToList()
-    : emailRequest.Emails;
+            // Retrieve email list
+            var emailList = sendToAllUsers
+                ? dbContext.MyUser.Select(u => u.Email).ToList()
+                : emailRequest.Emails;
 
-const int batchSize = 100; // Adjust batch size based on your system's capacity
-foreach (var batch in emailList.Chunk(batchSize))
-{
-    await _emailService.SendEmailsAsync(batch, emailRequest.Subject, emailRequest.Body);
-}
-
+            const int batchSize = 100; // Adjust batch size based on your system's capacity
+            foreach (var batch in emailList.Chunk(batchSize))
+            {
+                // Convert chunk (array) to a list
+                await _emailService.SendEmailsAsync(batch.ToList(), emailRequest.Subject, emailRequest.Body);
+            }
         }
         catch (Exception ex)
         {
+            // Log the exception
             _logger.LogError($"Error occurred while sending emails: {ex.Message}");
         }
     });
@@ -242,6 +244,7 @@ foreach (var batch in emailList.Chunk(batchSize))
     // Return a response immediately
     return Ok(new { Message = "Emails are being sent." });
 }
+
 
 
 
