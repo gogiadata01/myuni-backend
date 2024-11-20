@@ -383,101 +383,101 @@
 //     }
 // }
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+// using System;
+// using System.Collections.Generic;
+// using System.Linq;
+// using System.Net;
+// using System.Net.Mail;
+// using System.Threading.Tasks;
+// using Microsoft.Extensions.Logging;
 
-namespace MyUni.Data
-{
-    public class Emailcs
-    {
-        private readonly ILogger<Emailcs> _logger;
+// namespace MyUni.Data
+// {
+//     public class Emailcs
+//     {
+//         private readonly ILogger<Emailcs> _logger;
 
-        public Emailcs(ILogger<Emailcs> logger)
-        {
-            _logger = logger;
-        }
+//         public Emailcs(ILogger<Emailcs> logger)
+//         {
+//             _logger = logger;
+//         }
 
-        // Method to send emails in batches
-        public async Task SendEmailsAsync(List<string> emails, string subject, string body, int batchSize = 100)
-        {
-            if (emails == null || !emails.Any())
-            {
-                _logger.LogWarning("No emails provided for sending.");
-                return;
-            }
+//         // Method to send emails in batches
+//         public async Task SendEmailsAsync(List<string> emails, string subject, string body, int batchSize = 100)
+//         {
+//             if (emails == null || !emails.Any())
+//             {
+//                 _logger.LogWarning("No emails provided for sending.");
+//                 return;
+//             }
 
-            // Break the emails into chunks (batches) for more manageable sending
-            var batches = emails.Chunk(batchSize).ToList();
+//             // Break the emails into chunks (batches) for more manageable sending
+//             var batches = emails.Chunk(batchSize).ToList();
 
-            foreach (var batch in batches)
-            {
-                try
-                {
-                    // Send emails for the current batch
-                    await SendEmailBatchAsync(batch.ToList(), subject, body);
-                    _logger.LogInformation($"Successfully sent email batch of {batch.Count} recipients.");
-                }
-                catch (Exception ex)
-                {
-                    // Log any batch-level errors
-                    _logger.LogError($"Error sending email batch: {ex.Message}");
-                }
-            }
-        }
+//             foreach (var batch in batches)
+//             {
+//                 try
+//                 {
+//                     // Send emails for the current batch
+//                     await SendEmailBatchAsync(batch.ToList(), subject, body);
+//                     _logger.LogInformation($"Successfully sent email batch of {batch.Count} recipients.");
+//                 }
+//                 catch (Exception ex)
+//                 {
+//                     // Log any batch-level errors
+//                     _logger.LogError($"Error sending email batch: {ex.Message}");
+//                 }
+//             }
+//         }
 
-        // Method to send a batch of emails
-        private async Task SendEmailBatchAsync(List<string> batch, string subject, string body)
-        {
-            // Send emails in parallel for the batch
-            var tasks = batch.Select(email => SendEmailWithRetryAsync(email, subject, body));
-            await Task.WhenAll(tasks);
-        }
+//         // Method to send a batch of emails
+//         private async Task SendEmailBatchAsync(List<string> batch, string subject, string body)
+//         {
+//             // Send emails in parallel for the batch
+//             var tasks = batch.Select(email => SendEmailWithRetryAsync(email, subject, body));
+//             await Task.WhenAll(tasks);
+//         }
 
-        // Method to send a single email with retry logic
-private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
-{
-    int attempt = 0;
-    while (attempt < maxRetries)
-    {
-        try
-        {
-            _logger.LogInformation($"Attempting to send email to {email}. Attempt: {attempt + 1}/{maxRetries}");
+//         // Method to send a single email with retry logic
+// private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
+// {
+//     int attempt = 0;
+//     while (attempt < maxRetries)
+//     {
+//         try
+//         {
+//             _logger.LogInformation($"Attempting to send email to {email}. Attempt: {attempt + 1}/{maxRetries}");
 
-            using var smtpClient = new SmtpClient("smtp-relay.brevo.com", 587)
-            {
-                Credentials = new NetworkCredential("80107d001@smtp-brevo.com", "wpLhKzNrxGvmgbUD"),
-                EnableSsl = true
-            };
+//             using var smtpClient = new SmtpClient("smtp-relay.brevo.com", 587)
+//             {
+//                 Credentials = new NetworkCredential("80107d001@smtp-brevo.com", "wpLhKzNrxGvmgbUD"),
+//                 EnableSsl = true
+//             };
 
-            using var mailMessage = new MailMessage
-            {
-                From = new MailAddress("hello@myuni.ge"),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
+//             using var mailMessage = new MailMessage
+//             {
+//                 From = new MailAddress("hello@myuni.ge"),
+//                 Subject = subject,
+//                 Body = body,
+//                 IsBodyHtml = true
+//             };
 
-            mailMessage.To.Add(email);
+//             mailMessage.To.Add(email);
 
-            await smtpClient.SendMailAsync(mailMessage);
-            _logger.LogInformation($"Successfully sent email to {email}.");
-            return; // Exit retry loop on success
-        }
-        catch (SmtpException ex)
-        {
-            attempt++;
-            _logger.LogWarning($"Failed to send email to {email} (Attempt {attempt}/{maxRetries}): {ex.Message}");
-            await Task.Delay(TimeSpan.FromSeconds(attempt * 5)); // Exponential backoff
-        }
-    }
+//             await smtpClient.SendMailAsync(mailMessage);
+//             _logger.LogInformation($"Successfully sent email to {email}.");
+//             return; // Exit retry loop on success
+//         }
+//         catch (SmtpException ex)
+//         {
+//             attempt++;
+//             _logger.LogWarning($"Failed to send email to {email} (Attempt {attempt}/{maxRetries}): {ex.Message}");
+//             await Task.Delay(TimeSpan.FromSeconds(attempt * 5)); // Exponential backoff
+//         }
+//     }
 
-    _logger.LogError($"Failed to send email to {email} after {maxRetries} attempts.");
-}
+//     _logger.LogError($"Failed to send email to {email} after {maxRetries} attempts.");
+// }
 
-    }
-}
+//     }
+// }
