@@ -262,12 +262,12 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 
 
 
-    public class EmailRequestDto
-    {
-        public string Subject { get; set; }
-        public string Body { get; set; }
-        public List<string> Emails { get; set; } // Optional: List of specific email addresses
-    }
+public class EmailRequestDto
+{
+    public string Subject { get; set; }
+    public string Body { get; set; }
+}
+
         [HttpGet("{id}")]
         public IActionResult GetQuizById(int id)
         {
