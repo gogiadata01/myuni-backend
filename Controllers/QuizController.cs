@@ -208,14 +208,14 @@ namespace MyUni.Controllers
 [HttpPost("send-email")]
 public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 {
-    // Validate that subject and body are not empty
-    if (string.IsNullOrEmpty(emailRequest.Subject) || string.IsNullOrEmpty(emailRequest.Body))
+    // Validate the input payload
+    if (string.IsNullOrWhiteSpace(emailRequest.Subject) || string.IsNullOrWhiteSpace(emailRequest.Body))
     {
         return BadRequest(new { Message = "Subject and Body are required." });
     }
 
-    // Check if the emails list is null or empty. If so, send to all users.
-    var sendToAllUsers = emailRequest.Emails == null || emailRequest.Emails.Count == 0;
+    // Determine if emails should be sent to all users
+    var sendToAllUsers = emailRequest.Emails == null || !emailRequest.Emails.Any();
 
     // Fire-and-forget logic
     _ = Task.Run(async () =>
@@ -224,26 +224,44 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
         {
             // Retrieve email list
             var emailList = sendToAllUsers
-                ? dbContext.MyUser.Select(u => u.Email).ToList()
-                : emailRequest.Emails;
+                ? await dbContext.MyUser
+                    .Where(u => !string.IsNullOrEmpty(u.Email)) // Filter out invalid or empty emails
+                    .Select(u => u.Email)
+                    .ToListAsync()
+                : emailRequest.Emails.Distinct().ToList(); // Remove duplicate emails
 
-            const int batchSize = 100; // Adjust batch size based on your system's capacity
+            if (!emailList.Any())
+            {
+                _logger.LogWarning("No valid email addresses found to send the email.");
+                return;
+            }
+
+            const int batchSize = 100; // Define batch size for sending emails
             foreach (var batch in emailList.Chunk(batchSize))
             {
-                // Convert chunk (array) to a list
-                await _emailService.SendEmailsAsync(batch.ToList(), emailRequest.Subject, emailRequest.Body);
+                try
+                {
+                    // Send emails in batches
+                    await _emailService.SendEmailsAsync(batch.ToList(), emailRequest.Subject, emailRequest.Body);
+                    _logger.LogInformation($"Successfully sent email batch of {batch.Count()} recipients.");
+                }
+                catch (Exception batchEx)
+                {
+                    _logger.LogError($"Error sending batch: {batchEx.Message}");
+                }
             }
         }
         catch (Exception ex)
         {
-            // Log the exception
-            _logger.LogError($"Error occurred while sending emails: {ex.Message}");
+            // Log the overall exception
+            _logger.LogError($"Error occurred while processing email sending task: {ex.Message}");
         }
     });
 
     // Return a response immediately
     return Ok(new { Message = "Emails are being sent." });
 }
+
 
 
 
