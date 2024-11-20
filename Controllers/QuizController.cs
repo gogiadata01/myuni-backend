@@ -225,7 +225,7 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
         {
             // Fetch the email list
             var emailList = sendToAllUsers
-                ? _dbContext.Users.Select(u => u.Email).ToList() // Fetch all emails from the database
+                ? dbContext.Users.Select(u => u.Email).ToList() // Fetch all emails from the database
                 : emailRequest.Emails;
 
             // Call the email service to send emails
