@@ -439,48 +439,45 @@ namespace MyUni.Data
         }
 
         // Method to send a single email with retry logic
-        private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
+private async Task SendEmailWithRetryAsync(string email, string subject, string body, int maxRetries = 3)
+{
+    int attempt = 0;
+    while (attempt < maxRetries)
+    {
+        try
         {
-            int attempt = 0;
+            _logger.LogInformation($"Attempting to send email to {email}. Attempt: {attempt + 1}/{maxRetries}");
 
-            while (attempt < maxRetries)
+            using var smtpClient = new SmtpClient("smtp-relay.brevo.com", 587)
             {
-                try
-                {
-                    // Configure the SMTP client
-                    using var smtpClient = new SmtpClient("smtp-relay.brevo.com", 587)
-                    {
-                        Credentials = new NetworkCredential("80107d001@smtp-brevo.com", "wpLhKzNrxGvmgbUD"),
-                        EnableSsl = true
-                    };
+                Credentials = new NetworkCredential("80107d001@smtp-brevo.com", "wpLhKzNrxGvmgbUD"),
+                EnableSsl = true
+            };
 
-                    // Create the email message
-                    using var mailMessage = new MailMessage
-                    {
-                        From = new MailAddress("hello@myuni.ge"), // Sender email
-                        Subject = subject,
-                        Body = body,
-                        IsBodyHtml = true
-                    };
+            using var mailMessage = new MailMessage
+            {
+                From = new MailAddress("hello@myuni.ge"),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
 
-                    mailMessage.To.Add(email);
+            mailMessage.To.Add(email);
 
-                    // Send the email
-                    await smtpClient.SendMailAsync(mailMessage);
-                    _logger.LogInformation($"Email successfully sent to {email}.");
-                    return; // Exit the retry loop upon success
-                }
-                catch (SmtpException ex)
-                {
-                    attempt++;
-                    _logger.LogWarning($"Attempt {attempt} to send email to {email} failed: {ex.Message}");
-                    // Retry delays based on error type
-                    await Task.Delay(ex.Message.Contains("rate limit") ? 30000 : 5000);
-                }
-            }
-
-            // Log failure after max retries
-            _logger.LogError($"Failed to send email to {email} after {maxRetries} attempts.");
+            await smtpClient.SendMailAsync(mailMessage);
+            _logger.LogInformation($"Successfully sent email to {email}.");
+            return; // Exit retry loop on success
         }
+        catch (SmtpException ex)
+        {
+            attempt++;
+            _logger.LogWarning($"Failed to send email to {email} (Attempt {attempt}/{maxRetries}): {ex.Message}");
+            await Task.Delay(TimeSpan.FromSeconds(attempt * 5)); // Exponential backoff
+        }
+    }
+
+    _logger.LogError($"Failed to send email to {email} after {maxRetries} attempts.");
+}
+
     }
 }
