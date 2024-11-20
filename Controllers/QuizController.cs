@@ -214,21 +214,16 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
         return BadRequest(new { Message = "Subject and Body are required." });
     }
 
-    // Determine if emails should be sent to all users
-    var sendToAllUsers = emailRequest.Emails == null || !emailRequest.Emails.Any();
-
-    // Fire-and-forget logic
+    // Fire-and-forget logic to send emails
     _ = Task.Run(async () =>
     {
         try
         {
-            // Retrieve email list
-            var emailList = sendToAllUsers
-                ? await dbContext.MyUser
-                    .Where(u => !string.IsNullOrEmpty(u.Email)) // Filter out invalid or empty emails
-                    .Select(u => u.Email)
-                    .ToListAsync()
-                : emailRequest.Emails.Distinct().ToList(); // Remove duplicate emails
+            // Retrieve all email addresses of users in the system
+            var emailList = await dbContext.MyUser
+                .Where(u => !string.IsNullOrEmpty(u.Email)) // Ensure that email is not null or empty
+                .Select(u => u.Email)
+                .ToListAsync();
 
             if (!emailList.Any())
             {
