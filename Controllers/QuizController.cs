@@ -189,7 +189,6 @@ public IActionResult SendCustomEmail([FromBody] EmailRequestDto emailRequest)
             // Use a scoped DbContext for database operations
             using (var scope = _serviceProvider.CreateScope())
             {
-                var scopedDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
                 // Fetch the email list
                 var emailList = sendToAllUsers
