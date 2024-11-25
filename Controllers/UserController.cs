@@ -57,6 +57,27 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
+    private string GenerateJwtToken(User user)
+{
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.Name, user.Email),
+        new Claim(ClaimTypes.Role, user.Type)
+    };
+
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+        issuer: configuration["Jwt:Issuer"],
+        audience: configuration["Jwt:Audience"],
+        claims: claims,
+        expires: DateTime.Now.AddMinutes(30), // Token expiration time
+        signingCredentials: creds);
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
+
     [HttpPost("register")]
     public IActionResult Register([FromBody] UserDto newUserDto)
     {
@@ -90,14 +111,16 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
     }
 
-    [HttpPost("signin")]
-    public IActionResult SignIn([FromBody] UserSignInDto loginDto)
+[HttpPost("signin")]
+public IActionResult SignIn([FromBody] UserSignInDto loginDto)
+{
+    if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
     {
-        if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
-        {
-            return BadRequest("Email and Password are required.");
-        }
+        return BadRequest("Email and Password are required.");
+    }
 
+    try
+    {
         var user = dbContext.MyUser.FirstOrDefault(u => u.Email == loginDto.Email);
         if (user == null || !VerifyPassword(loginDto.Password, user.Password))
         {
@@ -106,8 +129,20 @@ public class UserController : ControllerBase
 
         var tokenString = GenerateJwtToken(user);
 
-        return Ok(new { Token = tokenString, UserId = user.Id, UserName = user.Name,Type = user.Type, Coin = user.Coin,Email = user.Email,Img = user.Img });
+        return Ok(new
+        {
+            Token = tokenString,
+            UserId = user.Id,
+            UserName = user.Name,
+            Type = user.Type
+        });
     }
+    catch (Exception ex)
+    {
+        return StatusCode(500, "An error occurred. Please try again later.");
+    }
+}
+
 
     private bool VerifyPassword(string inputPassword, string storedHashedPassword)
     {
@@ -139,7 +174,6 @@ public class UserController : ControllerBase
             issuer: configuration["Jwt:Issuer"],
             audience: configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
