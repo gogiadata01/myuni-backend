@@ -82,6 +82,7 @@ public class UserController : ControllerBase
             Type = newUserDto.Type,
             Img = newUserDto.Img,
             Coin = newUserDto.Coin,
+            Token = newUserDto.newUserDto
         };
 
         dbContext.MyUser.Add(newUser);
