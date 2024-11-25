@@ -139,25 +139,27 @@ public IActionResult SignIn([FromBody] UserSignInDto loginDto)
         }
     }
 
-    private string GenerateJwtToken(User user)
+private string GenerateJwtToken(User user)
+{
+    var claims = new[] 
     {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, user.Email), // Use email or username as the claim
-            new Claim(ClaimTypes.Role, user.Type) // Assuming Type can represent roles like "Admin"
-        };
+        new Claim(ClaimTypes.Name, user.Email), // Use email as the claim
+        new Claim(ClaimTypes.Role, user.Type),  // Assuming Type can represent roles like "Admin"
+        new Claim(ClaimTypes.id, user.Id) // Add Id as the NameIdentifier claim
+    };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
-            claims: claims,
-            signingCredentials: creds);
+    var token = new JwtSecurityToken(
+        issuer: configuration["Jwt:Issuer"],
+        audience: configuration["Jwt:Audience"],
+        claims: claims,
+        signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
+
 
     [Authorize(Roles = "Admin")] // Only admin users can access this action
     [HttpGet("admin-data")]
