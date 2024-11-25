@@ -270,6 +270,63 @@ public IActionResult RecoverPassword([FromBody] UserRecoverPasswordDto recoverPa
 
         return Ok(new { Token = tokenString, UserId = user.Id, UserName = user.Name });
     }
+    [HttpGet("check-quiz-restriction/{userId}")]
+public IActionResult CheckQuizRestriction(int userId)
+{
+    var user = dbContext.MyUser.FirstOrDefault(u => u.Id == userId);
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    // Check if the user has a last quiz attempt time
+    if (user.LastQuizAttempt.HasValue)
+    {
+        var timeSinceLastAttempt = DateTime.UtcNow - user.LastQuizAttempt.Value;
+
+        if (timeSinceLastAttempt < TimeSpan.FromMinutes(15))
+        {
+            var timeLeft = TimeSpan.FromMinutes(15) - timeSinceLastAttempt;
+            return Ok(new
+            {
+                CanStartQuiz = false,
+                TimeUntilNextAttempt = timeLeft.TotalSeconds
+            });
+        }
+    }
+
+    // User can start the quiz
+    return Ok(new
+    {
+        CanStartQuiz = true,
+        TimeUntilNextAttempt = 0
+    });
+}
+[HttpPost("end-quiz/{userId}")]
+public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
+{
+    var user = dbContext.MyUser.FirstOrDefault(u => u.Id == userId);
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    // Update coins
+    user.Coin += correctAnswers;
+
+    // Update last quiz attempt time
+    user.LastQuizAttempt = DateTime.UtcNow;
+
+    dbContext.SaveChanges();
+
+    return Ok(new
+    {
+        Message = "Quiz ended successfully.",
+        CoinsEarned = correctAnswers,
+        TotalCoins = user.Coin
+    });
+}
+
 }
 
 
