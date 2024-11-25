@@ -136,6 +136,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Retrieve JWT settings from configuration
+var jwtSettings = builder.Configuration.GetSection("Jwt"); // Access the "Jwt" section from appsettings.json
+
 // Configure JWT authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -150,12 +153,13 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true, // Validate token expiration
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])),
+        ValidIssuer = jwtSettings["Issuer"], // Access the "Issuer" setting
+        ValidAudience = jwtSettings["Audience"], // Access the "Audience" setting
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])), // Access the "Key" setting
         ClockSkew = TimeSpan.Zero // Prevent small timing issues on token expiration
     };
 });
+
 // Register your custom Email service (if needed)
 builder.Services.AddScoped<Emailcs>(); // Use AddSingleton or AddTransient based on your service's requirements
 
@@ -198,3 +202,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
