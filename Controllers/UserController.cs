@@ -145,7 +145,7 @@ private string GenerateJwtToken(User user)
     {
         new Claim(ClaimTypes.Name, user.Email), // Use email as the claim
         new Claim(ClaimTypes.Role, user.Type),  // Assuming Type can represent roles like "Admin"
-        new Claim(ClaimTypes.id, user.Id.ToString()) // Add Id as the NameIdentifier claim
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) // Add Id as the NameIdentifier claim
     };
 
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
