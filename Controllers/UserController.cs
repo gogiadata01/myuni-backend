@@ -57,26 +57,6 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
-    private string GenerateJwtToken(User user)
-{
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.Name, user.Email),
-        new Claim(ClaimTypes.Role, user.Type)
-    };
-
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-    var token = new JwtSecurityToken(
-        issuer: configuration["Jwt:Issuer"],
-        audience: configuration["Jwt:Audience"],
-        claims: claims,
-        expires: DateTime.Now.AddMinutes(30), // Token expiration time
-        signingCredentials: creds);
-
-    return new JwtSecurityTokenHandler().WriteToken(token);
-}
 
     [HttpPost("register")]
     public IActionResult Register([FromBody] UserDto newUserDto)
