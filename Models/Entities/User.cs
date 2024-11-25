@@ -16,7 +16,7 @@ namespace MyUni.Models.Entities
         public string Type { get; set; }
         public string Img { get; set; }
         public int Coin { get; set; }
-        public string ResetToken { get; set; } // Token for password reset
+        public string Token { get; set; } // Token for password reset
         public DateTime? ResetTokenExpiry { get; set; } // Token expiration time
     }
 

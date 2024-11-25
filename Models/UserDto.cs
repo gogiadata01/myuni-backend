@@ -15,6 +15,6 @@ namespace MyUni.Models
 
         public int Coin { get; set; }
 
-        public string ResetToken { get; set; } // This should be in your model
+        public string Token { get; set; } // This should be in your model
     }
 }

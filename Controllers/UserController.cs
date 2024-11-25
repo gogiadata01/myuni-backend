@@ -82,7 +82,6 @@ public class UserController : ControllerBase
             Type = newUserDto.Type,
             Img = newUserDto.Img,
             Coin = newUserDto.Coin,
-            ResetToken = newUserDto.ResetToken,
         };
 
         dbContext.MyUser.Add(newUser);
@@ -112,9 +111,6 @@ public IActionResult SignIn([FromBody] UserSignInDto loginDto)
         return Ok(new
         {
             Token = tokenString,
-            UserId = user.Id,
-            UserName = user.Name,
-            Type = user.Type
         });
     }
     catch (Exception ex)
