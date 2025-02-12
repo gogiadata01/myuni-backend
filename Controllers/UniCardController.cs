@@ -256,6 +256,122 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
             return Ok(UniCardEntity);
         }
 
+[HttpPut("{id}")]
+public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardDto)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    // Find the existing UniCard by ID
+    var existingUniCard = dbContext.MyUniCard
+        .Include(uc => uc.Events)
+        .Include(uc => uc.Sections)
+            .ThenInclude(s => s.ProgramNames)
+        .Include(uc => uc.Sections2)
+            .ThenInclude(s2 => s2.SavaldebuloSagnebi)
+        .Include(uc => uc.ArchevitiSavaldebuloSaganebi)
+            .ThenInclude(a => a.ArchevitiSavaldebuloSagnebi)
+        .FirstOrDefault(uc => uc.Id == id);
+
+    if (existingUniCard == null)
+    {
+        return NotFound($"No UniCard found with ID {id}.");
+    }
+
+    // Log existing data (for visibility in Swagger)
+    Console.WriteLine(JsonConvert.SerializeObject(existingUniCard, Formatting.Indented));
+
+    // Update only the fields that are provided in the request body
+    existingUniCard.Url = updatedUniCardDto.url ?? existingUniCard.Url;
+    existingUniCard.Title = updatedUniCardDto.title ?? existingUniCard.Title;
+    existingUniCard.MainText = updatedUniCardDto.mainText ?? existingUniCard.MainText;
+    existingUniCard.History = updatedUniCardDto.history ?? existingUniCard.History;
+    existingUniCard.ForPupil = updatedUniCardDto.forPupil ?? existingUniCard.ForPupil;
+    existingUniCard.ScholarshipAndFunding = updatedUniCardDto.scholarshipAndFunding ?? existingUniCard.ScholarshipAndFunding;
+    existingUniCard.ExchangePrograms = updatedUniCardDto.exchangePrograms ?? existingUniCard.ExchangePrograms;
+    existingUniCard.Labs = updatedUniCardDto.labs ?? existingUniCard.Labs;
+    existingUniCard.StudentsLife = updatedUniCardDto.studentsLife ?? existingUniCard.StudentsLife;
+    existingUniCard.PaymentMethods = updatedUniCardDto.paymentMethods ?? existingUniCard.PaymentMethods;
+
+    // Update Events
+    if (updatedUniCardDto.events != null)
+    {
+        existingUniCard.Events.Clear();
+        existingUniCard.Events.AddRange(updatedUniCardDto.events.Select(e => new UniCard.Event
+        {
+            Url = e.url,
+            Title = e.title,
+            Text = e.text
+        }));
+    }
+
+    // Update Sections
+    if (updatedUniCardDto.sections != null)
+    {
+        existingUniCard.Sections.Clear();
+        existingUniCard.Sections.AddRange(updatedUniCardDto.sections.Select(s => new UniCard.Section
+        {
+            Title = s.title,
+            ProgramNames = s.programNames?.Select(p => new UniCard.Programname
+            {
+                ProgramName = p.programName,
+                Jobs = p.Jobs,
+                SwavlebisEna = p.SwavlebisEna,
+                Kvalifikacia = p.Kvalifikacia,
+                Dafinanseba = p.Dafinanseba,
+                KreditebisRaodenoba = p.KreditebisRaodenoba,
+                AdgilebisRaodenoba = p.AdgilebisRaodenoba,
+                Fasi = p.Fasi,
+                Kodi = p.Kodi,
+                ProgramisAgwera = p.ProgramisAgwera,
+            }).ToList()
+        }));
+    }
+
+    // Update Sections2
+    if (updatedUniCardDto.sections2 != null)
+    {
+        existingUniCard.Sections2.Clear();
+        existingUniCard.Sections2.AddRange(updatedUniCardDto.sections2.Select(s2 => new UniCard.Section2
+        {
+            Title = s2.title,
+            SavaldebuloSagnebi = s2.savaldebuloSagnebi?.Select(ss => new UniCard.SavaldebuloSagnebi
+            {
+                SagnisSaxeli = ss.sagnisSaxeli,
+                Koeficienti = ss.koeficienti,
+                MinimaluriZgvari = ss.minimaluriZgvari,
+                Prioriteti = ss.prioriteti,
+                AdgilebisRaodenoba = ss.AdgilebisRaodenoba,
+            }).ToList()
+        }));
+    }
+
+    // Update ArchevitiSavaldebuloSaganebi
+    if (updatedUniCardDto.archevitiSavaldebuloSaganebi != null)
+    {
+        existingUniCard.ArchevitiSavaldebuloSaganebi.Clear();
+        existingUniCard.ArchevitiSavaldebuloSaganebi.AddRange(updatedUniCardDto.archevitiSavaldebuloSaganebi.Select(a => new UniCard.ArchevitiSavaldebuloSagani
+        {
+            Title = a.title,
+            ArchevitiSavaldebuloSagnebi = a.archevitiSavaldebuloSagnebi?.Select(asb => new UniCard.ArchevitiSavaldebuloSagnebi
+            {
+                SagnisSaxeli = asb.sagnisSaxeli,
+                Koeficienti = asb.koeficienti,
+                MinimaluriZgvari = asb.minimaluriZgvari,
+                Prioriteti = asb.prioriteti,
+                AdgilebisRaodenoba = asb.AdgilebisRaodenoba
+            }).ToList()
+        }));
+    }
+
+    // Save changes to the database
+    dbContext.SaveChanges();
+
+    return Ok(existingUniCard);
+}
+
 [HttpGet("search")]
 public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [FromQuery] string programName)
 {
@@ -589,6 +705,60 @@ public IActionResult PostEventCard(int uniCardId, [FromBody] EventDto newEvent)
 
     return Ok(eventCard);
 }
+
+[HttpDelete("{uniCardId}/event/{eventId}")]
+public IActionResult DeleteEvent(int uniCardId, int eventId)
+{
+    // Find the UniCard by ID including its events
+    var uniCard = dbContext.MyUniCard
+        .Include(card => card.Events)
+        .FirstOrDefault(card => card.Id == uniCardId);
+
+    if (uniCard == null)
+    {
+        return NotFound($"No UniCard found with ID {uniCardId}.");
+    }
+
+    // Find the event in the UniCard
+    var eventToDelete = uniCard.Events.FirstOrDefault(e => e.Id == eventId);
+
+    if (eventToDelete == null)
+    {
+        return NotFound($"No event found with ID {eventId} in UniCard {uniCardId}.");
+    }
+
+    // Remove the event from the UniCard
+    uniCard.Events.Remove(eventToDelete);
+
+    // Save changes to the database
+    dbContext.SaveChanges();
+
+    return Ok(new { message = "Event deleted successfully." });
+}
+[HttpGet("{uniCardId}/event/{eventId}")]
+public IActionResult GetEventCardById(int uniCardId, int eventId)
+{
+    // Find the UniCard by ID including its events
+    var uniCard = dbContext.MyUniCard
+        .Include(card => card.Events)
+        .FirstOrDefault(card => card.Id == uniCardId);
+
+    if (uniCard == null)
+    {
+        return NotFound($"No UniCard found with ID {uniCardId}.");
+    }
+
+    // Find the event within the UniCard
+    var eventCard = uniCard.Events.FirstOrDefault(e => e.Id == eventId);
+
+    if (eventCard == null)
+    {
+        return NotFound($"No event found with ID {eventId} in UniCard {uniCardId}.");
+    }
+
+    return Ok(eventCard);
+}
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteUniCard(int id)
