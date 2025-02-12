@@ -132,6 +132,47 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
             return Ok(UniCard);
         }
 
+        [HttpPut("{id}/updateUniCard")]
+public IActionResult UpdateUniCardDetails(int id, [FromBody] UniCardDetails? updatedUniCard)
+{
+    try
+    {
+        // Find the UniCard by ID
+        var uniCard = dbContext.MyUniCard
+            .Include(card => card.Events)
+            .Include(card => card.Sections)
+                .ThenInclude(section => section.ProgramNames)
+            .FirstOrDefault(card => card.Id == id);
+
+        if (uniCard == null)
+        {
+            return NotFound($"No UniCard found with ID {id}.");
+        }
+
+        // Step 1: Update the fields only if provided
+        uniCard.Url = string.IsNullOrEmpty(updatedUniCard?.Url) ? uniCard.Url : updatedUniCard.Url;
+        uniCard.Title = string.IsNullOrEmpty(updatedUniCard?.Title) ? uniCard.Title : updatedUniCard.Title;
+        uniCard.MainText = string.IsNullOrEmpty(updatedUniCard?.MainText) ? uniCard.MainText : updatedUniCard.MainText;
+        uniCard.History = string.IsNullOrEmpty(updatedUniCard?.History) ? uniCard.History : updatedUniCard.History;
+        uniCard.ForPupil = string.IsNullOrEmpty(updatedUniCard?.ForPupil) ? uniCard.ForPupil : updatedUniCard.ForPupil;
+        uniCard.ScholarshipAndFunding = string.IsNullOrEmpty(updatedUniCard?.ScholarshipAndFunding) ? uniCard.ScholarshipAndFunding : updatedUniCard.ScholarshipAndFunding;
+        uniCard.ExchangePrograms = string.IsNullOrEmpty(updatedUniCard?.ExchangePrograms) ? uniCard.ExchangePrograms : updatedUniCard.ExchangePrograms;
+        uniCard.Labs = string.IsNullOrEmpty(updatedUniCard?.Labs) ? uniCard.Labs : updatedUniCard.Labs;
+        uniCard.StudentsLife = string.IsNullOrEmpty(updatedUniCard?.StudentsLife) ? uniCard.StudentsLife : updatedUniCard.StudentsLife;
+        uniCard.PaymentMethods = string.IsNullOrEmpty(updatedUniCard?.PaymentMethods) ? uniCard.PaymentMethods : updatedUniCard.PaymentMethods;
+
+        // Save the changes
+        dbContext.SaveChanges();
+
+        return Ok($"UniCard with ID {id} has been updated successfully.");
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
+
+
 [HttpPut("{id}/addProgram")]
 public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programname newProgram, [FromQuery] string fieldName)
 {
@@ -177,135 +218,7 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
     }
 }
 
-// პროგრამის განახლება
-// [HttpPut("{id}/updateProgram")]
-// public IActionResult UpdateProgramNameInUniCard(int id, [FromQuery] string programName, [FromQuery] string fieldName, [FromBody] UniCard.Programname updatedProgram)
-// {
-//     try
-//     {
-//         // Find the UniCard by ID
-//         var uniCard = dbContext.MyUniCard
-//             .Include(uc => uc.Sections)
-//                 .ThenInclude(section => section.ProgramNames)
-//             .FirstOrDefault(uc => uc.Id == id);
 
-//         if (uniCard == null)
-//         {
-//             return NotFound($"No UniCard found with ID {id}");
-//         }
-
-//         // Find the section that matches the specified field name
-//         var sectionToUpdate = uniCard.Sections
-//             .FirstOrDefault(section => section.Title.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
-
-//         if (sectionToUpdate == null)
-//         {
-//             return NotFound($"No section found with the field name '{fieldName}' in the UniCard.");
-//         }
-
-//         // Find the program to update
-//         var programToUpdate = sectionToUpdate.ProgramNames
-//             .FirstOrDefault(p => p.ProgramName.Equals(programName, StringComparison.OrdinalIgnoreCase));
-
-//         if (programToUpdate == null)
-//         {
-//             return NotFound($"No program found with the name '{programName}' in section '{fieldName}'.");
-//         }
-
-//         // Log existing data before update
-// Console.WriteLine("Existing Program Data: " + Newtonsoft.Json.JsonConvert.SerializeObject(programToUpdate, Newtonsoft.Json.Formatting.Indented));
-
-//         // Update only the provided fields, keeping the rest unchanged
-//         programToUpdate.ProgramName = updatedProgram.ProgramName ?? programToUpdate.ProgramName;
-//         programToUpdate.Jobs = updatedProgram.Jobs ?? programToUpdate.Jobs;
-//         programToUpdate.SwavlebisEna = updatedProgram.SwavlebisEna ?? programToUpdate.SwavlebisEna;
-//         programToUpdate.Kvalifikacia = updatedProgram.Kvalifikacia ?? programToUpdate.Kvalifikacia;
-//         programToUpdate.Dafinanseba = updatedProgram.Dafinanseba ?? programToUpdate.Dafinanseba;
-//         programToUpdate.KreditebisRaodenoba = updatedProgram.KreditebisRaodenoba ?? programToUpdate.KreditebisRaodenoba;
-//         programToUpdate.AdgilebisRaodenoba = updatedProgram.AdgilebisRaodenoba ?? programToUpdate.AdgilebisRaodenoba;
-//         programToUpdate.Fasi = updatedProgram.Fasi ?? programToUpdate.Fasi;
-//         programToUpdate.Kodi = updatedProgram.Kodi ?? programToUpdate.Kodi;
-//         programToUpdate.ProgramisAgwera = updatedProgram.ProgramisAgwera ?? programToUpdate.ProgramisAgwera;
-
-//         // Save changes to the database
-//         dbContext.SaveChanges();
-
-//         return Ok($"Program '{programName}' updated successfully in section '{fieldName}' of UniCard ID {id}.");
-//     }
-//     catch (Exception ex)
-//     {
-//         return StatusCode(500, $"Internal server error: {ex.Message}");
-//     }
-// }
-
-
-// [HttpPut("{id}/updateProgram")]
-// public IActionResult UpdateProgramNameInUniCard(
-//     int id, 
-//     [FromQuery] string fieldName, 
-//     [FromQuery] string programName, 
-//     [FromBody] UniCard.Programname? updatedProgram)
-// {
-//     try
-//     {
-//         // Find the UniCard by ID
-//         var uniCard = dbContext.MyUniCard
-//             .Include(uc => uc.Sections)
-//                 .ThenInclude(s => s.ProgramNames)
-//             .FirstOrDefault(uc => uc.Id == id);
-
-//         if (uniCard == null)
-//         {
-//             return NotFound($"No UniCard found with ID {id}.");
-//         }
-
-//         // Find the section by field name
-//         var section = uniCard.Sections
-//             .FirstOrDefault(s => s.Title.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
-
-//         if (section == null)
-//         {
-//             return NotFound($"No section found with the field name '{fieldName}' in UniCard ID {id}.");
-//         }
-
-//         // Find the program by program name
-//         var programToUpdate = section.ProgramNames
-//             .FirstOrDefault(p => p.ProgramName.Equals(programName, StringComparison.OrdinalIgnoreCase));
-
-//         if (programToUpdate == null)
-//         {
-//             return NotFound($"No program found with the name '{programName}' in section '{fieldName}'.");
-//         }
-
-//         // **Step 1: Show existing data if no body is provided**
-//         if (updatedProgram == null)
-//         {
-//             return Ok(programToUpdate);
-//         }
-
-//         // **Step 2: Update only the modified fields**
-//         programToUpdate.ProgramName = string.IsNullOrEmpty(updatedProgram.ProgramName) ? programToUpdate.ProgramName : updatedProgram.ProgramName;
-//         programToUpdate.Jobs = string.IsNullOrEmpty(updatedProgram.Jobs) ? programToUpdate.Jobs : updatedProgram.Jobs;
-//         programToUpdate.SwavlebisEna = string.IsNullOrEmpty(updatedProgram.SwavlebisEna) ? programToUpdate.SwavlebisEna : updatedProgram.SwavlebisEna;
-//         programToUpdate.Kvalifikacia = string.IsNullOrEmpty(updatedProgram.Kvalifikacia) ? programToUpdate.Kvalifikacia : updatedProgram.Kvalifikacia;
-//         programToUpdate.Dafinanseba = string.IsNullOrEmpty(updatedProgram.Dafinanseba) ? programToUpdate.Dafinanseba : updatedProgram.Dafinanseba;
-//         programToUpdate.KreditebisRaodenoba = string.IsNullOrEmpty(updatedProgram.KreditebisRaodenoba) ? programToUpdate.KreditebisRaodenoba : updatedProgram.KreditebisRaodenoba;
-//         programToUpdate.AdgilebisRaodenoba = string.IsNullOrEmpty(updatedProgram.AdgilebisRaodenoba) ? programToUpdate.AdgilebisRaodenoba : updatedProgram.AdgilebisRaodenoba;
-//         programToUpdate.Fasi = string.IsNullOrEmpty(updatedProgram.Fasi) ? programToUpdate.Fasi : updatedProgram.Fasi;
-//         programToUpdate.Kodi = string.IsNullOrEmpty(updatedProgram.Kodi) ? programToUpdate.Kodi : updatedProgram.Kodi;
-//         programToUpdate.ProgramisAgwera = string.IsNullOrEmpty(updatedProgram.ProgramisAgwera) ? programToUpdate.ProgramisAgwera : updatedProgram.ProgramisAgwera;
-//         programToUpdate.Mizani = string.IsNullOrEmpty(updatedProgram.Mizani) ? programToUpdate.Mizani : updatedProgram.Mizani;
-
-//         // Save changes
-//         dbContext.SaveChanges();
-
-//         return Ok($"Program '{programName}' updated successfully in section '{fieldName}' of UniCard ID {id}.");
-//     }
-//     catch (Exception ex)
-//     {
-//         return StatusCode(500, $"Internal server error: {ex.Message}");
-//     }
-// }
 
 [HttpPut("{id}/updateProgram")]
 public IActionResult UpdateProgramNameInUniCard(
