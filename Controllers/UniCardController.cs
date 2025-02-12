@@ -176,6 +176,66 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
         return StatusCode(500, $"Internal server error: {ex.Message}");
     }
 }
+[HttpPut("{id}/updateProgram")]
+public IActionResult UpdateProgramNameInUniCard(int id, [FromQuery] string programName, [FromQuery] string fieldName, [FromBody] UniCard.Programname updatedProgram)
+{
+    try
+    {
+        // Find the UniCard by ID
+        var uniCard = dbContext.MyUniCard
+            .Include(uc => uc.Sections)
+                .ThenInclude(section => section.ProgramNames)
+            .FirstOrDefault(uc => uc.Id == id);
+
+        if (uniCard == null)
+        {
+            return NotFound($"No UniCard found with ID {id}");
+        }
+
+        // Find the section that matches the specified field name
+        var sectionToUpdate = uniCard.Sections
+            .FirstOrDefault(section => section.Title.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
+
+        if (sectionToUpdate == null)
+        {
+            return NotFound($"No section found with the field name '{fieldName}' in the UniCard.");
+        }
+
+        // Find the program to update
+        var programToUpdate = sectionToUpdate.ProgramNames
+            .FirstOrDefault(p => p.ProgramName.Equals(programName, StringComparison.OrdinalIgnoreCase));
+
+        if (programToUpdate == null)
+        {
+            return NotFound($"No program found with the name '{programName}' in section '{fieldName}'.");
+        }
+
+        // Log existing data before update
+        Console.WriteLine("Existing Program Data: " + JsonConvert.SerializeObject(programToUpdate, Formatting.Indented));
+
+        // Update only the provided fields, keeping the rest unchanged
+        programToUpdate.ProgramName = updatedProgram.ProgramName ?? programToUpdate.ProgramName;
+        programToUpdate.Jobs = updatedProgram.Jobs ?? programToUpdate.Jobs;
+        programToUpdate.SwavlebisEna = updatedProgram.SwavlebisEna ?? programToUpdate.SwavlebisEna;
+        programToUpdate.Kvalifikacia = updatedProgram.Kvalifikacia ?? programToUpdate.Kvalifikacia;
+        programToUpdate.Dafinanseba = updatedProgram.Dafinanseba ?? programToUpdate.Dafinanseba;
+        programToUpdate.KreditebisRaodenoba = updatedProgram.KreditebisRaodenoba ?? programToUpdate.KreditebisRaodenoba;
+        programToUpdate.AdgilebisRaodenoba = updatedProgram.AdgilebisRaodenoba ?? programToUpdate.AdgilebisRaodenoba;
+        programToUpdate.Fasi = updatedProgram.Fasi ?? programToUpdate.Fasi;
+        programToUpdate.Kodi = updatedProgram.Kodi ?? programToUpdate.Kodi;
+        programToUpdate.ProgramisAgwera = updatedProgram.ProgramisAgwera ?? programToUpdate.ProgramisAgwera;
+
+        // Save changes to the database
+        dbContext.SaveChanges();
+
+        return Ok($"Program '{programName}' updated successfully in section '{fieldName}' of UniCard ID {id}.");
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
+
 [HttpDelete("{id}/deleteProgram")]
 public IActionResult DeleteProgramNameFromUniCard(int id, [FromQuery] string programName, [FromQuery] string fieldName)
 {
