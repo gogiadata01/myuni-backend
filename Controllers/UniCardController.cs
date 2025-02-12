@@ -281,7 +281,7 @@ public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardD
     }
 
     // Log existing data (for visibility in Swagger)
-    Console.WriteLine(JsonConvert.SerializeObject(existingUniCard, Formatting.Indented));
+    Console.WriteLine(JsonConvert.SerializeObject(existingUniCard, Newtonsoft.Json.Formatting.Indented));
 
     // Update only the fields that are provided in the request body
     existingUniCard.Url = updatedUniCardDto.url ?? existingUniCard.Url;
@@ -298,20 +298,18 @@ public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardD
     // Update Events
     if (updatedUniCardDto.events != null)
     {
-        existingUniCard.Events.Clear();
-        existingUniCard.Events.AddRange(updatedUniCardDto.events.Select(e => new UniCard.Event
+        existingUniCard.Events = updatedUniCardDto.events.Select(e => new UniCard.Event
         {
             Url = e.url,
             Title = e.title,
             Text = e.text
-        }));
+        }).ToList();
     }
 
     // Update Sections
     if (updatedUniCardDto.sections != null)
     {
-        existingUniCard.Sections.Clear();
-        existingUniCard.Sections.AddRange(updatedUniCardDto.sections.Select(s => new UniCard.Section
+        existingUniCard.Sections = updatedUniCardDto.sections.Select(s => new UniCard.Section
         {
             Title = s.title,
             ProgramNames = s.programNames?.Select(p => new UniCard.Programname
@@ -327,14 +325,13 @@ public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardD
                 Kodi = p.Kodi,
                 ProgramisAgwera = p.ProgramisAgwera,
             }).ToList()
-        }));
+        }).ToList();
     }
 
     // Update Sections2
     if (updatedUniCardDto.sections2 != null)
     {
-        existingUniCard.Sections2.Clear();
-        existingUniCard.Sections2.AddRange(updatedUniCardDto.sections2.Select(s2 => new UniCard.Section2
+        existingUniCard.Sections2 = updatedUniCardDto.sections2.Select(s2 => new UniCard.Section2
         {
             Title = s2.title,
             SavaldebuloSagnebi = s2.savaldebuloSagnebi?.Select(ss => new UniCard.SavaldebuloSagnebi
@@ -345,14 +342,13 @@ public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardD
                 Prioriteti = ss.prioriteti,
                 AdgilebisRaodenoba = ss.AdgilebisRaodenoba,
             }).ToList()
-        }));
+        }).ToList();
     }
 
     // Update ArchevitiSavaldebuloSaganebi
     if (updatedUniCardDto.archevitiSavaldebuloSaganebi != null)
     {
-        existingUniCard.ArchevitiSavaldebuloSaganebi.Clear();
-        existingUniCard.ArchevitiSavaldebuloSaganebi.AddRange(updatedUniCardDto.archevitiSavaldebuloSaganebi.Select(a => new UniCard.ArchevitiSavaldebuloSagani
+        existingUniCard.ArchevitiSavaldebuloSaganebi = updatedUniCardDto.archevitiSavaldebuloSaganebi.Select(a => new UniCard.ArchevitiSavaldebuloSagani
         {
             Title = a.title,
             ArchevitiSavaldebuloSagnebi = a.archevitiSavaldebuloSagnebi?.Select(asb => new UniCard.ArchevitiSavaldebuloSagnebi
@@ -363,7 +359,7 @@ public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardD
                 Prioriteti = asb.prioriteti,
                 AdgilebisRaodenoba = asb.AdgilebisRaodenoba
             }).ToList()
-        }));
+        }).ToList();
     }
 
     // Save changes to the database
@@ -371,6 +367,7 @@ public IActionResult UpdateUniCard(int id, [FromBody] UniCardDto updatedUniCardD
 
     return Ok(existingUniCard);
 }
+
 
 [HttpGet("search")]
 public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [FromQuery] string programName)
