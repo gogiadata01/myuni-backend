@@ -211,7 +211,7 @@ public IActionResult UpdateProgramNameInUniCard(int id, [FromQuery] string progr
         }
 
         // Log existing data before update
-        Console.WriteLine("Existing Program Data: " + JsonConvert.SerializeObject(programToUpdate, Formatting.Indented));
+Console.WriteLine("Existing Program Data: " + Newtonsoft.Json.JsonConvert.SerializeObject(programToUpdate, Newtonsoft.Json.Formatting.Indented));
 
         // Update only the provided fields, keeping the rest unchanged
         programToUpdate.ProgramName = updatedProgram.ProgramName ?? programToUpdate.ProgramName;
