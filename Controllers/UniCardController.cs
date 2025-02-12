@@ -237,6 +237,76 @@ public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programn
 //         return StatusCode(500, $"Internal server error: {ex.Message}");
 //     }
 // }
+
+
+// [HttpPut("{id}/updateProgram")]
+// public IActionResult UpdateProgramNameInUniCard(
+//     int id, 
+//     [FromQuery] string fieldName, 
+//     [FromQuery] string programName, 
+//     [FromBody] UniCard.Programname? updatedProgram)
+// {
+//     try
+//     {
+//         // Find the UniCard by ID
+//         var uniCard = dbContext.MyUniCard
+//             .Include(uc => uc.Sections)
+//                 .ThenInclude(s => s.ProgramNames)
+//             .FirstOrDefault(uc => uc.Id == id);
+
+//         if (uniCard == null)
+//         {
+//             return NotFound($"No UniCard found with ID {id}.");
+//         }
+
+//         // Find the section by field name
+//         var section = uniCard.Sections
+//             .FirstOrDefault(s => s.Title.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
+
+//         if (section == null)
+//         {
+//             return NotFound($"No section found with the field name '{fieldName}' in UniCard ID {id}.");
+//         }
+
+//         // Find the program by program name
+//         var programToUpdate = section.ProgramNames
+//             .FirstOrDefault(p => p.ProgramName.Equals(programName, StringComparison.OrdinalIgnoreCase));
+
+//         if (programToUpdate == null)
+//         {
+//             return NotFound($"No program found with the name '{programName}' in section '{fieldName}'.");
+//         }
+
+//         // **Step 1: Show existing data if no body is provided**
+//         if (updatedProgram == null)
+//         {
+//             return Ok(programToUpdate);
+//         }
+
+//         // **Step 2: Update only the modified fields**
+//         programToUpdate.ProgramName = string.IsNullOrEmpty(updatedProgram.ProgramName) ? programToUpdate.ProgramName : updatedProgram.ProgramName;
+//         programToUpdate.Jobs = string.IsNullOrEmpty(updatedProgram.Jobs) ? programToUpdate.Jobs : updatedProgram.Jobs;
+//         programToUpdate.SwavlebisEna = string.IsNullOrEmpty(updatedProgram.SwavlebisEna) ? programToUpdate.SwavlebisEna : updatedProgram.SwavlebisEna;
+//         programToUpdate.Kvalifikacia = string.IsNullOrEmpty(updatedProgram.Kvalifikacia) ? programToUpdate.Kvalifikacia : updatedProgram.Kvalifikacia;
+//         programToUpdate.Dafinanseba = string.IsNullOrEmpty(updatedProgram.Dafinanseba) ? programToUpdate.Dafinanseba : updatedProgram.Dafinanseba;
+//         programToUpdate.KreditebisRaodenoba = string.IsNullOrEmpty(updatedProgram.KreditebisRaodenoba) ? programToUpdate.KreditebisRaodenoba : updatedProgram.KreditebisRaodenoba;
+//         programToUpdate.AdgilebisRaodenoba = string.IsNullOrEmpty(updatedProgram.AdgilebisRaodenoba) ? programToUpdate.AdgilebisRaodenoba : updatedProgram.AdgilebisRaodenoba;
+//         programToUpdate.Fasi = string.IsNullOrEmpty(updatedProgram.Fasi) ? programToUpdate.Fasi : updatedProgram.Fasi;
+//         programToUpdate.Kodi = string.IsNullOrEmpty(updatedProgram.Kodi) ? programToUpdate.Kodi : updatedProgram.Kodi;
+//         programToUpdate.ProgramisAgwera = string.IsNullOrEmpty(updatedProgram.ProgramisAgwera) ? programToUpdate.ProgramisAgwera : updatedProgram.ProgramisAgwera;
+//         programToUpdate.Mizani = string.IsNullOrEmpty(updatedProgram.Mizani) ? programToUpdate.Mizani : updatedProgram.Mizani;
+
+//         // Save changes
+//         dbContext.SaveChanges();
+
+//         return Ok($"Program '{programName}' updated successfully in section '{fieldName}' of UniCard ID {id}.");
+//     }
+//     catch (Exception ex)
+//     {
+//         return StatusCode(500, $"Internal server error: {ex.Message}");
+//     }
+// }
+
 [HttpPut("{id}/updateProgram")]
 public IActionResult UpdateProgramNameInUniCard(
     int id, 
@@ -282,6 +352,8 @@ public IActionResult UpdateProgramNameInUniCard(
         }
 
         // **Step 2: Update only the modified fields**
+
+        // Check each field, and only update if the field is not blank
         programToUpdate.ProgramName = string.IsNullOrEmpty(updatedProgram.ProgramName) ? programToUpdate.ProgramName : updatedProgram.ProgramName;
         programToUpdate.Jobs = string.IsNullOrEmpty(updatedProgram.Jobs) ? programToUpdate.Jobs : updatedProgram.Jobs;
         programToUpdate.SwavlebisEna = string.IsNullOrEmpty(updatedProgram.SwavlebisEna) ? programToUpdate.SwavlebisEna : updatedProgram.SwavlebisEna;
@@ -304,7 +376,6 @@ public IActionResult UpdateProgramNameInUniCard(
         return StatusCode(500, $"Internal server error: {ex.Message}");
     }
 }
-
 
 
 [HttpDelete("{id}/deleteProgram")]
