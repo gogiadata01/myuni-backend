@@ -107,8 +107,8 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
                     Events = card.Events.Select(e => new
                     {
                         e.Id,
+                        e.Url,
                         e.Title,
-                        e.Text,
                         e.Time
                     }).ToList(),
                     Sections = card.Sections.Select(s => new
