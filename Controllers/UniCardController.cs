@@ -109,7 +109,8 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
                         e.Id,
                         e.Url,
                         e.Title,
-                        e.Time
+                        e.Time,
+                        e.TextLink
                     }).ToList(),
                     Sections = card.Sections.Select(s => new
                     {
@@ -747,7 +748,7 @@ public IActionResult PostEventCard(int uniCardId, [FromBody] EventDto newEvent)
         Title = newEvent.Title,
         Text = newEvent.Text,
         Time = newEvent.Time,
-        // TextLink = newEvent.TextLink,
+        TextLink = newEvent.Textlink,
     };
 
     uniCard.Events.Add(eventCard);
