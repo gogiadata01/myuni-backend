@@ -807,7 +807,7 @@ public IActionResult GetEventCardById(int uniCardId, int eventId)
     }
 
     return Ok(eventCard);
-}
+} 
 
 
         [HttpDelete("{id}")]
