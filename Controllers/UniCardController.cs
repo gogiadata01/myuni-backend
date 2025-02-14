@@ -748,7 +748,7 @@ public IActionResult PostEventCard(int uniCardId, [FromBody] EventDto newEvent)
         Title = newEvent.Title,
         Text = newEvent.Text,
         Time = newEvent.Time,
-        TextLink = newEvent.Textlink,
+        TextLink = newEvent.TextLink,
     };
 
     uniCard.Events.Add(eventCard);
