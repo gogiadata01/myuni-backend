@@ -109,8 +109,7 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
                         e.Id,
                         e.Url,
                         e.Title,
-                        e.Time,
-                        e.TextLink
+                        e.Time
                     }).ToList(),
                     Sections = card.Sections.Select(s => new
                     {
