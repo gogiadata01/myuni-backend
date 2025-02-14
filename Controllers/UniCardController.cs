@@ -692,7 +692,7 @@ public IActionResult UpdateEventCard(int uniCardId, int eventId, [FromBody] Even
     eventCard.Title = updatedEvent.Title;
     eventCard.Text = updatedEvent.Text;
     eventCard.Time = updatedEvent.Time;
-    eventCard.TextLink = updatedEvent.TextLink
+    eventCard.TextLink = updatedEvent.TextLink;
 
     // Save changes to the database
     dbContext.SaveChanges();
@@ -746,8 +746,8 @@ public IActionResult PostEventCard(int uniCardId, [FromBody] EventDto newEvent)
         Url = newEvent.Url,
         Title = newEvent.Title,
         Text = newEvent.Text,
-        Time = newEvent.Time
-        TextLink = newEvent.TextLink
+        Time = newEvent.Time,
+        TextLink = newEvent.TextLink,
     };
 
     uniCard.Events.Add(eventCard);
