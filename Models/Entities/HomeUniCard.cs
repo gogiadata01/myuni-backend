@@ -31,6 +31,7 @@ namespace MyUni.Models.Entities
             public string Url { get; set; }
             public string Title { get; set; }
             public string Text { get; set; }
+                public string TextLink { get; set; } // <- Ensure this exists before removal
         }
 
         public class Section
