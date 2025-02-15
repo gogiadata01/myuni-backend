@@ -10,7 +10,8 @@ namespace MyUni.Models
         public string Title { get; set; }
         public string Text { get; set; }
         public string Time { get; set; }
-	public string saregistracioForma { get; set; }
+        public string Link { get; set; }
+	    public string saregistracioForma { get; set; }
         public bool isFeatured { get; set; }
 
         public ICollection<EventTypeDto> Types { get; set; }

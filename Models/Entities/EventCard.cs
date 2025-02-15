@@ -8,6 +8,8 @@
         public string Text { get; set; }
         public string Time { get; set; }
         public bool isFeatured { get; set; }
+        public string Link { get; set; }
+
 //new element
 	public string saregistracioForma { get; set; }
         public ICollection<EventType> Types { get; set; }

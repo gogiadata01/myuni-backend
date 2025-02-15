@@ -65,6 +65,7 @@ public IActionResult GetAllEventCard()
                 Title = addEventCardDto.Title,
                 Text = addEventCardDto.Text,
                 Time = addEventCardDto.Time,
+                Link = addEventCardDto.Link,                
                 isFeatured = addEventCardDto.isFeatured,
         	saregistracioForma = addEventCardDto.saregistracioForma, // Ensure this field is mapped
                 Types = addEventCardDto.Types.Select(x => new EventType
@@ -114,6 +115,7 @@ public IActionResult GetEventCardById(int id)
             ec.Title,
             ec.Text,
             ec.Time,
+            ec.Link,
             ec.saregistracioForma // Include the new property
         })
         .FirstOrDefault();
@@ -205,6 +207,7 @@ public IActionResult UpdateIsFeatured(int id, [FromBody] bool isFeatured)
             existingEventCard.Title = updateEventCardDto.Title;
             existingEventCard.Text = updateEventCardDto.Text;
             existingEventCard.Time = updateEventCardDto.Time;
+            existingEventCard.Link = updateEventCardDto.Link;
             existingEventCard.isFeatured = updateEventCardDto.isFeatured;
 	    existingEventCard.saregistracioForma = updateEventCardDto.saregistracioForma;
             // Clear the existing event types and update with the new ones
