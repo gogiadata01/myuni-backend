@@ -115,7 +115,7 @@ public IActionResult GetEventCardById(int id)
             ec.Title,
             ec.Text,
             ec.Time,
-            ec.Link,
+            // ec.Link,
             ec.saregistracioForma // Include the new property
         })
         .FirstOrDefault();
