@@ -145,6 +145,7 @@ public IActionResult GetEventCardForHome()
                 ec.Title,
                 ec.Time,
                 ec.isFeatured,
+                ec.Numbering,
                 Types = ec.Types.Select(t => new { t.Type }) // Select only the Type
             })
             .ToList();
