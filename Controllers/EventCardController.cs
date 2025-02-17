@@ -181,28 +181,7 @@ public IActionResult UpdateIsFeatured(int id, [FromBody] bool isFeatured)
     // Return the updated event card
     return Ok(existingEventCard);
 }
-        PUT: api/EventCard/{id}/numbering
-[HttpPut("{id}/numbering")]
-public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering)
-{
-    // Find the existing event card by its ID
-    var existingEventCard = dbContext.MyEventCard.FirstOrDefault(ec => ec.Id == id);
 
-    // Check if the event card exists
-    if (existingEventCard == null)
-    {
-        return NotFound(new { message = "Event card not found" });
-    }
-
-    // Update the Numbering property
-    existingEventCard.Numbering = numbering;
-
-    // Save the changes to the database
-    dbContext.SaveChanges();
-
-    // Return the updated event card
-    return Ok(new { message = "Numbering updated successfully", existingEventCard });
-}
 
         // PUT: api/EventCard/{id}
 
@@ -245,9 +224,29 @@ public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering
 
             // Return the updated event card
             return Ok(existingEventCard);
-            
         }
-    
+[HttpPut("{id}/numbering")]
+public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering)
+{
+    // Find the existing event card by its ID
+    var existingEventCard = dbContext.MyEventCard.FirstOrDefault(ec => ec.Id == id);
+
+    // Check if the event card exists
+    if (existingEventCard == null)
+    {
+        return NotFound(new { message = "Event card not found" });
+    }
+
+    // Update the Numbering property
+    existingEventCard.Numbering = numbering;
+
+    // Save the changes to the database
+    dbContext.SaveChanges();
+
+    // Return the updated event card
+    return Ok(new { message = "Numbering updated successfully", existingEventCard });
+}
+
     }
     
 }
