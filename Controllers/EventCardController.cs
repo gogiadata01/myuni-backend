@@ -225,8 +225,7 @@ public IActionResult UpdateIsFeatured(int id, [FromBody] bool isFeatured)
             // Return the updated event card
             return Ok(existingEventCard);
         }
-    }
-    // PUT: api/EventCard/{id}/numbering
+        // PUT: api/EventCard/{id}/numbering
 [HttpPut("{id}/numbering")]
 public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering)
 {
@@ -249,4 +248,6 @@ public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering
     return Ok(new { message = "Numbering updated successfully", existingEventCard });
 }
 
+    }
+    
 }
