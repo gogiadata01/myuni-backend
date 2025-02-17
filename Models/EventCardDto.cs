@@ -13,7 +13,7 @@ namespace MyUni.Models
         public string Link { get; set; }
 	    public string saregistracioForma { get; set; }
         public bool isFeatured { get; set; }
-        public int Numbering { get; set; }
+        // public int Numbering { get; set; }
         public ICollection<EventTypeDto> Types { get; set; }
     }
 

@@ -34,7 +34,7 @@ public IActionResult GetAllEventCard()
             ec.Url,
             ec.Title,
             ec.Time,
-            ec.Numbering,
+            // ec.Numbering,
             Types = ec.Types.Select(t => new
             {
                 t.Type
@@ -68,7 +68,7 @@ public IActionResult GetAllEventCard()
                 Time = addEventCardDto.Time,
                 Link = addEventCardDto.Link,                
                 isFeatured = addEventCardDto.isFeatured,
-                Numbering = addEventCardDto.Numbering,
+                // Numbering = addEventCardDto.Numbering,
         	saregistracioForma = addEventCardDto.saregistracioForma, // Ensure this field is mapped
                 Types = addEventCardDto.Types.Select(x => new EventType
                 {
@@ -226,27 +226,27 @@ public IActionResult UpdateIsFeatured(int id, [FromBody] bool isFeatured)
             return Ok(existingEventCard);
         }
         // PUT: api/EventCard/{id}/numbering
-[HttpPut("{id}/numbering")]
-public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering)
-{
-    // Find the existing event card by its ID
-    var existingEventCard = dbContext.MyEventCard.FirstOrDefault(ec => ec.Id == id);
+// [HttpPut("{id}/numbering")]
+// public IActionResult UpdateNumberingWithEventId(int id, [FromBody] int numbering)
+// {
+//     // Find the existing event card by its ID
+//     var existingEventCard = dbContext.MyEventCard.FirstOrDefault(ec => ec.Id == id);
 
-    // Check if the event card exists
-    if (existingEventCard == null)
-    {
-        return NotFound(new { message = "Event card not found" });
-    }
+//     // Check if the event card exists
+//     if (existingEventCard == null)
+//     {
+//         return NotFound(new { message = "Event card not found" });
+//     }
 
-    // Update the Numbering property
-    existingEventCard.Numbering = numbering;
+//     // Update the Numbering property
+//     existingEventCard.Numbering = numbering;
 
-    // Save the changes to the database
-    dbContext.SaveChanges();
+//     // Save the changes to the database
+//     dbContext.SaveChanges();
 
-    // Return the updated event card
-    return Ok(new { message = "Numbering updated successfully", existingEventCard });
-}
+//     // Return the updated event card
+//     return Ok(new { message = "Numbering updated successfully", existingEventCard });
+// }
 
     }
     
