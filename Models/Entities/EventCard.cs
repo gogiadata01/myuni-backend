@@ -9,6 +9,7 @@
         public string Time { get; set; }
         public bool isFeatured { get; set; }
         public string Link { get; set; }
+        public int Numbering { get; set; }
 
 //new element
 	public string saregistracioForma { get; set; }
