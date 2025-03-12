@@ -176,7 +176,7 @@ public IActionResult UpdateUniCardDetails(int id, [FromBody] UniCardDetails? upd
 [HttpPut("update-section-title/{uniCardId}/{sectionId}")]
 public async Task<IActionResult> UpdateSectionTitle(int uniCardId, int sectionId, [FromBody] string newTitle)
 {
-    var uniCard = await _context.MyUniCard
+    var uniCard = await dbContext.MyUniCard
         .Include(u => u.Sections) // Include Sections
         .FirstOrDefaultAsync(u => u.Id == uniCardId);
 
@@ -191,7 +191,7 @@ public async Task<IActionResult> UpdateSectionTitle(int uniCardId, int sectionId
     if (!string.IsNullOrWhiteSpace(newTitle))
         section.Title = newTitle;
 
-    await _context.SaveChangesAsync();
+    await dbContext.SaveChangesAsync();
     return Ok("Section title updated successfully");
 }
 
