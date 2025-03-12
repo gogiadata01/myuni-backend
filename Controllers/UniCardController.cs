@@ -173,28 +173,28 @@ public IActionResult UpdateUniCardDetails(int id, [FromBody] UniCardDetails? upd
     }
 }
 
-[HttpPut("update-section-title/{sectionId}")]
-public IActionResult UpdateSectionTitle(int sectionId, [FromBody] string? newTitle)
+[HttpPut("update-section-title/{uniCardId}/{sectionId}")]
+public async Task<IActionResult> UpdateSectionTitle(int uniCardId, int sectionId, [FromBody] string newTitle)
 {
-    if (string.IsNullOrWhiteSpace(newTitle))
-    {
-        return BadRequest("New title is required.");
-    }
+    var uniCard = await _context.MyUniCard
+        .Include(u => u.Sections) // Include Sections
+        .FirstOrDefaultAsync(u => u.Id == uniCardId);
 
-    var section = dbContext.Sections.FirstOrDefault(s => s.Id == sectionId);
+    if (uniCard == null)
+        return NotFound("UniCard not found");
 
+    var section = uniCard.Sections.FirstOrDefault(s => s.Id == sectionId);
     if (section == null)
-    {
-        return NotFound($"No section found with ID {sectionId}.");
-    }
+        return NotFound("Section not found");
 
-    // Update only if a new title is provided
-    section.Title = newTitle;
+    // Update title only if a new title is provided
+    if (!string.IsNullOrWhiteSpace(newTitle))
+        section.Title = newTitle;
 
-    dbContext.SaveChanges();
-
-    return Ok($"Section title updated successfully to '{newTitle}'.");
+    await _context.SaveChangesAsync();
+    return Ok("Section title updated successfully");
 }
+
 
 
 [HttpPut("{id}/addProgram")]
