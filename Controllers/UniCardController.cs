@@ -173,6 +173,29 @@ public IActionResult UpdateUniCardDetails(int id, [FromBody] UniCardDetails? upd
     }
 }
 
+[HttpPut("update-section-title/{sectionId}")]
+public IActionResult UpdateSectionTitle(int sectionId, [FromBody] string? newTitle)
+{
+    if (string.IsNullOrWhiteSpace(newTitle))
+    {
+        return BadRequest("New title is required.");
+    }
+
+    var section = dbContext.Sections.FirstOrDefault(s => s.Id == sectionId);
+
+    if (section == null)
+    {
+        return NotFound($"No section found with ID {sectionId}.");
+    }
+
+    // Update only if a new title is provided
+    section.Title = newTitle;
+
+    dbContext.SaveChanges();
+
+    return Ok($"Section title updated successfully to '{newTitle}'.");
+}
+
 
 [HttpPut("{id}/addProgram")]
 public IActionResult AddProgramNameToUniCard(int id, [FromBody] UniCard.Programname newProgram, [FromQuery] string fieldName)
