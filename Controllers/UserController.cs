@@ -231,21 +231,28 @@ public IActionResult UpdateCoins([FromBody] UpdateCoinDto dto)
 [HttpPut("update-remaining-time/{userId}")]
 public IActionResult UpdateRemainingTime(int userId, [FromBody] int additionalTime)
 {
+    Console.WriteLine($"Received request: userId={userId}, additionalTime={additionalTime}");
+
+    if (additionalTime == 0) {
+        return BadRequest("Additional time cannot be zero.");
+    }
+
     var user = dbContext.MyUser.FirstOrDefault(u => u.Id == userId);
     if (user == null)
     {
         return NotFound("User not found.");
     }
 
-    user.RemainingTime += additionalTime; // Add time instead of replacing it
+    user.RemainingTime += additionalTime;
     dbContext.SaveChanges();
 
     return Ok(new
     {
         Message = "Remaining time updated successfully.",
-        UpdatedRemainingTime = user.RemainingTime // Send updated total time
+        UpdatedRemainingTime = user.RemainingTime
     });
 }
+
 
 [HttpPost("recover-password")]
 public IActionResult RecoverPassword([FromBody] UserRecoverPasswordDto recoverPasswordDto)
