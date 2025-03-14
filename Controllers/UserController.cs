@@ -226,6 +226,25 @@ public IActionResult UpdateCoins([FromBody] UpdateCoinDto dto)
     // Return success message
     return Ok(new { message = "Coin value updated for all users successfully." });
 }
+[HttpPost("UpdateRemainingTimeToAllUsers")]
+public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
+{
+    var users = await dbContext.MyUser.ToListAsync();
+
+    if (users.Count == 0)
+    {
+        return NotFound("No users found.");
+    }
+
+    foreach (var user in users)
+    {
+        user.RemainingTime = 0;
+    }
+
+    await _context.SaveChangesAsync();
+    
+    return Ok("Remaining time updated to 0 for all users.");
+}
 
 
 [HttpPut("update-remaining-time/{userId}")]
