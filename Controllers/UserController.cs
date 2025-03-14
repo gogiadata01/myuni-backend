@@ -241,7 +241,7 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
         user.RemainingTime = 0;
     }
 
-    await _context.SaveChangesAsync();
+    await dbContext.SaveChangesAsync();
     
     return Ok("Remaining time updated to 0 for all users.");
 }
