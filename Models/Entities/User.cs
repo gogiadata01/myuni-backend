@@ -19,6 +19,7 @@ namespace MyUni.Models.Entities
         public string Token { get; set; } // Token for password reset
         public DateTime? ResetTokenExpiry { get; set; } // Token expiration time
         public DateTime? LastQuizAttempt { get; set; } // Nullable for users who haven't attempted a quiz
+        public int RemainingTime { get; set; } // In seconds
 
     }
 

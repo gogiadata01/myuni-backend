@@ -226,7 +226,26 @@ public IActionResult UpdateCoins([FromBody] UpdateCoinDto dto)
     return Ok(new { message = "Coin value updated for all users successfully." });
 }
 
-    
+
+    [HttpPut("update-remaining-time/{userId}")]
+public IActionResult UpdateRemainingTime(int userId, [FromBody] int newRemainingTime)
+{
+    var user = dbContext.MyUser.FirstOrDefault(u => u.Id == userId);
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    user.RemainingTime = newRemainingTime;
+    dbContext.SaveChanges();
+
+    return Ok(new
+    {
+        Message = "Remaining time updated successfully.",
+        UpdatedRemainingTime = newRemainingTime
+    });
+}
+
 [HttpPost("recover-password")]
 public IActionResult RecoverPassword([FromBody] UserRecoverPasswordDto recoverPasswordDto)
 {

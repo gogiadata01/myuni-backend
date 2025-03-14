@@ -14,7 +14,7 @@ namespace MyUni.Models
         public string Img { get; set; }
 
         public int Coin { get; set; }
-
+        public int RemainingTime { get; set; } // In seconds
         public string Token { get; set; } // This should be in your model
     }
 }
