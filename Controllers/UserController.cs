@@ -35,6 +35,7 @@ public class UserController : ControllerBase
                 user.Name,
                 user.Img,
                 user.Coin,
+                user.RemainingTime
             })
             .ToList();
 
@@ -227,8 +228,8 @@ public IActionResult UpdateCoins([FromBody] UpdateCoinDto dto)
 }
 
 
-    [HttpPut("update-remaining-time/{userId}")]
-public IActionResult UpdateRemainingTime(int userId, [FromBody] int newRemainingTime)
+[HttpPut("update-remaining-time/{userId}")]
+public IActionResult UpdateRemainingTime(int userId, [FromBody] int additionalTime)
 {
     var user = dbContext.MyUser.FirstOrDefault(u => u.Id == userId);
     if (user == null)
@@ -236,13 +237,13 @@ public IActionResult UpdateRemainingTime(int userId, [FromBody] int newRemaining
         return NotFound("User not found.");
     }
 
-    user.RemainingTime = newRemainingTime;
+    user.RemainingTime += additionalTime; // Add time instead of replacing it
     dbContext.SaveChanges();
 
     return Ok(new
     {
         Message = "Remaining time updated successfully.",
-        UpdatedRemainingTime = newRemainingTime
+        UpdatedRemainingTime = user.RemainingTime // Send updated total time
     });
 }
 
