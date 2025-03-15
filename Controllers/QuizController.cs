@@ -273,7 +273,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    // Map QuizDto to Quiz entity
+    // Step 1: Map QuizDto to Quiz entity
     var quizEntity = new Quiz
     {
         Time = quizDto.Time,
@@ -304,11 +304,11 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         } : null
     };
 
-    // Save the quiz in MyQuiz table
+    // Step 2: Save the quiz in the MyQuiz table
     dbContext.MyQuiz.Add(quizEntity);
     dbContext.SaveChanges();
 
-    // Archive the quiz in QuizArchive table
+    // Step 3: Create the QuizArchive object
     var archivedQuiz = new QuizArchive
     {
         Time = quizEntity.Time,
@@ -339,10 +339,11 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         } : null
     };
 
+    // Step 4: Save the archived quiz in the QuizArchive table
     dbContext.QuizArchive.Add(archivedQuiz);
     dbContext.SaveChanges();
 
-    // Return the response with quiz details (or a success message)
+    // Step 5: Return the response with quiz details (or a success message)
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
 
