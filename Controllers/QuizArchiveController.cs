@@ -35,6 +35,8 @@ public class QuizArchiveController : ControllerBase
 
         return Ok(dbContext);
     }
+
+[HttpPost]  // Use the appropriate HTTP method here, POST is assumed for this case
 public IActionResult ArchiveQuizzes()
 {
     try
@@ -87,11 +89,10 @@ public IActionResult ArchiveQuizzes()
     }
     catch (Exception ex)
     {
-        // Log the error for debugging and return a friendly message
-        // In production, you might want to log the exception in a logging service like Serilog, NLog, etc.
         return StatusCode(500, new { message = "An error occurred while archiving quizzes.", error = ex.Message });
     }
 }
+
 
 
 
