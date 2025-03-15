@@ -15,8 +15,6 @@ namespace MyUni.Models.Entities
         public string question { get; set; }
         public string correctanswer { get; set; }
         public string img { get; set; } = null;
-        public int QuizArchiveId { get; set; }
-        public QuizArchive QuizArchive { get; set; }
         public ICollection<ArchivedIncorrectAnswer> IncorrectAnswers { get; set; }
     }
 
@@ -24,8 +22,6 @@ namespace MyUni.Models.Entities
     {
         public int Id { get; set; }
         public string InccorectAnswer { get; set; }
-        public int ArchivedQuestionId { get; set; }
-        public ArchivedQuestion ArchivedQuestion { get; set; }
     }
 
     public class ArchivedBonusQuestionDetails
@@ -43,7 +39,5 @@ namespace MyUni.Models.Entities
     {
         public int Id { get; set; }
         public string correctanswer { get; set; }
-        public int BonusQuestionDetailsId { get; set; }
-        public ArchivedBonusQuestionDetails BonusQuestion { get; set; }
     }
 }
