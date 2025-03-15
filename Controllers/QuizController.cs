@@ -42,6 +42,86 @@ namespace MyUni.Controllers
 
             return Ok(quizzes);
         }
+        [HttpPost]
+public IActionResult GetAndArchiveQuizzes()
+{
+    try
+    {
+        // Retrieve quizzes from the database
+        var quizzes = dbContext.MyQuiz
+            .Include(q => q.Questions)
+                .ThenInclude(qa => qa.IncorrectAnswers)
+            .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.CorrectAnswers)
+            .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.IncorrectAnswers)
+            .ToList();
+
+        // Check if quizzes were retrieved
+        if (quizzes == null || !quizzes.Any())
+        {
+            return BadRequest(new { message = "No quizzes found to archive." });
+        }
+
+        // Archive the quizzes
+        var archivedQuizzes = quizzes.Select(quizEntity =>
+        {
+            // Skip null quiz entities
+            if (quizEntity == null) return null;
+
+            // Archive the quiz data
+            var archivedQuiz = new QuizArchive
+            {
+                Time = quizEntity.Time ?? "Unknown Time",
+                Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
+                {
+                    question = q.question ?? "No question provided",
+                    correctanswer = q.correctanswer ?? "No correct answer",
+                    img = q.img ?? "No image",
+                    IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+                    {
+                        InccorectAnswer = ia.InccorectAnswer ?? "No incorrect answer"
+                    }).ToList() ?? new List<ArchivedIncorrectAnswer>()
+                }).ToList() ?? new List<ArchivedQuestion>(),
+
+                // Handle bonus question
+                BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
+                {
+                    question = quizEntity.BonusQuestion.question ?? "No bonus question",
+                    img = quizEntity.BonusQuestion.img ?? "No bonus image",
+                    Coins = quizEntity.BonusQuestion.Coins,
+                    CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
+                    {
+                        correctanswer = ca.correctanswer ?? "No correct answer"
+                    }).ToList() ?? new List<ArchivedCorrectAnswer>(),
+
+                    IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+                    {
+                        InccorectAnswer = ia.InccorectAnswer ?? "No incorrect answer"
+                    }).ToList() ?? new List<ArchivedIncorrectAnswer>()
+                } : null // Handle null BonusQuestion gracefully
+            };
+
+            return archivedQuiz;
+        }).Where(q => q != null).ToList(); // Filter out any null quizzes
+
+        // If valid archives were found, add them to the archive database
+        if (archivedQuizzes.Any())
+        {
+            dbContext.MyQuizArchive.AddRange(archivedQuizzes);
+            dbContext.SaveChanges(); // Commit to the database
+            return Ok(new { message = "Quizzes archived successfully." });
+        }
+
+        return BadRequest(new { message = "No valid quizzes to archive." });
+    }
+    catch (Exception ex)
+    {
+        // Handle any unexpected errors
+        return StatusCode(500, new { message = "An error occurred while archiving quizzes.", error = ex.Message });
+    }
+}
+
 [HttpPost("send-email")]
 public async Task<IActionResult> SendCustomEmail([FromBody] EmailRequestDto emailRequest)
 {
