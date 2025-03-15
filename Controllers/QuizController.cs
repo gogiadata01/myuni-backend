@@ -184,50 +184,6 @@ public class EmailRequestDto
         }
 
 
-[HttpPost]
-public IActionResult ArchiveQuizzes()
-{
-    // Fetch quizzes from the database
-    var quizzes = dbContext.MyQuiz.ToList();
-
-    // Prepare a list to store the archived quizzes
-    var quizArchives = quizzes.Select(quizEntity => new QuizArchive
-    {
-        Time = quizEntity.Time,
-        Questions = quizEntity.Questions.Select(q => new ArchivedQuestion
-        {
-            question = q.question,
-            correctanswer = q.correctanswer,
-            img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers.Select(ia => new ArchivedIncorrectAnswer
-            {
-                InccorectAnswer = ia.InccorectAnswer
-            }).ToList()
-        }).ToList(),
-        BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
-        {
-            question = quizEntity.BonusQuestion.question,
-            img = quizEntity.BonusQuestion.img,
-            Coins = quizEntity.BonusQuestion.Coins,
-            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers.Select(ca => new ArchivedCorrectAnswer
-            {
-                correctanswer = ca.correctanswer
-            }).ToList(),
-            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers.Select(ia => new ArchivedIncorrectAnswer
-            {
-                InccorectAnswer = ia.InccorectAnswer
-            }).ToList()
-        } : null
-    }).ToList();
-
-    // Add the quiz archives to the database
-    dbContext.MyQuizArchive.AddRange(quizArchives);
-
-    // Save the changes to the database
-    dbContext.SaveChanges();
-
-    return Ok(new { message = "Quizzes archived successfully." });
-}
 
 
 
