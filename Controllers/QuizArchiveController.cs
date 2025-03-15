@@ -44,75 +44,74 @@ public IActionResult ArchiveQuizzes()
         // Fetch quizzes from the database
         var quizzes = dbContext.MyQuiz
             .Include(q => q.Questions)
-                .ThenInclude(qa => qa.IncorrectAnswers)
+                .ThenInclude(q => q.IncorrectAnswers)
             .Include(q => q.BonusQuestion)
-                .ThenInclude(bq => bq.CorrectAnswers)
+                .ThenInclude(b => b.CorrectAnswers)
             .Include(q => q.BonusQuestion)
-                .ThenInclude(bq => bq.IncorrectAnswers)
+                .ThenInclude(b => b.IncorrectAnswers)
             .ToList();
 
-        // Check if quizzes are found, otherwise return a specific message
+        // Check if quizzes are available
         if (quizzes == null || !quizzes.Any())
         {
             return BadRequest(new { message = "No quizzes available to archive." });
         }
 
+        // Process each quiz
         var quizArchives = quizzes.Select(quizEntity =>
         {
-            if (quizEntity == null)
-            {
-                return null; // If the quiz entity is null, skip it
-            }
+            // Skip null quiz entities
+            if (quizEntity == null) return null;
 
-            return new QuizArchive
+            // Archive the quiz data
+            var archivedQuiz = new QuizArchive
             {
-                Time = quizEntity.Time,
+                Time = quizEntity.Time ?? "Unknown Time",
                 Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
                 {
-                    question = q.question,
-                    correctanswer = q.correctanswer,
-                    img = q.img,
+                    question = q.question ?? "No question provided",
+                    correctanswer = q.correctanswer ?? "No correct answer",
+                    img = q.img ?? "No image",
                     IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
                     {
-                        InccorectAnswer = ia.InccorectAnswer
+                        InccorectAnswer = ia.InccorectAnswer ?? "No incorrect answer"
                     }).ToList() ?? new List<ArchivedIncorrectAnswer>()
-                }).ToList() ?? new List<ArchivedQuestion>(), // Ensure it's not null
+                }).ToList() ?? new List<ArchivedQuestion>(), // Ensure list is not null
 
+                // Handle bonus question
                 BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
                 {
-                    question = quizEntity.BonusQuestion.question,
-                    img = quizEntity.BonusQuestion.img,
+                    question = quizEntity.BonusQuestion.question ?? "No bonus question",
+                    img = quizEntity.BonusQuestion.img ?? "No bonus image",
                     Coins = quizEntity.BonusQuestion.Coins,
                     CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
                     {
-                        correctanswer = ca.correctanswer
+                        correctanswer = ca.correctanswer ?? "No correct answer"
                     }).ToList() ?? new List<ArchivedCorrectAnswer>(),
 
                     IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
                     {
-                        InccorectAnswer = ia.InccorectAnswer
+                        InccorectAnswer = ia.InccorectAnswer ?? "No incorrect answer"
                     }).ToList() ?? new List<ArchivedIncorrectAnswer>()
-                } : null // Handle the case where there is no BonusQuestion
+                } : null // Handle null BonusQuestion gracefully
             };
+
+            return archivedQuiz;
         }).Where(q => q != null).ToList(); // Filter out any null quizzes
 
-        // Check if any valid archives were found to add
+        // If valid archives were found, add them to the archive database
         if (quizArchives.Any())
         {
             dbContext.MyQuizArchive.AddRange(quizArchives);
-            dbContext.SaveChanges();  // Commit the transaction to the database
-        }
-        else
-        {
-            return BadRequest(new { message = "No quizzes found to archive." });
+            dbContext.SaveChanges(); // Commit to the database
+            return Ok(new { message = "Quizzes archived successfully." });
         }
 
-        return Ok(new { message = "Quizzes archived successfully." });
+        return BadRequest(new { message = "No valid quizzes to archive." });
     }
     catch (Exception ex)
     {
-        // Log error for debugging purposes (optional logging)
-        // _logger.LogError(ex, "Error while archiving quizzes.");
+        // Handle any unexpected errors
         return StatusCode(500, new { message = "An error occurred while archiving quizzes.", error = ex.Message });
     }
 }
