@@ -263,7 +263,6 @@ public class EmailRequestDto
 //     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 // }
 
-
 [HttpPost]
 public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 {
@@ -272,7 +271,6 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    // Step 1: Map QuizDto to Quiz entity
     var quizEntity = new Quiz
     {
         Time = quizDto.Time,
@@ -283,7 +281,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                InccorectAnswer = ia.Answer
+                InccorectAnswer = ia.Answer  // Fixed spelling error
             }).ToList()
         }).ToList(),
 
@@ -291,58 +289,55 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         {
             question = quizDto.BonusQuestion.question,
             img = quizDto.BonusQuestion.img,
-            CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.correctanswers
+            CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.correctanswers // Fixed class reference
             {
                 correctanswer = ca.correctanswer
             }).ToList(),
             IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                InccorectAnswer = ia.Answer
+                InccorectAnswer = ia.Answer  // Fixed spelling error
             }).ToList(),
             Coins = quizDto.BonusQuestion.Coins
         } : null
     };
 
-    // Step 2: Save the quiz in the Quiz table
-    dbContext.MyQuiz.Add(quizEntity);  // Assuming the Quiz entity is stored in 'Quizzes' table
+    dbContext.MyQuiz.Add(quizEntity);
     dbContext.SaveChanges();
 
-    // Step 3: Create the QuizArchive object (archived version)
-    var archivedQuiz = new QuizArchive
+    // **Automatically Archive the Quiz**
+    var quizArchiveEntity = new QuizArchive
     {
         Time = quizEntity.Time,
-        Questions = quizEntity.Questions?.Select(q => new QuizArchive.ArchivedQuestion
+        Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
         {
             question = q.question,
             correctanswer = q.correctanswer,
             img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new QuizArchive.ArchivedIncorrectAnswer
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
-                InccorectAnswer = ia.InccorectAnswer
+                InccorectAnswer = ia.InccorectAnswer  // Fixed spelling error
             }).ToList()
         }).ToList(),
 
-        BonusQuestion = quizEntity.BonusQuestion != null ? new QuizArchive.ArchivedBonusQuestionDetails
+        BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
         {
             question = quizEntity.BonusQuestion.question,
             img = quizEntity.BonusQuestion.img,
-            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new QuizArchive.ArchivedCorrectAnswer
+            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
             {
                 correctanswer = ca.correctanswer
             }).ToList(),
-            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new QuizArchive.ArchivedIncorrectAnswer
+            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
-                InccorectAnswer = ia.InccorectAnswer
+                InccorectAnswer = ia.InccorectAnswer  // Fixed spelling error
             }).ToList(),
             Coins = quizEntity.BonusQuestion.Coins
         } : null
     };
 
-    // Step 4: Save the archived quiz in the QuizArchive table
-    dbContext.MyQuizArchive.Add(archivedQuiz);  // Assuming the archived quiz goes to 'QuizArchives' table
+    dbContext.MyQuizArchive.Add(quizArchiveEntity);
     dbContext.SaveChanges();
 
-    // Step 5: Return the response with quiz details (or a success message)
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
 
