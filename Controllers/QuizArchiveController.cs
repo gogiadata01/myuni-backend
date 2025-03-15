@@ -51,7 +51,6 @@ public class QuizArchiveController : ControllerBase
 
         return NoContent();
     }
-    [HttpPost]
 public IActionResult ArchiveQuizzes()
 {
     // Fetch quizzes from the database
@@ -73,24 +72,24 @@ public IActionResult ArchiveQuizzes()
             question = q.question,
             correctanswer = q.correctanswer,
             img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers.Select(ia => new ArchivedIncorrectAnswer
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
                 InccorectAnswer = ia.InccorectAnswer
-            }).ToList()
+            }).ToList() ?? new List<ArchivedIncorrectAnswer>()
         }).ToList(),
         BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
         {
             question = quizEntity.BonusQuestion.question,
             img = quizEntity.BonusQuestion.img,
             Coins = quizEntity.BonusQuestion.Coins,
-            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers.Select(ca => new ArchivedCorrectAnswer
+            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
             {
                 correctanswer = ca.correctanswer
-            }).ToList(),
-            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers.Select(ia => new ArchivedIncorrectAnswer
+            }).ToList() ?? new List<ArchivedCorrectAnswer>(),
+            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
                 InccorectAnswer = ia.InccorectAnswer
-            }).ToList()
+            }).ToList() ?? new List<ArchivedIncorrectAnswer>()
         } : null
     }).ToList();
 
