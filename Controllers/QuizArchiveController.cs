@@ -22,15 +22,16 @@ public class QuizArchiveController : ControllerBase
 
     // GET: api/QuizArchive
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<QuizArchive>>> GetQuizArchive()
+    public ActionResult GetQuizArchive()
     {
         var quizArchives = await dbContext.MyQuizArchive
-            .Include(q => q.Questions)
-                .ThenInclude(q => q.CorrectAnswers)
-            .Include(q => q.Questions)
-                .ThenInclude(q => q.IncorrectAnswers)
-            .Include(q => q.BonusQuestion)
-            .ToListAsync();
+                .Include(q => q.Questions)
+                    .ThenInclude(qa => qa.IncorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                    .ThenInclude(bq => bq.CorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                    .ThenInclude(bq => bq.IncorrectAnswers)
+                .ToList();
 
         return Ok(dbContext);
     }
