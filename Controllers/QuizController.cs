@@ -184,7 +184,88 @@ public class EmailRequestDto
     //     }
 
 
-            [HttpPost]
+//             [HttpPost]
+// public IActionResult PostQuiz([FromBody] QuizDto quizDto)
+// {
+//     if (!ModelState.IsValid)
+//     {
+//         return BadRequest(ModelState);
+//     }
+
+//     // Map QuizDto to Quiz entity
+//     var quizEntity = new Quiz
+//     {
+//         Time = quizDto.Time,
+//         Questions = quizDto.Questions?.Select(q => new Quiz.Question
+//         {
+//             question = q.question,
+//             correctanswer = q.correctanswer,
+//             img = q.img,
+//             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
+//             {
+//                 InccorectAnswer = ia.Answer
+//             }).ToList()
+//         }).ToList(),
+
+//         BonusQuestion = quizDto.BonusQuestion != null ? new Quiz.BonusQuestionDetails
+//         {
+//             question = quizDto.BonusQuestion.question,
+//             img = quizDto.BonusQuestion.img,
+//             CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.correctanswers
+//             {
+//                 correctanswer = ca.correctanswer
+//             }).ToList(),
+//             IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
+//             {
+//                 InccorectAnswer = ia.Answer
+//             }).ToList(),
+//             Coins = quizDto.BonusQuestion.Coins
+//         } : null
+//     };
+
+//     dbContext.MyQuiz.Add(quizEntity);
+//     dbContext.SaveChanges();
+
+//     // **Automatically Archive the Quiz**
+//     var quizArchiveEntity = new QuizArchive
+//     {
+//         Time = quizEntity.Time,
+//         Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
+//         {
+//             question = q.question,
+//             correctanswer = q.correctanswer,
+//             img = q.img,
+//             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+//             {
+//                 InccorectAnswer = ia.InccorectAnswer
+//             }).ToList()
+//         }).ToList(),
+
+//         BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
+//         {
+//             question = quizEntity.BonusQuestion.question,
+//             img = quizEntity.BonusQuestion.img,
+//             CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
+//             {
+//                 correctanswer = ca.correctanswer
+//             }).ToList(),
+//             IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+//             {
+//                 InccorectAnswer = ia.InccorectAnswer
+//             }).ToList(),
+//             Coins = quizEntity.BonusQuestion.Coins
+//         } : null
+//     };
+
+//     dbContext.MyQuizArchive.Add(quizArchiveEntity);
+//     dbContext.SaveChanges();
+
+//     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
+// }
+
+
+
+        [HttpPost]
 public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 {
     if (!ModelState.IsValid)
@@ -203,7 +284,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                InccorectAnswer = ia.Answer
+                IncorrectAnswer = ia.Answer
             }).ToList()
         }).ToList(),
 
@@ -211,13 +292,13 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         {
             question = quizDto.BonusQuestion.question,
             img = quizDto.BonusQuestion.img,
-            CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.correctanswers
+            CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.CorrectAnswer
             {
                 correctanswer = ca.correctanswer
             }).ToList(),
             IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                InccorectAnswer = ia.Answer
+                IncorrectAnswer = ia.Answer
             }).ToList(),
             Coins = quizDto.BonusQuestion.Coins
         } : null
@@ -226,7 +307,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     dbContext.MyQuiz.Add(quizEntity);
     dbContext.SaveChanges();
 
-    // **Automatically Archive the Quiz**
+    // Automatically Archive the Quiz
     var quizArchiveEntity = new QuizArchive
     {
         Time = quizEntity.Time,
@@ -237,7 +318,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
-                InccorectAnswer = ia.InccorectAnswer
+                IncorrectAnswer = ia.IncorrectAnswer
             }).ToList()
         }).ToList(),
 
@@ -251,7 +332,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             }).ToList(),
             IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
-                InccorectAnswer = ia.InccorectAnswer
+                IncorrectAnswer = ia.IncorrectAnswer
             }).ToList(),
             Coins = quizEntity.BonusQuestion.Coins
         } : null
@@ -262,6 +343,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
 
 
 
