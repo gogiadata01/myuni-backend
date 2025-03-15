@@ -310,9 +310,6 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     MoveQuizToArchive(quizEntity);
 
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
-}
-
-// Function to move the quiz to the archive
 private void MoveQuizToArchive(Quiz quizEntity)
 {
     // Map the Quiz to QuizArchive
@@ -350,6 +347,9 @@ private void MoveQuizToArchive(Quiz quizEntity)
     dbContext.MyQuizArchive.Add(quizArchive);
     dbContext.SaveChanges();
 }
+}
+
+// Function to move the quiz to the archive
 
 
 
