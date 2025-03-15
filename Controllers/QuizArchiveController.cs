@@ -85,10 +85,6 @@ public class QuizArchiveController : ControllerBase
 
         return Ok(new { message = "Quizzes archived successfully." });
     }
-    catch (Exception ex)
-    {
-        return StatusCode(500, new { message = "An error occurred while archiving quizzes.", error = ex.Message });
-    }
 }
 
 
