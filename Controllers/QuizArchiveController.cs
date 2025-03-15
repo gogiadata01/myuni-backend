@@ -55,14 +55,14 @@ public class QuizArchiveController : ControllerBase
 public IActionResult ArchiveQuizzes()
 {
     // Fetch quizzes from the database
-            var quizzes = dbContext.MyQuiz
-                .Include(q => q.Questions)
-                    .ThenInclude(qa => qa.IncorrectAnswers)
-                .Include(q => q.BonusQuestion)
-                    .ThenInclude(bq => bq.CorrectAnswers)
-                .Include(q => q.BonusQuestion)
-                    .ThenInclude(bq => bq.IncorrectAnswers)
-                .ToList();
+    var quizzes = dbContext.MyQuiz
+        .Include(q => q.Questions)
+            .ThenInclude(qa => qa.IncorrectAnswers)
+        .Include(q => q.BonusQuestion)
+            .ThenInclude(bq => bq.CorrectAnswers)
+        .Include(q => q.BonusQuestion)
+            .ThenInclude(bq => bq.IncorrectAnswers)
+        .ToList();
 
     // Prepare a list to store the archived quizzes
     var quizArchives = quizzes.Select(quizEntity => new QuizArchive
@@ -94,13 +94,14 @@ public IActionResult ArchiveQuizzes()
         } : null
     }).ToList();
 
-    // Add the quiz archives to the database
-    dbContext.MyQuizArchive.Add(quizArchives);
+    // Add the quiz archives to the database using AddRange
+    dbContext.MyQuizArchive.AddRange(quizArchives);
 
     // Save the changes to the database
     dbContext.SaveChanges();
 
     return Ok(new { message = "Quizzes archived successfully." });
 }
+
 }
 }
