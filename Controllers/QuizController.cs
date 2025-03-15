@@ -264,7 +264,7 @@ public class EmailRequestDto
 // }
 
 
-// In your QuizController.cs or a relevant service class
+[HttpPost]
 public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 {
     if (!ModelState.IsValid)
@@ -303,30 +303,23 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         } : null
     };
 
+    // Add the new quiz to the database
     dbContext.MyQuiz.Add(quizEntity);
     dbContext.SaveChanges();
 
-    // After saving, move the quiz to the archive
-    MoveQuizToArchive(quizEntity);
+    // Archive the quiz data
+    ArchiveQuiz(quizEntity);
 
+    // Return the created quiz as a response
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
-private void MoveQuizToArchive(Quiz quizEntity)
+}
+
+private void ArchiveQuiz(Quiz quizEntity)
 {
-    // Map the Quiz to QuizArchive
+    // Create the corresponding QuizArchive entity from the saved Quiz
     var quizArchive = new QuizArchive
     {
         Time = quizEntity.Time,
-        Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
-        {
-            question = q.question,
-            correctanswer = q.correctanswer,
-            img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
-            {
-                InccorectAnswer = ia.InccorectAnswer
-            }).ToList()
-        }).ToList(),
-
         BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
         {
             question = quizEntity.BonusQuestion.question,
@@ -339,15 +332,25 @@ private void MoveQuizToArchive(Quiz quizEntity)
             IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
                 InccorectAnswer = ia.InccorectAnswer
-            }).ToList()
-        } : null
+            }).ToList(),
+        } : null,
+        Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
+        {
+            question = q.question,
+            correctanswer = q.correctanswer,
+            img = q.img,
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+            {
+                InccorectAnswer = ia.InccorectAnswer
+            }).ToList(),
+        }).ToList()
     };
 
-    // Add to the archive DbSet and save changes
+    // Add the quiz archive to the database
     dbContext.MyQuizArchive.Add(quizArchive);
     dbContext.SaveChanges();
 }
-}
+
 
 // Function to move the quiz to the archive
 
