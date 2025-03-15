@@ -24,7 +24,7 @@ public class QuizArchiveController : ControllerBase
     [HttpGet]
     public ActionResult GetQuizArchive()
     {
-        var quizArchives = await dbContext.MyQuizArchive
+        var quizArchives =  dbContext.MyQuizArchive
                 .Include(q => q.Questions)
                     .ThenInclude(qa => qa.IncorrectAnswers)
                 .Include(q => q.BonusQuestion)
