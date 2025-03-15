@@ -312,32 +312,31 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     var archivedQuiz = new QuizArchive
     {
         Time = quizEntity.Time,
-        Questions = quizEntity.Questions?.Select(q => new QuizArchive.Question
+        Questions = quizEntity.Questions?.Select(q => new QuizArchive.ArchivedQuestion
         {
             question = q.question,
             correctanswer = q.correctanswer,
             img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new QuizArchive.IncorrectAnswer
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new QuizArchive.ArchivedIncorrectAnswer
             {
                 InccorectAnswer = ia.InccorectAnswer
             }).ToList()
         }).ToList(),
 
-        BonusQuestion = quizEntity.BonusQuestion != null ? new QuizArchive.BonusQuestionDetails
+        BonusQuestion = quizEntity.BonusQuestion != null ? new QuizArchive.ArchivedBonusQuestionDetails
         {
             question = quizEntity.BonusQuestion.question,
             img = quizEntity.BonusQuestion.img,
-            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new QuizArchive.correctanswers
+            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new QuizArchive.ArchivedCorrectAnswer
             {
                 correctanswer = ca.correctanswer
             }).ToList(),
-            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new QuizArchive.IncorrectAnswer
+            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new QuizArchive.ArchivedIncorrectAnswer
             {
                 InccorectAnswer = ia.InccorectAnswer
             }).ToList(),
             Coins = quizEntity.BonusQuestion.Coins
-        } : null,
-        // Add more properties if needed to capture relevant information
+        } : null
     };
 
     dbContext.QuizArchive.Add(archivedQuiz);
@@ -346,6 +345,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     // Return the response with quiz details (or a success message)
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
 
 
 
