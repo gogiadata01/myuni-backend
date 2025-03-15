@@ -35,23 +35,7 @@ public class QuizArchiveController : ControllerBase
 
         return Ok(dbContext);
     }
-
-    // DELETE: api/QuizArchive/{id}
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteQuizArchive(int id)
-    {
-        var quizArchive = await dbContext.MyQuizArchive.FindAsync(id);
-        if (quizArchive == null)
-        {
-            return NotFound();
-        }
-
-        dbContext.MyQuizArchive.Remove(quizArchive);
-        await dbContext.SaveChangesAsync();
-
-        return NoContent();
-    }
-public IActionResult ArchiveQuizzes()
+    public IActionResult ArchiveQuizzes()
 {
     try
     {
@@ -107,6 +91,22 @@ public IActionResult ArchiveQuizzes()
     }
 }
 
+
+    // DELETE: api/QuizArchive/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteQuizArchive(int id)
+    {
+        var quizArchive = await dbContext.MyQuizArchive.FindAsync(id);
+        if (quizArchive == null)
+        {
+            return NotFound();
+        }
+
+        dbContext.MyQuizArchive.Remove(quizArchive);
+        await dbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
 
 }
 }
