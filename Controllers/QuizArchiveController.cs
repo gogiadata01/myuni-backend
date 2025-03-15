@@ -145,28 +145,26 @@ public IActionResult ArchiveQuizzes()
 
     //     return NoContent();
     // }
-    [HttpDelete("{id}")]
-public async Task<IActionResult> DeleteQuizArchive(int id)
-{
-    var quizArchive = await dbContext.MyQuizArchive
-        .Include(q => q.Questions) // Include related questions
-        .FirstOrDefaultAsync(q => q.Id == id);
+      [HttpDelete("{id}")]
+        public IActionResult DeleteQuiz(int id)
+        {
+            var quiz = dbContext.MyQuizArchive
+                .Include(q => q.Questions)
+                .ThenInclude(qa => qa.IncorrectAnswers)
+                .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.IncorrectAnswers)
+                .FirstOrDefault(q => q.Id == id);
 
-    if (quizArchive == null)
-    {
-        return NotFound();
-    }
+            if (quiz == null)
+            {
+                return NotFound();
+            }
 
-    // Manually delete related questions
-    dbContext.ArchivedQuestion.RemoveRange(quizArchive.Questions);
+            dbContext.MyQuizArchive.Remove(quiz);
+            dbContext.SaveChanges();
 
-    // Remove the QuizArchive entry
-    dbContext.MyQuizArchive.Remove(quizArchive);
-
-    await dbContext.SaveChangesAsync();
-    
-    return NoContent();
-}
+            return NoContent();
+        }
 
 
 }
