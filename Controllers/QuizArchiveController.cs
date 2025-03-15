@@ -35,11 +35,11 @@ public class QuizArchiveController : ControllerBase
 
         return Ok(dbContext);
     }
-    public IActionResult ArchiveQuizzes()
+public IActionResult ArchiveQuizzes()
 {
     try
     {
-        // Fetch quizzes from the database
+        // Fetch quizzes from the database including related entities
         var quizzes = dbContext.MyQuiz
             .Include(q => q.Questions)
                 .ThenInclude(qa => qa.IncorrectAnswers)
@@ -49,7 +49,7 @@ public class QuizArchiveController : ControllerBase
                 .ThenInclude(bq => bq.IncorrectAnswers)
             .ToList();
 
-        // Prepare a list to store the archived quizzes
+        // Prepare the list of quiz archives
         var quizArchives = quizzes.Select(quizEntity => new QuizArchive
         {
             Time = quizEntity.Time,
@@ -79,13 +79,20 @@ public class QuizArchiveController : ControllerBase
             } : null
         }).ToList();
 
-        // Add the quiz archives to the database using AddRange
+        // Add the quiz archives to the database
         dbContext.MyQuizArchive.AddRange(quizArchives);
-        dbContext.SaveChanges();  // Save the changes to the database
+        dbContext.SaveChanges();  // Commit the transaction to the database
 
         return Ok(new { message = "Quizzes archived successfully." });
     }
+    catch (Exception ex)
+    {
+        // Log the error for debugging and return a friendly message
+        // In production, you might want to log the exception in a logging service like Serilog, NLog, etc.
+        return StatusCode(500, new { message = "An error occurred while archiving quizzes.", error = ex.Message });
+    }
 }
+
 
 
     // DELETE: api/QuizArchive/{id}
