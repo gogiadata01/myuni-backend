@@ -303,11 +303,11 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         } : null
     };
 
-    // Step 2: Save the quiz in the MyQuiz table
-    dbContext.MyQuiz.Add(quizEntity);
+    // Step 2: Save the quiz in the Quiz table
+    dbContext.MyQuiz.Add(quizEntity);  // Assuming the Quiz entity is stored in 'Quizzes' table
     dbContext.SaveChanges();
 
-    // Step 3: Create the QuizArchive object
+    // Step 3: Create the QuizArchive object (archived version)
     var archivedQuiz = new QuizArchive
     {
         Time = quizEntity.Time,
@@ -339,7 +339,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     };
 
     // Step 4: Save the archived quiz in the QuizArchive table
-    dbContext.QuizArchive.Add(archivedQuiz);
+    dbContext.MyQuizArchive.Add(archivedQuiz);  // Assuming the archived quiz goes to 'QuizArchives' table
     dbContext.SaveChanges();
 
     // Step 5: Return the response with quiz details (or a success message)
