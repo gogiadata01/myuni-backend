@@ -273,8 +273,6 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    using (var dbContext = new Quiz()) 
-    {
         // **Save Quiz First**
         var quizEntity = new Quiz
         {
@@ -360,7 +358,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         dbContext.SaveChanges(); // **Save IncorrectAnswers with FK**
 
         return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
-    }
+    
 }
 
 
