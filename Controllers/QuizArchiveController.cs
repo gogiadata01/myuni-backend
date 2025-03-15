@@ -53,54 +53,60 @@ public class QuizArchiveController : ControllerBase
     }
 public IActionResult ArchiveQuizzes()
 {
-    // Fetch quizzes from the database
-    var quizzes = dbContext.MyQuiz
-        .Include(q => q.Questions)
-            .ThenInclude(qa => qa.IncorrectAnswers)
-        .Include(q => q.BonusQuestion)
-            .ThenInclude(bq => bq.CorrectAnswers)
-        .Include(q => q.BonusQuestion)
-            .ThenInclude(bq => bq.IncorrectAnswers)
-        .ToList();
-
-    // Prepare a list to store the archived quizzes
-    var quizArchives = quizzes.Select(quizEntity => new QuizArchive
+    try
     {
-        Time = quizEntity.Time,
-        Questions = quizEntity.Questions.Select(q => new ArchivedQuestion
+        // Fetch quizzes from the database
+        var quizzes = dbContext.MyQuiz
+            .Include(q => q.Questions)
+                .ThenInclude(qa => qa.IncorrectAnswers)
+            .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.CorrectAnswers)
+            .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.IncorrectAnswers)
+            .ToList();
+
+        // Prepare a list to store the archived quizzes
+        var quizArchives = quizzes.Select(quizEntity => new QuizArchive
         {
-            question = q.question,
-            correctanswer = q.correctanswer,
-            img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+            Time = quizEntity.Time,
+            Questions = quizEntity.Questions.Select(q => new ArchivedQuestion
             {
-                InccorectAnswer = ia.InccorectAnswer
-            }).ToList() ?? new List<ArchivedIncorrectAnswer>()
-        }).ToList(),
-        BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
-        {
-            question = quizEntity.BonusQuestion.question,
-            img = quizEntity.BonusQuestion.img,
-            Coins = quizEntity.BonusQuestion.Coins,
-            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
+                question = q.question,
+                correctanswer = q.correctanswer,
+                img = q.img,
+                IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+                {
+                    InccorectAnswer = ia.InccorectAnswer
+                }).ToList() ?? new List<ArchivedIncorrectAnswer>()
+            }).ToList(),
+            BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
             {
-                correctanswer = ca.correctanswer
-            }).ToList() ?? new List<ArchivedCorrectAnswer>(),
-            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
-            {
-                InccorectAnswer = ia.InccorectAnswer
-            }).ToList() ?? new List<ArchivedIncorrectAnswer>()
-        } : null
-    }).ToList();
+                question = quizEntity.BonusQuestion.question,
+                img = quizEntity.BonusQuestion.img,
+                Coins = quizEntity.BonusQuestion.Coins,
+                CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
+                {
+                    correctanswer = ca.correctanswer
+                }).ToList() ?? new List<ArchivedCorrectAnswer>(),
+                IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+                {
+                    InccorectAnswer = ia.InccorectAnswer
+                }).ToList() ?? new List<ArchivedIncorrectAnswer>()
+            } : null
+        }).ToList();
 
-    // Add the quiz archives to the database using AddRange
-    dbContext.MyQuizArchive.AddRange(quizArchives);
+        // Add the quiz archives to the database using AddRange
+        dbContext.MyQuizArchive.AddRange(quizArchives);
+        dbContext.SaveChanges();  // Save the changes to the database
 
-    // Save the changes to the database
-    dbContext.SaveChanges();
-
-    return Ok(new { message = "Quizzes archived successfully." });
+        return Ok(new { message = "Quizzes archived successfully." });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "An error occurred while archiving quizzes.", error = ex.Message });
+    }
 }
+
 
 }
 }
