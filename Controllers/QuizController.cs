@@ -264,7 +264,6 @@ public class EmailRequestDto
 // }
 
 
-
 [HttpPost]
 public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 {
@@ -346,6 +345,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     // Step 5: Return the response with quiz details (or a success message)
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
 
 
 
