@@ -334,22 +334,40 @@ private void ArchiveQuiz(Quiz quizEntity)
                 InccorectAnswer = ia.InccorectAnswer
             }).ToList(),
         } : null,
-        Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
-        {
-            question = q.question,
-            correctanswer = q.correctanswer,
-            img = q.img,
-            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
-            {
-                InccorectAnswer = ia.InccorectAnswer
-            }).ToList(),
-        }).ToList()
+        Questions = new List<ArchivedQuestion>()
     };
 
-    // Add the quiz archive to the database
+    // First, insert the ArchivedQuestions into the database and get their Ids
+    foreach (var question in quizEntity.Questions)
+    {
+        var archivedQuestion = new ArchivedQuestion
+        {
+            question = question.question,
+            correctanswer = question.correctanswer,
+            img = question.img
+        };
+
+        // Insert ArchivedQuestion and get the Id
+        dbContext.MyArchivedQuestions.Add(archivedQuestion);
+        dbContext.SaveChanges(); // Save to get the Id
+
+        // Now, insert the ArchivedIncorrectAnswer referencing the correct ArchivedQuestion
+        foreach (var incorrectAnswer in question.IncorrectAnswers)
+        {
+            var archivedIncorrectAnswer = new ArchivedIncorrectAnswer
+            {
+                InccorectAnswer = incorrectAnswer.InccorectAnswer,
+                ArchivedQuestionId = archivedQuestion.Id // Correct foreign key reference
+            };
+            dbContext.MyArchivedIncorrectAnswers.Add(archivedIncorrectAnswer);
+        }
+    }
+
+    // After inserting all questions and incorrect answers, save the QuizArchive
     dbContext.MyQuizArchive.Add(quizArchive);
     dbContext.SaveChanges();
 }
+
 
 
 // Function to move the quiz to the archive
