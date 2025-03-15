@@ -23,14 +23,28 @@ public class QuizArchiveController : ControllerBase
     }
 
     // GET: api/QuizArchive
-    [HttpGet]
+//     [HttpGet]
+// public ActionResult GetQuizArchive()
+// {
+//     var quizArchives = dbContext.MyQuizArchive.ToList();
+
+//     return Ok(quizArchives);
+// }
+
+[HttpGet]
 public ActionResult GetQuizArchive()
 {
-    var quizArchives = dbContext.MyQuizArchive.ToList();
+    var quizArchives = dbContext.MyQuizArchive
+        .Include(qa => qa.Questions)
+            .ThenInclude(q => q.IncorrectAnswers)
+        .Include(qa => qa.BonusQuestion)
+            .ThenInclude(bq => bq.CorrectAnswers)
+        .Include(qa => qa.BonusQuestion)
+            .ThenInclude(bq => bq.IncorrectAnswers)
+        .ToList();
 
     return Ok(quizArchives);
 }
-
 
 [HttpPost]
 public IActionResult ArchiveQuizzes()
