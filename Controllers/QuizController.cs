@@ -42,7 +42,7 @@ namespace MyUni.Controllers
 
             return Ok(quizzes);
         }
-        [HttpPost]
+[HttpPost("archive")]
 public IActionResult GetAndArchiveQuizzes()
 {
     try
