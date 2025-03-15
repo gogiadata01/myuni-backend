@@ -273,7 +273,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    // **Save Quiz First**
+    // Map QuizDto to Quiz entity
     var quizEntity = new Quiz
     {
         Time = quizDto.Time,
@@ -284,7 +284,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                InccorectAnswer = ia.Answer // Fixed spelling error
+                InccorectAnswer = ia.Answer
             }).ToList()
         }).ToList(),
 
@@ -304,61 +304,49 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         } : null
     };
 
+    // Save the quiz in MyQuiz table
     dbContext.MyQuiz.Add(quizEntity);
-    dbContext.SaveChanges(); // **Ensure IDs are generated**
+    dbContext.SaveChanges();
 
-    // **Archive the Quiz**
-    var quizArchiveEntity = new QuizArchive
+    // Archive the quiz in QuizArchive table
+    var archivedQuiz = new QuizArchive
     {
         Time = quizEntity.Time,
-        Questions = quizEntity.Questions?.Select(q => new ArchivedQuestion
+        Questions = quizEntity.Questions?.Select(q => new QuizArchive.Question
         {
             question = q.question,
             correctanswer = q.correctanswer,
             img = q.img,
-            IncorrectAnswers = new List<ArchivedIncorrectAnswer>() // Empty list, will update later
+            IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new QuizArchive.IncorrectAnswer
+            {
+                InccorectAnswer = ia.InccorectAnswer
+            }).ToList()
         }).ToList(),
 
-        BonusQuestion = quizEntity.BonusQuestion != null ? new ArchivedBonusQuestionDetails
+        BonusQuestion = quizEntity.BonusQuestion != null ? new QuizArchive.BonusQuestionDetails
         {
             question = quizEntity.BonusQuestion.question,
             img = quizEntity.BonusQuestion.img,
-            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new ArchivedCorrectAnswer
+            CorrectAnswers = quizEntity.BonusQuestion.CorrectAnswers?.Select(ca => new QuizArchive.correctanswers
             {
                 correctanswer = ca.correctanswer
             }).ToList(),
-            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
+            IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new QuizArchive.IncorrectAnswer
             {
                 InccorectAnswer = ia.InccorectAnswer
             }).ToList(),
             Coins = quizEntity.BonusQuestion.Coins
-        } : null
+        } : null,
+        // Add more properties if needed to capture relevant information
     };
 
-    dbContext.MyQuizArchive.Add(quizArchiveEntity);
-    dbContext.SaveChanges(); // **Save to generate ArchivedQuestion IDs**
+    dbContext.QuizArchive.Add(archivedQuiz);
+    dbContext.SaveChanges();
 
-    // **Update ArchivedIncorrectAnswers with Foreign Keys**
-    foreach (var archivedQuestion in quizArchiveEntity.Questions)
-    {
-        var originalQuestion = quizEntity.Questions.FirstOrDefault(q => q.question == archivedQuestion.question);
-        if (originalQuestion != null)
-        {
-            foreach (var incorrectAnswer in originalQuestion.IncorrectAnswers)
-            {
-                archivedQuestion.IncorrectAnswers.Add(new ArchivedIncorrectAnswer
-                {
-                    InccorectAnswer = incorrectAnswer.InccorectAnswer,
-                    ArchivedQuestionId = archivedQuestion.Id // Assign FK
-                });
-            }
-        }
-    }
-
-    dbContext.SaveChanges(); // **Save IncorrectAnswers with FK**
-
+    // Return the response with quiz details (or a success message)
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
 
 
 
