@@ -35,7 +35,7 @@ public ActionResult GetQuizArchive()
             .ThenInclude(bq => bq.IncorrectAnswers)
         .ToList();
 
-    return Ok(dbContext);
+    return Ok(quizArchives);
 }
 
 
