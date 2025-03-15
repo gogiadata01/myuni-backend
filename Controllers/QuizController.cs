@@ -265,7 +265,7 @@ public class EmailRequestDto
 
 
 
-        [HttpPost]
+[HttpPost]
 public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 {
     if (!ModelState.IsValid)
@@ -273,7 +273,6 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    // Map QuizDto to Quiz entity
     var quizEntity = new Quiz
     {
         Time = quizDto.Time,
@@ -284,7 +283,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                IncorrectAnswer = ia.Answer
+                InccorectAnswer = ia.Answer  // Fixed spelling error
             }).ToList()
         }).ToList(),
 
@@ -292,13 +291,13 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         {
             question = quizDto.BonusQuestion.question,
             img = quizDto.BonusQuestion.img,
-            CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.CorrectAnswer
+            CorrectAnswers = quizDto.BonusQuestion.CorrectAnswers?.Select(ca => new Quiz.correctanswers // Fixed class reference
             {
                 correctanswer = ca.correctanswer
             }).ToList(),
             IncorrectAnswers = quizDto.BonusQuestion.IncorrectAnswers?.Select(ia => new Quiz.IncorrectAnswer
             {
-                IncorrectAnswer = ia.Answer
+                InccorectAnswer = ia.Answer  // Fixed spelling error
             }).ToList(),
             Coins = quizDto.BonusQuestion.Coins
         } : null
@@ -307,7 +306,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
     dbContext.MyQuiz.Add(quizEntity);
     dbContext.SaveChanges();
 
-    // Automatically Archive the Quiz
+    // **Automatically Archive the Quiz**
     var quizArchiveEntity = new QuizArchive
     {
         Time = quizEntity.Time,
@@ -318,7 +317,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             img = q.img,
             IncorrectAnswers = q.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
-                IncorrectAnswer = ia.IncorrectAnswer
+                InccorectAnswer = ia.InccorectAnswer  // Fixed spelling error
             }).ToList()
         }).ToList(),
 
@@ -332,7 +331,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
             }).ToList(),
             IncorrectAnswers = quizEntity.BonusQuestion.IncorrectAnswers?.Select(ia => new ArchivedIncorrectAnswer
             {
-                IncorrectAnswer = ia.IncorrectAnswer
+                InccorectAnswer = ia.InccorectAnswer  // Fixed spelling error
             }).ToList(),
             Coins = quizEntity.BonusQuestion.Coins
         } : null
@@ -343,6 +342,8 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
 
     return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
 }
+
+
 
 
 
