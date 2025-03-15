@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using MyUni.Data;
+using MyUni.Models;
+using MyUni.Models.Entities;
+using System;
+using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
-using YourNamespace.Data;
-using YourNamespace.Models;
-
+namespace MyUni.Controllers
+{
 [Route("api/[controller]")]
 [ApiController]
 public class QuizArchiveController : ControllerBase
@@ -47,4 +50,5 @@ public class QuizArchiveController : ControllerBase
 
         return NoContent();
     }
+}
 }
