@@ -26,14 +26,7 @@ public class QuizArchiveController : ControllerBase
     [HttpGet]
 public ActionResult GetQuizArchive()
 {
-    var quizArchives = dbContext.MyQuizArchive
-        .Include(q => q.Questions)
-            .ThenInclude(qa => qa.IncorrectAnswers)
-        .Include(q => q.BonusQuestion)
-            .ThenInclude(bq => bq.CorrectAnswers)
-        .Include(q => q.BonusQuestion)
-            .ThenInclude(bq => bq.IncorrectAnswers)
-        .ToList();
+    var quizArchives = dbContext.MyQuizArchive.ToList();
 
     return Ok(quizArchives);
 }
