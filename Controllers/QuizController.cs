@@ -273,7 +273,7 @@ public IActionResult PostQuiz([FromBody] QuizDto quizDto)
         return BadRequest(ModelState);
     }
 
-    using (var dbContext = new MyQuiz()) 
+    using (var dbContext = new Quiz()) 
     {
         // **Save Quiz First**
         var quizEntity = new Quiz
