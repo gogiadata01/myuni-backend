@@ -28,6 +28,35 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz
+// [HttpGet]
+// public async Task<IActionResult> GetAllQuizzes()
+// {
+//     try
+//     {
+//         var quizzes = await dbContext.MyQuiz
+//             .AsNoTracking()
+//             .Select(q => new
+//             {
+//                 q.Id,
+//                 q.Time,
+//                 Questions = q.Questions.Select(question => new
+//                 {
+//                     question.question,
+//                     question.correctanswer,
+//                     IncorrectAnswers = question.IncorrectAnswers.Select(ia => ia.InccorectAnswer).ToList()
+//                 }).ToList()
+//             })
+//             .ToListAsync();
+
+//         return Ok(quizzes);
+//     }
+//     catch (Exception ex)
+//     {
+//         _logger.LogError(ex, "Error fetching quizzes");
+//         return StatusCode(500, "Internal Server Error");
+//     }
+// }
+
 [HttpGet]
 public async Task<IActionResult> GetAllQuizzes()
 {
@@ -35,15 +64,20 @@ public async Task<IActionResult> GetAllQuizzes()
     {
         var quizzes = await dbContext.MyQuiz
             .AsNoTracking()
+            .Include(q => q.Questions)
+                .ThenInclude(q => q.IncorrectAnswers) // Ensure correct answers are fetched
             .Select(q => new
             {
                 q.Id,
                 q.Time,
                 Questions = q.Questions.Select(question => new
                 {
+                    question.Id,
                     question.question,
                     question.correctanswer,
-                    IncorrectAnswers = question.IncorrectAnswers.Select(ia => ia.InccorectAnswer).ToList()
+                    IncorrectAnswers = question.IncorrectAnswers
+                        .Select(ia => new { ia.Id, ia.InccorectAnswer }) // Keeping structure as in old code
+                        .ToList()
                 }).ToList()
             })
             .ToListAsync();
@@ -56,6 +90,9 @@ public async Task<IActionResult> GetAllQuizzes()
         return StatusCode(500, "Internal Server Error");
     }
 }
+
+
+
 
 
 [HttpPost("archive")]
