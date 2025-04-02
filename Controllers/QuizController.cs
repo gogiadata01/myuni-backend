@@ -37,8 +37,6 @@ public async Task<IActionResult> GetAllQuizzes()
             .AsNoTracking() // For read-only performance improvements
             .Include(q => q.Questions)
                 .ThenInclude(qa => qa.IncorrectAnswers)
-            .Include(q => q.BonusQuestion)
-                .ThenInclude(bq => bq.CorrectAnswers)
             .ToListAsync();
 
         return Ok(quizzes);
