@@ -72,11 +72,10 @@ public async Task<IActionResult> GetAllQuizzes()
                 q.Time,
                 Questions = q.Questions.Select(question => new
                 {
-                    question.Id,
                     question.question,
                     question.correctanswer,
                     IncorrectAnswers = question.IncorrectAnswers
-                        .Select(ia => new { ia.Id, ia.InccorectAnswer }) // Keeping structure as in old code
+                        .Select(ia => new {ia.InccorectAnswer }) // Keeping structure as in old code
                         .ToList()
                 }).ToList()
             })
