@@ -28,20 +28,28 @@ namespace MyUni.Controllers
         }
 
         // GET: api/Quiz
-        [HttpGet]
-        public IActionResult GetAllQuizzes()
-        {
-            var quizzes = dbContext.MyQuiz
-                .Include(q => q.Questions)
-                    .ThenInclude(qa => qa.IncorrectAnswers)
-                .Include(q => q.BonusQuestion)
-                    .ThenInclude(bq => bq.CorrectAnswers)
-                .Include(q => q.BonusQuestion)
-                    .ThenInclude(bq => bq.IncorrectAnswers)
-                .ToList();
+[HttpGet]
+public async Task<IActionResult> GetAllQuizzes()
+{
+    try
+    {
+        var quizzes = await dbContext.MyQuiz
+            .AsNoTracking() // For read-only performance improvements
+            .Include(q => q.Questions)
+                .ThenInclude(qa => qa.IncorrectAnswers)
+            .Include(q => q.BonusQuestion)
+                .ThenInclude(bq => bq.CorrectAnswers)
+            .ToListAsync();
 
-            return Ok(quizzes);
-        }
+        return Ok(quizzes);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error fetching quizzes");
+        return StatusCode(500, "Internal Server Error");
+    }
+}
+
 [HttpPost("archive")]
 public IActionResult GetAndArchiveQuizzes()
 {
