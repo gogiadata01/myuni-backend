@@ -34,9 +34,18 @@ public async Task<IActionResult> GetAllQuizzes()
     try
     {
         var quizzes = await dbContext.MyQuiz
-            .AsNoTracking() // For read-only performance improvements
-            .Include(q => q.Questions)
-                .ThenInclude(qa => qa.IncorrectAnswers)
+            .AsNoTracking()
+            .Select(q => new
+            {
+                q.Id,
+                q.Time,
+                Questions = q.Questions.Select(question => new
+                {
+                    question.question,
+                    question.correctanswer,
+                    IncorrectAnswers = question.IncorrectAnswers.Select(ia => ia.InccorectAnswer).ToList()
+                }).ToList()
+            })
             .ToListAsync();
 
         return Ok(quizzes);
@@ -47,6 +56,7 @@ public async Task<IActionResult> GetAllQuizzes()
         return StatusCode(500, "Internal Server Error");
     }
 }
+
 
 [HttpPost("archive")]
 public IActionResult GetAndArchiveQuizzes()
