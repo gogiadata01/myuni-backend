@@ -41,7 +41,7 @@ namespace MyUni.Models.Entities
         public class BadAnswer
         {
             public int Id { get; set; }
-            public string BadAnswer { get; set; } // Ensure spelling is consistent
+            public string badanswer { get; set; } // Ensure spelling is consistent
         }
     }
 
