@@ -25,7 +25,7 @@ namespace MyUni.Models.Entities
         public class QuizHistory 
         {     
         public int Id { get; set; }
-        public ICollection<questions> Questions { get; set; }
+        public ICollection<questions> QuizQuestions { get; set; }
         public string img { get; set; } = null;
         }
 
@@ -36,12 +36,12 @@ namespace MyUni.Models.Entities
             public string correctanswer { get; set; }
             public string UserAnswer {get; set; }
             public string img { get; set; } = null;
-            public ICollection<incorrectanswer> IncorrectAnswers { get; set; }
+            public ICollection<BadAnswer> BadAnswers { get; set; }
         }
-        public class incorrectanswer
+        public class BadAnswer
         {
             public int Id { get; set; }
-            public string InccorectAnswer { get; set; } // Ensure spelling is consistent
+            public string BadAnswer { get; set; } // Ensure spelling is consistent
         }
     }
 
