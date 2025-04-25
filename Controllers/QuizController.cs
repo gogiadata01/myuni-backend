@@ -120,8 +120,9 @@ public async Task<IActionResult> SubmitQuiz(int userId, [FromBody] QuizSubmissio
             img = questionDto.Img,
             BadAnswers = questionDto.BadAnswers.Select(b => new User.BadAnswer
             {
-                badanswer = b
+                badanswer = b.badanswer
             }).ToList()
+
         };
 
         quizHistory.QuizQuestions.Add(question);
