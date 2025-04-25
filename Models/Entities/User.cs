@@ -25,6 +25,7 @@ namespace MyUni.Models.Entities
         public class QuizHistory 
         {     
         public int Id { get; set; }
+        public string time { get; set; }
         public ICollection<questions> QuizQuestions { get; set; }
         public string img { get; set; } = null;
         }
