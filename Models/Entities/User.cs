@@ -20,7 +20,29 @@ namespace MyUni.Models.Entities
         public DateTime? ResetTokenExpiry { get; set; } // Token expiration time
         public DateTime? LastQuizAttempt { get; set; } // Nullable for users who haven't attempted a quiz
         public int RemainingTime { get; set; } // In seconds
+        public ICollection<QuizHistory> Quizes { get; set; }  = new List<QuizHistory>();
 
+        public class QuizHistory 
+        {     
+        public int Id { get; set; }
+        public ICollection<Question> Questions { get; set; }
+        public string img { get; set; } = null;
+        }
+
+        public class Question
+        {
+            public int Id { get; set; }
+            public string question { get; set; }
+            public string correctanswer { get; set; }
+            public string UserAnswer {get; set; }
+            public string img { get; set; } = null;
+            public ICollection<IncorrectAnswer> IncorrectAnswers { get; set; }
+        }
+        public class IncorrectAnswer
+        {
+            public int Id { get; set; }
+            public string InccorectAnswer { get; set; } // Ensure spelling is consistent
+        }
     }
 
 }
