@@ -25,11 +25,11 @@ namespace MyUni.Models.Entities
         public class QuizHistory 
         {     
         public int Id { get; set; }
-        public ICollection<Question> Questions { get; set; }
+        public ICollection<questions> Questions { get; set; }
         public string img { get; set; } = null;
         }
 
-        public class Question
+        public class questions
         {
             public int Id { get; set; }
             public string question { get; set; }
