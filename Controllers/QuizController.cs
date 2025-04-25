@@ -105,7 +105,7 @@ public async Task<IActionResult> SubmitQuiz(int userId, [FromBody] QuizSubmissio
 
     var quizHistory = new User.QuizHistory
     {
-        time = submission.time
+        time = submission.time,
         img = submission.img,
         QuizQuestions = new List<User.questions>()
     };
