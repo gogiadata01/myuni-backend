@@ -94,7 +94,7 @@ public async Task<IActionResult> GetAllQuizzes()
         [HttpPost("submit-quiz")]
         public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionDto submission)
         {
-            var user = await _context.MyUser
+            var user = await dbContext.MyUser
                 .Include(u => u.Quizes)
                 .ThenInclude(q => q.QuizQuestions)
                 .ThenInclude(q => q.BadAnswers)
@@ -127,7 +127,7 @@ public async Task<IActionResult> GetAllQuizzes()
             }
 
             user.Quizes.Add(quizHistory);
-            await _context.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
 
             return Ok("Quiz submitted and saved successfully.");
         }
