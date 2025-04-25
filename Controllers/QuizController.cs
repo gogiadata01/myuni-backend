@@ -91,7 +91,46 @@ public async Task<IActionResult> GetAllQuizzes()
 }
 
 
+        [HttpPost("submit-quiz")]
+        public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionDto submission)
+        {
+            var user = await _context.MyUser
+                .Include(u => u.Quizes)
+                .ThenInclude(q => q.QuizQuestions)
+                .ThenInclude(q => q.BadAnswers)
+                .FirstOrDefaultAsync(u => u.Id == submission.UserId);
 
+            if (user == null)
+                return NotFound("User not found.");
+
+            var quizHistory = new User.QuizHistory
+            {
+                img = submission.Img,
+                QuizQuestions = new List<User.questions>()
+            };
+
+            foreach (var q in submission.QuizQuestions)
+            {
+                var question = new User.questions
+                {
+                    question = q.Question,
+                    correctanswer = q.CorrectAnswer,
+                    UserAnswer = q.UserAnswer,
+                    img = q.Img,
+                    BadAnswers = q.BadAnswers?.Select(bad => new User.BadAnswer
+                    {
+                        badanswer = bad
+                    }).ToList()
+                };
+
+                quizHistory.QuizQuestions.Add(question);
+            }
+
+            user.Quizes.Add(quizHistory);
+            await _context.SaveChangesAsync();
+
+            return Ok("Quiz submitted and saved successfully.");
+        }
 
 
 [HttpPost("archive")]
