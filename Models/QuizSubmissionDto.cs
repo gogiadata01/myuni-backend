@@ -6,6 +6,8 @@ public class QuizSubmissionDto
 {
     public string time { get; set; }
     public ICollection<QuestionDto> QuizQuestions { get; set; }
+    public string img { get; set; } = null;
+
 }
 
 public class QuestionDto
