@@ -35,7 +35,7 @@ namespace MyUni.Models.Entities
             public string question { get; set; }
             public string correctanswer { get; set; }
             public string UserAnswer {get; set; }
-            public string img { get; set; } = null;
+            public string? img { get; set; } = null;
             public ICollection<BadAnswer> BadAnswers { get; set; }
         }
         public class BadAnswer
