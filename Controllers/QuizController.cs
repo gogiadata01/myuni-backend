@@ -91,46 +91,50 @@ public async Task<IActionResult> GetAllQuizzes()
 }
 
 
-        [HttpPost("submit-quiz")]
-        public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionDto submission)
+[HttpPost("submit-quiz/{userId}")]
+public async Task<IActionResult> SubmitQuiz(int userId, [FromBody] QuizSubmissionDto submission)
+{
+    var user = await _context.MyUser
+        .Include(u => u.Quizes)
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    var quizHistory = new User.QuizHistory
+    {
+        img = submission.img,
+        QuizQuestions = new List<User.questions>()
+    };
+
+    foreach (var questionDto in submission.QuizQuestions)
+    {
+        var question = new User.questions
         {
-            var user = await dbContext.MyUser
-                .Include(u => u.Quizes)
-                .ThenInclude(q => q.QuizQuestions)
-                .ThenInclude(q => q.BadAnswers)
-                .FirstOrDefaultAsync(u => u.Id == submission.UserId);
-
-            if (user == null)
-                return NotFound("User not found.");
-
-            var quizHistory = new User.QuizHistory
+            question = questionDto.Question,
+            correctanswer = questionDto.CorrectAnswer,
+            UserAnswer = questionDto.UserAnswer,
+            img = questionDto.Img,
+            BadAnswers = questionDto.BadAnswers.Select(b => new User.BadAnswer
             {
-                img = submission.Img,
-                QuizQuestions = new List<User.questions>()
-            };
+                badanswer = b
+            }).ToList()
+        };
 
-            foreach (var q in submission.QuizQuestions)
-            {
-                var question = new User.questions
-                {
-                    question = q.Question,
-                    correctanswer = q.CorrectAnswer,
-                    UserAnswer = q.UserAnswer,
-                    img = q.Img,
-                    BadAnswers = q.BadAnswers?.Select(bad => new User.BadAnswer
-                    {
-                        badanswer = bad
-                    }).ToList()
-                };
+        quizHistory.QuizQuestions.Add(question);
+    }
 
-                quizHistory.QuizQuestions.Add(question);
-            }
+    // Save time if needed
+    user.time = submission.time;
 
-            user.Quizes.Add(quizHistory);
-            await dbContext.SaveChangesAsync();
+    user.Quizes.Add(quizHistory);
+    await _context.SaveChangesAsync();
 
-            return Ok("Quiz submitted and saved successfully.");
-        }
+    return Ok("Quiz saved successfully.");
+}
+
 
 
 [HttpPost("archive")]
