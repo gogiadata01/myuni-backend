@@ -379,6 +379,37 @@ public async Task<IActionResult> GetQuizHistory(int userId)
 
     return Ok(quizHistoryDtos);
 }
+[HttpDelete("quiz-history/{userId}")]
+public async Task<IActionResult> DeleteQuizHistory(int userId)
+{
+    var user = await dbContext.MyUser
+        .Include(u => u.Quizes)
+            .ThenInclude(q => q.QuizQuestions)
+                .ThenInclude(qq => qq.BadAnswers)
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    foreach (var quiz in user.Quizes)
+    {
+        foreach (var question in quiz.QuizQuestions)
+        {
+            dbContext.BadAnswers.RemoveRange(question.BadAnswers);
+        }
+
+        dbContext.QuizQuestions.RemoveRange(quiz.QuizQuestions);
+    }
+
+    dbContext.Quizes.RemoveRange(user.Quizes);
+
+    await dbContext.SaveChangesAsync();
+
+    return Ok("Quiz history deleted successfully.");
+}
+
 
 [HttpPost("end-quiz/{userId}")]
 public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
