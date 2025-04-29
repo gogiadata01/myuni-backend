@@ -348,6 +348,37 @@ public IActionResult CheckQuizRestriction(int userId)
         TimeUntilNextAttempt = 0
     });
 }
+[HttpGet("quiz-history/{userId}")]
+public async Task<IActionResult> GetQuizHistory(int userId)
+{
+    var user = await dbContext.MyUser
+        .AsNoTracking()
+        .Include(u => u.Quizes)
+            .ThenInclude(q => q.QuizQuestions)
+                .ThenInclude(qq => qq.BadAnswers)
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    var quizHistoryDtos = user.Quizes.Select(q => new
+    {
+        q.time,
+        QuizQuestions = q.QuizQuestions.Select(qq => new
+        {
+            qq.question,
+            qq.correctanswer,
+            qq.UserAnswer,
+            qq.img,
+            BadAnswers = qq.BadAnswers.Select(b => b.badanswer).ToList()
+        }).ToList()
+    }).ToList();
+
+    return Ok(quizHistoryDtos);
+}
+
 [HttpPost("end-quiz/{userId}")]
 public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
 {
