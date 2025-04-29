@@ -393,19 +393,10 @@ public IActionResult DeleteUserQuizHistory(int userId)
         return NotFound("User not found.");
     }
 
-    foreach (var quiz in user.Quizes)
-    {
-        foreach (var question in quiz.QuizQuestions)
-        {
-            dbContext.BadAnswers.RemoveRange(question.BadAnswers);
-        }
+    // Remove quiz history directly from user
+    user.Quizes.Clear();
 
-        dbContext.QuizQuestions.RemoveRange(quiz.QuizQuestions);
-    }
-
-    dbContext.Quizes.RemoveRange(user.Quizes);
     dbContext.SaveChanges();
-
     return NoContent();
 }
 
