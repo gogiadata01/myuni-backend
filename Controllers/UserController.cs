@@ -380,13 +380,13 @@ public async Task<IActionResult> GetQuizHistory(int userId)
     return Ok(quizHistoryDtos);
 }
 [HttpDelete("quiz-history/{userId}")]
-public async Task<IActionResult> DeleteQuizHistory(int userId)
+public IActionResult DeleteUserQuizHistory(int userId)
 {
-    var user = await dbContext.MyUser
+    var user = dbContext.MyUser
         .Include(u => u.Quizes)
             .ThenInclude(q => q.QuizQuestions)
                 .ThenInclude(qq => qq.BadAnswers)
-        .FirstOrDefaultAsync(u => u.Id == userId);
+        .FirstOrDefault(u => u.Id == userId);
 
     if (user == null)
     {
@@ -404,11 +404,11 @@ public async Task<IActionResult> DeleteQuizHistory(int userId)
     }
 
     dbContext.Quizes.RemoveRange(user.Quizes);
+    dbContext.SaveChanges();
 
-    await dbContext.SaveChangesAsync();
-
-    return Ok("Quiz history deleted successfully.");
+    return NoContent();
 }
+
 
 
 [HttpPost("end-quiz/{userId}")]
