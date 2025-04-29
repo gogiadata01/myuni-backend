@@ -131,7 +131,7 @@ public async Task<IActionResult> SubmitQuiz(int userId, [FromBody] QuizSubmissio
     user.Quizes.Add(quizHistory);
     await dbContext.SaveChangesAsync();
 
-    return Ok("Quiz saved successfully.");
+    return Ok(new { message = "Quiz saved successfully." });
 }
 
 
