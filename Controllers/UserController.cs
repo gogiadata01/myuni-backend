@@ -372,7 +372,8 @@ public async Task<IActionResult> GetQuizHistory(int userId)
             qq.correctanswer,
             qq.UserAnswer,
             qq.img,
-            BadAnswers = qq.BadAnswers.Select(b => b.badanswer).ToList()
+            BadAnswers = qq.BadAnswers.Select(b => new  { b.badanswer})
+            .ToList()
         }).ToList()
     }).ToList();
 
