@@ -43,6 +43,8 @@ namespace MyUni.Models.Entities
             public int Id { get; set; }
             public string badanswer { get; set; } // Ensure spelling is consistent
         }
+        public DateTime? LastLogin { get; set; } // Track last login for coin logic
+
     }
 
 }
