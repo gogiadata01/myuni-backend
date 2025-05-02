@@ -132,7 +132,7 @@ public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 
     bool earnedCoins = false;
 
-    if (user.LastLogin == null || user.LastLogin.Value.AddHours(24) <= DateTime.UtcNow)
+if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
     {
         // Call your own UpdateCoin logic here or replicate it:
         var newCoinValue = user.Coin + 3;
