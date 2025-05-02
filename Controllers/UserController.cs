@@ -121,6 +121,8 @@ public class UserController : ControllerBase
 //     }
 // }
 
+
+
 [HttpPost("signin")]
 public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 {
@@ -132,16 +134,17 @@ public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 
     bool earnedCoins = false;
 
-if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
+    // For testing: check if more than 1 minute passed since last login
+    if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
     {
-        // Call your own UpdateCoin logic here or replicate it:
-        var newCoinValue = user.Coin + 3;
-        user.Coin = newCoinValue;
+        user.Coin += 3; // add 3 coins
         earnedCoins = true;
-        user.LastLogin = DateTime.UtcNow;
     }
 
-    dbContext.SaveChanges();
+    // Always update LastLogin
+    user.LastLogin = DateTime.UtcNow;
+
+    await dbContext.SaveChangesAsync();
 
     var token = GenerateJwtToken(user);
 
