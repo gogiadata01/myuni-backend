@@ -123,6 +123,48 @@ public class UserController : ControllerBase
 
 
 
+// [HttpPost("signin")]
+// public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
+// {
+//     var user = await dbContext.MyUser.FirstOrDefaultAsync(u =>
+//         u.Email == userSignInDto.Email && u.Password == HashPassword(userSignInDto.Password));
+
+//     if (user == null)
+//         return NotFound(new { message = "Invalid email or password" });
+
+//     bool earnedCoins = false;
+
+//     // For testing: check if more than 1 minute passed since last login
+//     if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
+//     {
+//         user.Coin += 3; // add 3 coins
+//         earnedCoins = true;
+//     }
+
+//     // Always update LastLogin
+//     user.LastLogin = DateTime.UtcNow;
+
+//     await dbContext.SaveChangesAsync();
+
+//     var token = GenerateJwtToken(user);
+
+//     return Ok(new
+//     {
+//         userId = user.Id,
+//         userName = user.Name,
+//         email = user.Email,
+//         password = user.Password,
+//         type = user.Type,
+//         img = user.Img,
+//         coin = user.Coin,
+//         remainingTime = user.RemainingTime,
+//         token = token,
+//         earnedCoins = earnedCoins
+//     });
+// }
+
+
+
 [HttpPost("signin")]
 public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 {
@@ -134,20 +176,18 @@ public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 
     bool earnedCoins = false;
 
-    // For testing: check if more than 1 minute passed since last login
     if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
     {
-        user.Coin += 3; // add 3 coins
+        user.Coin += 3;
         earnedCoins = true;
+        user.LastLogin = DateTime.UtcNow;
     }
 
-    // Always update LastLogin
-    user.LastLogin = DateTime.UtcNow;
-
-    await dbContext.SaveChangesAsync();
+    await dbContext.SaveChangesAsync();  // use async
 
     var token = GenerateJwtToken(user);
 
+    // IMPORTANT: return `earnedCoins` always, **based on the logic just applied**
     return Ok(new
     {
         userId = user.Id,
@@ -162,6 +202,8 @@ public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
         earnedCoins = earnedCoins
     });
 }
+
+
 
 
     private bool VerifyPassword(string inputPassword, string storedHashedPassword)
