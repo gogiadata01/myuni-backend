@@ -108,11 +108,33 @@ public IActionResult SignIn([FromBody] UserSignInDto loginDto)
             return Unauthorized("Invalid email or password.");
         }
 
+        // Get current time
+        var currentTime = DateTime.UtcNow;
+
+        // Logic to handle daily coin reward (once every 24 hours)
+        if (user.LastLogin == null || (currentTime - user.LastLogin.Value).TotalHours >= 24)
+        {
+            user.Coin += 3; // Add 3 coins
+            user.LastLogin = currentTime;
+        }
+        else
+        {
+            // Optional: reward 1 coin on every login (but not if already rewarded today)
+            user.Coin += 1;
+        }
+
+        dbContext.SaveChanges();
+
         var tokenString = GenerateJwtToken(user);
 
         return Ok(new
         {
             Token = tokenString,
+            Coin = user.Coin,
+            UserId = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Img = user.Img
         });
     }
     catch (Exception ex)
@@ -120,6 +142,7 @@ public IActionResult SignIn([FromBody] UserSignInDto loginDto)
         return StatusCode(500, "An error occurred. Please try again later.");
     }
 }
+
 
 
     private bool VerifyPassword(string inputPassword, string storedHashedPassword)
@@ -405,6 +428,7 @@ public IActionResult DeleteUserQuizHistory(int userId)
 [HttpPost("end-quiz/{userId}")]
 public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
 {
+    
     var user = dbContext.MyUser.FirstOrDefault(u => u.Id == userId);
     if (user == null)
     {
