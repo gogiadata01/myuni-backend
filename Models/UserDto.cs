@@ -12,7 +12,7 @@ namespace MyUni.Models
         public string Password { get; set; }
         public string Type { get; set; }
         public string Img { get; set; }
-
+        public DateTime? LastLogin { get; set; } // Track last login for coin logic
         public int Coin { get; set; }
         public int RemainingTime { get; set; } // In seconds
         public string Token { get; set; } // This should be in your model

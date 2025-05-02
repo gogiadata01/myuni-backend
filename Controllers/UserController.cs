@@ -92,57 +92,73 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
     }
 
+// [HttpPost("signin")]
+// public IActionResult SignIn([FromBody] UserSignInDto loginDto)
+// {
+//     if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+//     {
+//         return BadRequest("Email and Password are required.");
+//     }
+
+//     try
+//     {
+//         var user = dbContext.MyUser.FirstOrDefault(u => u.Email == loginDto.Email);
+//         if (user == null || !VerifyPassword(loginDto.Password, user.Password))
+//         {
+//             return Unauthorized("Invalid email or password.");
+//         }
+
+//         var tokenString = GenerateJwtToken(user);
+
+//         return Ok(new
+//         {
+//             Token = tokenString,
+//         });
+//     }
+//     catch (Exception ex)
+//     {
+//         return StatusCode(500, "An error occurred. Please try again later.");
+//     }
+// }
+
 [HttpPost("signin")]
-public IActionResult SignIn([FromBody] UserSignInDto loginDto)
+public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 {
-    if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+    var user = await dbContext.MyUser.FirstOrDefaultAsync(u =>
+        u.Email == userSignInDto.Email && u.Password == HashPassword(userSignInDto.Password));
+
+    if (user == null)
+        return NotFound(new { message = "Invalid email or password" });
+
+    bool earnedCoins = false;
+
+    if (user.LastLoginTime == null || user.LastLoginTime.Value.AddHours(24) <= DateTime.UtcNow)
     {
-        return BadRequest("Email and Password are required.");
+        // Call your own UpdateCoin logic here or replicate it:
+        var newCoinValue = user.Coin + 3;
+        user.Coin = newCoinValue;
+        earnedCoins = true;
+        user.LastLoginTime = DateTime.UtcNow;
     }
 
-    try
+    dbContext.SaveChanges();
+
+    var token = GenerateJwtToken(user);
+
+    return Ok(new
     {
-        var user = dbContext.MyUser.FirstOrDefault(u => u.Email == loginDto.Email);
-        if (user == null || !VerifyPassword(loginDto.Password, user.Password))
-        {
-            return Unauthorized("Invalid email or password.");
-        }
-
-        // Get current time
-        var currentTime = DateTime.UtcNow;
-
-        // Logic to handle daily coin reward (once every 24 hours)
-        if (user.LastLogin == null || (currentTime - user.LastLogin.Value).TotalHours >= 24)
-        {
-            user.Coin += 3; // Add 3 coins
-            user.LastLogin = currentTime;
-        }
-        else
-        {
-            // Optional: reward 1 coin on every login (but not if already rewarded today)
-            user.Coin += 1;
-        }
-
-        dbContext.SaveChanges();
-
-        var tokenString = GenerateJwtToken(user);
-
-        return Ok(new
-        {
-            Token = tokenString,
-            Coin = user.Coin,
-            UserId = user.Id,
-            Name = user.Name,
-            Email = user.Email,
-            Img = user.Img
-        });
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, "An error occurred. Please try again later.");
-    }
+        userId = user.Id,
+        userName = user.Name,
+        email = user.Email,
+        password = user.Password,
+        type = user.Type,
+        img = user.Img,
+        coin = user.Coin,
+        remainingTime = user.RemainingTime,
+        token = token,
+        earnedCoins = earnedCoins
+    });
 }
-
 
 
     private bool VerifyPassword(string inputPassword, string storedHashedPassword)
