@@ -92,36 +92,40 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
     }
 
-// [HttpPost("signin")]
-// public IActionResult SignIn([FromBody] UserSignInDto loginDto)
-// {
-//     if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
-//     {
-//         return BadRequest("Email and Password are required.");
-//     }
+    // ეს არის ავტორიზაცია ქულის მომატების გარეშე იყოს აქ ცოტანახი
 
-//     try
-//     {
-//         var user = dbContext.MyUser.FirstOrDefault(u => u.Email == loginDto.Email);
-//         if (user == null || !VerifyPassword(loginDto.Password, user.Password))
-//         {
-//             return Unauthorized("Invalid email or password.");
-//         }
+[HttpPost("signin")]
+public IActionResult SignIn([FromBody] UserSignInDto loginDto)
+{
+    if (loginDto == null || string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
+    {
+        return BadRequest("Email and Password are required.");
+    }
 
-//         var tokenString = GenerateJwtToken(user);
+    try
+    {
+        var user = dbContext.MyUser.FirstOrDefault(u => u.Email == loginDto.Email);
+        if (user == null || !VerifyPassword(loginDto.Password, user.Password))
+        {
+            return Unauthorized("Invalid email or password.");
+        }
 
-//         return Ok(new
-//         {
-//             Token = tokenString,
-//         });
-//     }
-//     catch (Exception ex)
-//     {
-//         return StatusCode(500, "An error occurred. Please try again later.");
-//     }
-// }
+        var tokenString = GenerateJwtToken(user);
+
+        return Ok(new
+        {
+            Token = tokenString,
+        });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, "An error occurred. Please try again later.");
+    }
+}
 
 
+
+//  ეს არი ავტორიზაცია ქულის მომატებით
 
 // [HttpPost("signin")]
 // public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
@@ -134,15 +138,14 @@ public class UserController : ControllerBase
 
 //     bool earnedCoins = false;
 
-//     // For testing: check if more than 1 minute passed since last login
-//     if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
+//     if (user.LastCoinAwardTime == null || user.LastCoinAwardTime.Value.AddMinutes(1) <= DateTime.UtcNow)
 //     {
-//         user.Coin += 3; // add 3 coins
+//         user.Coin += 3;
 //         earnedCoins = true;
+//         user.LastCoinAwardTime = DateTime.UtcNow;  // ✅ only update when coins are added
 //     }
 
-//     // Always update LastLogin
-//     user.LastLogin = DateTime.UtcNow;
+//     user.LastLogin = DateTime.UtcNow;  // Optional: track pure login time separately
 
 //     await dbContext.SaveChangesAsync();
 
@@ -162,87 +165,6 @@ public class UserController : ControllerBase
 //         earnedCoins = earnedCoins
 //     });
 // }
-
-
-
-// [HttpPost("signin")]
-// public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
-// {
-//     var user = await dbContext.MyUser.FirstOrDefaultAsync(u =>
-//         u.Email == userSignInDto.Email && u.Password == HashPassword(userSignInDto.Password));
-
-//     if (user == null)
-//         return NotFound(new { message = "Invalid email or password" });
-
-//     bool earnedCoins = false;
-
-//     // If the user hasn't logged in in the last 1 minute, award points.
-//     if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
-//     {
-//         user.Coin += 3;
-//         earnedCoins = true;
-//     }
-
-//     user.LastLogin = DateTime.UtcNow;  // Update the last login time.
-
-//     await dbContext.SaveChangesAsync();  // Ensure the changes are persisted.
-
-//     var token = GenerateJwtToken(user);
-
-//     // Always send the updated coin value and earnedCoins flag
-//     return Ok(new
-//     {
-//         userId = user.Id,
-//         userName = user.Name,
-//         email = user.Email,
-//         password = user.Password,
-//         type = user.Type,
-//         img = user.Img,
-//         coin = user.Coin,
-//         remainingTime = user.RemainingTime,
-//         token = token,
-//         earnedCoins = earnedCoins // Whether coins were added or not
-//     });
-// }
-
-[HttpPost("signin")]
-public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
-{
-    var user = await dbContext.MyUser.FirstOrDefaultAsync(u =>
-        u.Email == userSignInDto.Email && u.Password == HashPassword(userSignInDto.Password));
-
-    if (user == null)
-        return NotFound(new { message = "Invalid email or password" });
-
-    bool earnedCoins = false;
-
-    if (user.LastCoinAwardTime == null || user.LastCoinAwardTime.Value.AddMinutes(1) <= DateTime.UtcNow)
-    {
-        user.Coin += 3;
-        earnedCoins = true;
-        user.LastCoinAwardTime = DateTime.UtcNow;  // ✅ only update when coins are added
-    }
-
-    user.LastLogin = DateTime.UtcNow;  // Optional: track pure login time separately
-
-    await dbContext.SaveChangesAsync();
-
-    var token = GenerateJwtToken(user);
-
-    return Ok(new
-    {
-        userId = user.Id,
-        userName = user.Name,
-        email = user.Email,
-        password = user.Password,
-        type = user.Type,
-        img = user.Img,
-        coin = user.Coin,
-        remainingTime = user.RemainingTime,
-        token = token,
-        earnedCoins = earnedCoins
-    });
-}
 
 
 
