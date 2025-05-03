@@ -138,7 +138,7 @@ public IActionResult SignIn([FromBody] UserSignInDto loginDto)
 
 //     bool earnedCoins = false;
 
-//     if (user.LastCoinAwardTime == null || user.LastCoinAwardTime.Value.AddMinutes(1) <= DateTime.UtcNow)
+//     if (user.LastCoinAwardTime == null || user.LastCoinAwardTime.Value.AddHours(24) <= DateTime.UtcNow)
 //     {
 //         user.Coin += 3;
 //         earnedCoins = true;
