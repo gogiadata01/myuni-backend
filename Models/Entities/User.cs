@@ -41,9 +41,10 @@ namespace MyUni.Models.Entities
         public class BadAnswer
         {
             public int Id { get; set; }
-            public string badanswer { get; set; } // Ensure spelling is consistent
+            public string badanswer { get; set; } 
         }
-        public DateTime? LastLogin { get; set; } // Track last login for coin logic
+        public DateTime? LastLogin { get; set; } 
+        public DateTime? LastCoinAwardTime { get; set; }  
 
     }
 
