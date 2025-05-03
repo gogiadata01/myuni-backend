@@ -165,6 +165,46 @@ public class UserController : ControllerBase
 
 
 
+// [HttpPost("signin")]
+// public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
+// {
+//     var user = await dbContext.MyUser.FirstOrDefaultAsync(u =>
+//         u.Email == userSignInDto.Email && u.Password == HashPassword(userSignInDto.Password));
+
+//     if (user == null)
+//         return NotFound(new { message = "Invalid email or password" });
+
+//     bool earnedCoins = false;
+
+//     // If the user hasn't logged in in the last 1 minute, award points.
+//     if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
+//     {
+//         user.Coin += 3;
+//         earnedCoins = true;
+//     }
+
+//     user.LastLogin = DateTime.UtcNow;  // Update the last login time.
+
+//     await dbContext.SaveChangesAsync();  // Ensure the changes are persisted.
+
+//     var token = GenerateJwtToken(user);
+
+//     // Always send the updated coin value and earnedCoins flag
+//     return Ok(new
+//     {
+//         userId = user.Id,
+//         userName = user.Name,
+//         email = user.Email,
+//         password = user.Password,
+//         type = user.Type,
+//         img = user.Img,
+//         coin = user.Coin,
+//         remainingTime = user.RemainingTime,
+//         token = token,
+//         earnedCoins = earnedCoins // Whether coins were added or not
+//     });
+// }
+
 [HttpPost("signin")]
 public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 {
@@ -176,20 +216,19 @@ public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
 
     bool earnedCoins = false;
 
-    // If the user hasn't logged in in the last 1 minute, award points.
-    if (user.LastLogin == null || user.LastLogin.Value.AddMinutes(1) <= DateTime.UtcNow)
+    if (user.LastCoinAwardTime == null || user.LastCoinAwardTime.Value.AddMinutes(1) <= DateTime.UtcNow)
     {
         user.Coin += 3;
         earnedCoins = true;
+        user.LastCoinAwardTime = DateTime.UtcNow;  // ✅ only update when coins are added
     }
 
-    user.LastLogin = DateTime.UtcNow;  // Update the last login time.
+    user.LastLogin = DateTime.UtcNow;  // Optional: track pure login time separately
 
-    await dbContext.SaveChangesAsync();  // Ensure the changes are persisted.
+    await dbContext.SaveChangesAsync();
 
     var token = GenerateJwtToken(user);
 
-    // Always send the updated coin value and earnedCoins flag
     return Ok(new
     {
         userId = user.Id,
@@ -201,9 +240,10 @@ public async Task<IActionResult> SignIn([FromBody] UserSignInDto userSignInDto)
         coin = user.Coin,
         remainingTime = user.RemainingTime,
         token = token,
-        earnedCoins = earnedCoins // Whether coins were added or not
+        earnedCoins = earnedCoins
     });
 }
+
 
 
 
