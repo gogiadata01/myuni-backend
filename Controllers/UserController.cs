@@ -294,87 +294,87 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
     return Ok("Remaining time updated to 0 for all users.");
 }
 
-// [HttpPost("AddQuizCompletion")]
-// public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
-// {
-//     var userId = data.UserId;
-//     var completedDate = data.CompletedDate;
-//     // 1. Official quiz date strings (I to VII only)
-//     var officialQuizDates = new List<string>
-//     {
-//         "05/10 15:00",
-//         "05/14 18:00",
-//         "05/18 15:00",
-//         "05/21 18:00",
-//         "05/24 15:00",
-//         "05/27 18:00",
-//         "05/31 15:00"
-//     };
+[HttpPost("AddQuizCompletion")]
+public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
+{
+    var userId = data.UserId;
+    var completedDate = data.CompletedDate;
+    // 1. Official quiz date strings (I to VII only)
+    var officialQuizDates = new List<string>
+    {
+        "05/10 15:00",
+        "05/14 18:00",
+        "05/18 15:00",
+        "05/21 18:00",
+        "05/24 15:00",
+        "05/27 18:00",
+        "05/31 15:00"
+    };
 
-//     // 2. Normalize input (trim spaces, lowercase if needed)
-//     var normalizedCompletedDate = completedDate.Trim();
+    // 2. Normalize input (trim spaces, lowercase if needed)
+    var normalizedCompletedDate = completedDate.Trim();
 
-//     if (!officialQuizDates.Contains(normalizedCompletedDate))
-//     {
-//         return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
-//     }
+    if (!officialQuizDates.Contains(normalizedCompletedDate))
+    {
+        return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
+    }
 
-//     // 3. Prevent duplicate submission
-//     var alreadyExists = await dbContext.UserQuizCompletions
-//         .AnyAsync(q => q.UserId == userId && q.CompletedDate == normalizedCompletedDate);
+    // 3. Prevent duplicate submission
+    var alreadyExists = await dbContext.UserQuizCompletions
+        .AnyAsync(q => q.UserId == userId && q.CompletedDate == normalizedCompletedDate);
 
-//     if (!alreadyExists)
-//     {
-//         var newEntry = new UserQuizCompletion
-//         {
-//             UserId = userId,
-//             CompletedDate = normalizedCompletedDate
-//         };
+    if (!alreadyExists)
+    {
+        var newEntry = new UserQuizCompletion
+        {
+            UserId = userId,
+            CompletedDate = normalizedCompletedDate
+        };
 
-//         dbContext.UserQuizCompletions.Add(newEntry);
-//         await dbContext.SaveChangesAsync();
-//     }
+        dbContext.UserQuizCompletions.Add(newEntry);
+        await dbContext.SaveChangesAsync();
+    }
 
-//     // 4. Count unique official completions
-//     var userCompletions = await dbContext.UserQuizCompletions
-//         .Where(q => q.UserId == userId)
-//         .Select(q => q.CompletedDate.Trim())
-//         .Distinct()
-//         .ToListAsync();
+    // 4. Count unique official completions
+    var userCompletions = await dbContext.UserQuizCompletions
+        .Where(q => q.UserId == userId)
+        .Select(q => q.CompletedDate.Trim())
+        .Distinct()
+        .ToListAsync();
 
-//     var matchedCount = userCompletions
-//         .Count(date => officialQuizDates.Contains(date));
+    var matchedCount = userCompletions
+        .Count(date => officialQuizDates.Contains(date));
 
-//     if (matchedCount == 7)
-//     {
-//         var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
-//         if (user != null)
-//         {
-//             user.Coin += 20;
-//             await dbContext.SaveChangesAsync();
-//             return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
-//         }
-//     }
+    if (matchedCount == 7)
+    {
+var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == data.UserId);
+        if (user != null)
+        {
+            user.Coin += 20;
+            await dbContext.SaveChangesAsync();
+            return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
+        }
+    }
 
-//     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
-// }
-// [HttpDelete("DeleteAllQuizCompletions")]
-// public async Task<IActionResult> DeleteAllQuizCompletions(string userId)
-// {
-//     var entries = await dbContext.UserQuizCompletions
-//         .Where(q => q.UserId == userId)
-//         .ToListAsync();
+    return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
+}
+[HttpDelete("DeleteAllQuizCompletions")]
+public async Task<IActionResult> DeleteAllQuizCompletions(string userId)
+{
+    var entries = await dbContext.UserQuizCompletions
+        .Where(q => q.UserId == userId)
+        .ToListAsync();
 
-//     if (entries == null || entries.Count == 0)
-//     {
-//         return NotFound(new { message = "No quiz completions found for this user." });
-//     }
+    if (entries == null || entries.Count == 0)
+    {
+        return NotFound(new { message = "No quiz completions found for this user." });
+    }
 
-//     dbContext.UserQuizCompletions.RemoveRange(entries);
-//     await dbContext.SaveChangesAsync();
+    dbContext.UserQuizCompletions.RemoveRange(entries);
+    await dbContext.SaveChangesAsync();
 
-//     return Ok(new { message = "All quiz completions deleted for user." });
-// }
+    return Ok(new { message = "All quiz completions deleted for user." });
+}
 
 
 
