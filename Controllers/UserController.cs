@@ -300,17 +300,20 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
     int userId = data.UserId;
     string completedDate = data.CompletedDate?.Trim();
 
+    // 1. List of official quiz dates
     var officialQuizDates = new List<string>
     {
         "05/10 15:00", "05/14 18:00", "05/18 15:00",
         "05/21 18:00", "05/24 15:00", "05/27 18:00", "05/31 15:00"
     };
 
+    // 2. Validate the submitted quiz date
     if (!officialQuizDates.Contains(completedDate))
     {
         return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
     }
 
+    // 3. Prevent duplicate submissions
     var alreadyExists = await dbContext.UserQuizCompletions
         .AnyAsync(q => q.UserId == userId && q.CompletedDate == completedDate);
 
@@ -325,6 +328,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
         await dbContext.SaveChangesAsync();
     }
 
+    // 4. Count user's unique completed official quizzes
     var userCompletions = await dbContext.UserQuizCompletions
         .Where(q => q.UserId == userId)
         .Select(q => q.CompletedDate.Trim())
@@ -333,6 +337,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
     var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
 
+    // 5. If user completed all 7 official quizzes, award coins
     if (matchedCount == 7)
     {
         var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
@@ -346,6 +351,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
 }
+
 
 [HttpDelete("DeleteAllQuizCompletions")]
 public async Task<IActionResult> DeleteAllQuizCompletions(string userId)
