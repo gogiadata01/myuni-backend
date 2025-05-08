@@ -355,9 +355,11 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
             return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
         }
 
-        user.Coin += 20;
-        var saveResult = await dbContext.SaveChangesAsync();
-        Console.WriteLine($"[DEBUG] Coins added. SaveChangesAsync result: {saveResult}. New coin value: {user.Coin}");
+user.Coin += 20;
+dbContext.MyUser.Update(user);  // 👈 FORCE EF to track as modified
+var saveResult = await dbContext.SaveChangesAsync();
+Console.WriteLine($"[DEBUG] Coins added. SaveChangesAsync result: {saveResult}. New coin value: {user.Coin}");
+
 
         return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
     }
