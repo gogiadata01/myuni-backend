@@ -300,13 +300,13 @@ public async Task<IActionResult> AddQuizCompletion(string userId, string complet
     // 1. Official quiz date strings (I to VII only)
     var officialQuizDates = new List<string>
     {
-        "10 მაისი",
-        "14 მაისი",
-        "18 მაისი",
-        "21 მაისი",
-        "24 მაისი",
-        "27 მაისი",
-        "31 მაისი"
+        "05/10 15:00",
+        "05/14 18:00",
+        "05/18 15:00",
+        "05/21 18:00",
+        "05/24 15:00",
+        "05/27 18:00",
+        "05/31 15:00"
     };
 
     // 2. Normalize input (trim spaces, lowercase if needed)
