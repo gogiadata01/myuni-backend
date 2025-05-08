@@ -359,7 +359,7 @@ public async Task<IActionResult> AddQuizCompletion(string userId, string complet
 [HttpDelete("DeleteAllQuizCompletions")]
 public async Task<IActionResult> DeleteAllQuizCompletions(string userId)
 {
-    var entries = await _context.UserQuizCompletions
+    var entries = await dbContext.UserQuizCompletions
         .Where(q => q.UserId == userId)
         .ToListAsync();
 
@@ -368,8 +368,8 @@ public async Task<IActionResult> DeleteAllQuizCompletions(string userId)
         return NotFound(new { message = "No quiz completions found for this user." });
     }
 
-    _context.UserQuizCompletions.RemoveRange(entries);
-    await _context.SaveChangesAsync();
+    dbContext.UserQuizCompletions.RemoveRange(entries);
+    await dbContext.SaveChangesAsync();
 
     return Ok(new { message = "All quiz completions deleted for user." });
 }
