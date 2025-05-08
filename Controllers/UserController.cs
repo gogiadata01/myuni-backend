@@ -340,25 +340,28 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
     // 5. If user completed all 7 official quizzes, award coins
     if (matchedCount == 7)
     {
-var user = await dbContext.MyUser
-    .Where(u => u.Id == userId)
-    .FirstOrDefaultAsync();
+        var user = await dbContext.MyUser
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync();
 
-if (user == null)
-{
-    return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
-}
+        if (user == null)
+        {
+            return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
+        }
 
-user.Coin += 20;
-dbContext.MyUser.Update(user);
+        user.Coin += 20;
 
-var saveResult = await dbContext.SaveChangesAsync();
-Console.WriteLine($"[DEBUG] SaveChangesAsync result: {saveResult}");
+        var saveResult = await dbContext.SaveChangesAsync();
+        Console.WriteLine($"[DEBUG] SaveChangesAsync result: {saveResult}");
 
+        // ✅ ✅ Return success message IMMEDIATELY after coins added
+        return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
     }
 
+    // ✅ If no coins awarded, return regular message
     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
 }
+
 
 
 [HttpDelete("DeleteAllQuizCompletions")]
