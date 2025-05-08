@@ -21,12 +21,13 @@ namespace MyUni.Models.Entities
         public DateTime? LastQuizAttempt { get; set; } // Nullable for users who haven't attempted a quiz
         public int RemainingTime { get; set; } // In seconds
         public ICollection<QuizHistory> Quizes { get; set; }  = new List<QuizHistory>();
+        public List<QuizScheduleItem> QuizSchedule { get; set; } = new List<QuizScheduleItem>();
+        public bool RewardedFor7 { get; set; } = false;
 
         public class QuizHistory 
         {     
         public int Id { get; set; }
-        public string QuizDate { get; set; } // e.g., '10 მაისი'
-        public string QuizTime { get; set; } // e.g., '15:00'
+
         public string time { get; set; }
         public ICollection<questions> QuizQuestions { get; set; }
         }
@@ -49,5 +50,16 @@ namespace MyUni.Models.Entities
         public DateTime? LastCoinAwardTime { get; set; }  
 
     }
+     public class QuizScheduleItem
+    {
+    public string Number { get; set; }  // e.g., "I"
+    public string Date { get; set; }    // e.g., "10 მაისი"
+    public string Time { get; set; }    // e.g., "15:00"
+    public bool Completed { get; set; } = false;
+    }
+    
+
+
+
 
 }
