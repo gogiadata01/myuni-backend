@@ -26,5 +26,8 @@ namespace MyUni.Data
         
         public DbSet<UniversityProgramVisit> UniversityProgramVisits { get; set; }  // UniversityVisit should be recognized now
 
+        public DbSet<UserQuizCompletion> UserQuizCompletions { get; set; }
+
+
     }
 }

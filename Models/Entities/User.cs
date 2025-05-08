@@ -44,15 +44,8 @@ namespace MyUni.Models.Entities
             public string badanswer { get; set; } 
         }
         public DateTime? LastLogin { get; set; } 
-        public DateTime? LastCoinAwardTime { get; set; }
-          
-        public class UserQuizCompletion
-        {
-        public int Id { get; set; }
-        public string CompletedDate { get; set; }
-        }
+        public DateTime? LastCoinAwardTime { get; set; }  
 
     }
-
 
 }
