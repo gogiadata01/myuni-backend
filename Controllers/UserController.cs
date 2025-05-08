@@ -300,22 +300,26 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
     int userId = data.UserId;
     string completedDate = data.CompletedDate?.Trim();
 
-    // 1. List of official quiz dates
+    Console.WriteLine($"[DEBUG] Incoming userId: {userId}");
+    Console.WriteLine($"[DEBUG] Incoming completedDate: '{completedDate}'");
+
     var officialQuizDates = new List<string>
     {
         "05/10 15:00", "05/14 18:00", "05/18 15:00",
         "05/21 18:00", "05/24 15:00", "05/27 18:00", "05/31 15:00"
     };
 
-    // 2. Validate the submitted quiz date
     if (!officialQuizDates.Contains(completedDate))
     {
+        Console.WriteLine($"[DEBUG] Date '{completedDate}' is NOT in official dates.");
         return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
     }
+    Console.WriteLine($"[DEBUG] Date '{completedDate}' matches an official date.");
 
-    // 3. Prevent duplicate submissions
     var alreadyExists = await dbContext.UserQuizCompletions
         .AnyAsync(q => q.UserId == userId && q.CompletedDate == completedDate);
+
+    Console.WriteLine($"[DEBUG] Already exists: {alreadyExists}");
 
     if (!alreadyExists)
     {
@@ -324,20 +328,21 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
             UserId = userId,
             CompletedDate = completedDate
         });
-
         await dbContext.SaveChangesAsync();
+        Console.WriteLine($"[DEBUG] Added quiz completion to DB.");
     }
 
-    // 4. Count user's unique completed official quizzes
     var userCompletions = await dbContext.UserQuizCompletions
         .Where(q => q.UserId == userId)
         .Select(q => q.CompletedDate.Trim())
         .Distinct()
         .ToListAsync();
 
-    var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
+    Console.WriteLine($"[DEBUG] User completions: {string.Join(", ", userCompletions)}");
 
-    // 5. If user completed all 7 official quizzes, award coins
+    var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
+    Console.WriteLine($"[DEBUG] matchedCount: {matchedCount}");
+
     if (matchedCount == 7)
     {
         var user = await dbContext.MyUser
@@ -346,21 +351,20 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
         if (user == null)
         {
+            Console.WriteLine("[DEBUG] User not found.");
             return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
         }
 
         user.Coin += 20;
-
         var saveResult = await dbContext.SaveChangesAsync();
-        Console.WriteLine($"[DEBUG] SaveChangesAsync result: {saveResult}");
+        Console.WriteLine($"[DEBUG] Coins added. SaveChangesAsync result: {saveResult}. New coin value: {user.Coin}");
 
-        // ✅ ✅ Return success message IMMEDIATELY after coins added
         return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
     }
 
-    // ✅ If no coins awarded, return regular message
     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
 }
+
 
 
 
