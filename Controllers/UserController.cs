@@ -356,6 +356,23 @@ public async Task<IActionResult> AddQuizCompletion(string userId, string complet
 
     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
 }
+[HttpDelete("DeleteQuizCompletion")]
+public async Task<IActionResult> DeleteQuizCompletion(string userId, string completedDate)
+{
+    var entry = await dbContext.UserQuizCompletions
+        .FirstOrDefaultAsync(q => q.UserId == userId && q.CompletedDate == completedDate.Trim());
+
+    if (entry == null)
+    {
+        return NotFound(new { message = "Completion not found." });
+    }
+
+    dbContext.UserQuizCompletions.Remove(entry);
+    await dbContext.SaveChangesAsync();
+
+    return Ok(new { message = $"Deleted completion for {completedDate}" });
+}
+
 
 
 [HttpPut("update-remaining-time/{userId}")]
