@@ -297,54 +297,41 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
 [HttpPost("AddQuizCompletion")]
 public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
 {
-    var userId = data.UserId;
-    var completedDate = data.CompletedDate;
+    int userId = data.UserId;
+    string completedDate = data.CompletedDate?.Trim();
 
-    // 1. Official quiz date strings
     var officialQuizDates = new List<string>
     {
-        "05/10 15:00",
-        "05/14 18:00",
-        "05/18 15:00",
-        "05/21 18:00",
-        "05/24 15:00",
-        "05/27 18:00",
-        "05/31 15:00"
+        "05/10 15:00", "05/14 18:00", "05/18 15:00",
+        "05/21 18:00", "05/24 15:00", "05/27 18:00", "05/31 15:00"
     };
 
-    // 2. Normalize input
-    var normalizedCompletedDate = completedDate.Trim();
-
-    if (!officialQuizDates.Contains(normalizedCompletedDate))
+    if (!officialQuizDates.Contains(completedDate))
     {
         return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
     }
 
-    // 3. Prevent duplicate submission
     var alreadyExists = await dbContext.UserQuizCompletions
-        .AnyAsync(q => q.UserId == userId && q.CompletedDate == normalizedCompletedDate);
+        .AnyAsync(q => q.UserId == userId && q.CompletedDate == completedDate);
 
     if (!alreadyExists)
     {
-        var newEntry = new UserQuizCompletion
+        dbContext.UserQuizCompletions.Add(new UserQuizCompletion
         {
             UserId = userId,
-            CompletedDate = normalizedCompletedDate
-        };
+            CompletedDate = completedDate
+        });
 
-        dbContext.UserQuizCompletions.Add(newEntry);
         await dbContext.SaveChangesAsync();
     }
 
-    // 4. Count unique official completions
     var userCompletions = await dbContext.UserQuizCompletions
         .Where(q => q.UserId == userId)
         .Select(q => q.CompletedDate.Trim())
         .Distinct()
         .ToListAsync();
 
-    var matchedCount = userCompletions
-        .Count(date => officialQuizDates.Contains(date));
+    var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
 
     if (matchedCount == 7)
     {
