@@ -295,8 +295,10 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
 }
 
 [HttpPost("AddQuizCompletion")]
-public async Task<IActionResult> AddQuizCompletion(string userId, string completedDate)
+public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
 {
+    var userId = data.UserId;
+    var completedDate = data.CompletedDate;
     // 1. Official quiz date strings (I to VII only)
     var officialQuizDates = new List<string>
     {
