@@ -299,7 +299,8 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 {
     var userId = data.UserId;
     var completedDate = data.CompletedDate;
-    // 1. Official quiz date strings (I to VII only)
+
+    // 1. Official quiz date strings
     var officialQuizDates = new List<string>
     {
         "05/10 15:00",
@@ -311,7 +312,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
         "05/31 15:00"
     };
 
-    // 2. Normalize input (trim spaces, lowercase if needed)
+    // 2. Normalize input
     var normalizedCompletedDate = completedDate.Trim();
 
     if (!officialQuizDates.Contains(normalizedCompletedDate))
@@ -347,7 +348,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
     if (matchedCount == 7)
     {
-var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == data.UserId);
+        var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
         if (user != null)
         {
             user.Coin += 20;
@@ -358,6 +359,7 @@ var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == data.UserId);
 
     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
 }
+
 [HttpDelete("DeleteAllQuizCompletions")]
 public async Task<IActionResult> DeleteAllQuizCompletions(string userId)
 {
