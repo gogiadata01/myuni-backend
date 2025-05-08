@@ -8,6 +8,6 @@ namespace MyUni.Models.Entities
     {
         public int Id { get; set; }
         public string UserId { get; set; }
-        public DateTime CompletedDate { get; set; }
+        public string CompletedDate { get; set; }
     }
 }
