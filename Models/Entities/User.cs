@@ -25,6 +25,8 @@ namespace MyUni.Models.Entities
         public class QuizHistory 
         {     
         public int Id { get; set; }
+        public string QuizDate { get; set; } // e.g., '10 მაისი'
+        public string QuizTime { get; set; } // e.g., '15:00'
         public string time { get; set; }
         public ICollection<questions> QuizQuestions { get; set; }
         }
