@@ -371,13 +371,8 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
 [HttpPost("AddQuizCompletion")]
 public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
 {
-    if (data == null || data.UserId <= 0 || string.IsNullOrWhiteSpace(data.CompletedDate))
-    {
-        return BadRequest(new { message = "მონაცემები არასწორია." });
-    }
-
     int userId = data.UserId;
-    string completedDate = data.CompletedDate.Trim();
+    string completedDate = data.CompletedDate?.Trim();
 
     Console.WriteLine($"[DEBUG] Incoming userId: {userId}");
     Console.WriteLine($"[DEBUG] Incoming completedDate: '{completedDate}'");
@@ -399,8 +394,6 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
     var alreadyExists = await dbContext.UserQuizCompletions
         .AnyAsync(q => q.UserId == userId && q.CompletedDate == completedDate);
 
-    Console.WriteLine($"[DEBUG] Already exists: {alreadyExists}");
-
     if (!alreadyExists)
     {
         dbContext.UserQuizCompletions.Add(new UserQuizCompletion
@@ -408,61 +401,48 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
             UserId = userId,
             CompletedDate = completedDate
         });
-
         await dbContext.SaveChangesAsync();
-        Console.WriteLine($"[DEBUG] Added quiz completion to DB.");
+        Console.WriteLine($"[DEBUG] Added new quiz completion to DB.");
+    }
+    else
+    {
+        Console.WriteLine($"[DEBUG] Completion already exists for user/date.");
     }
 
-    // Fetch completions again in case it was just added
+    // Re-fetch completions to ensure freshness
     var userCompletions = await dbContext.UserQuizCompletions
         .Where(q => q.UserId == userId)
         .Select(q => q.CompletedDate.Trim())
         .Distinct()
         .ToListAsync();
 
-    Console.WriteLine($"[DEBUG] User completions: {string.Join(", ", userCompletions)}");
-
     var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
-    Console.WriteLine($"[DEBUG] matchedCount: {matchedCount}");
+    Console.WriteLine($"[DEBUG] User has completed {matchedCount} official quizzes.");
+
+    var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+    {
+        Console.WriteLine("[DEBUG] User not found.");
+        return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
+    }
 
     if (matchedCount == 7)
     {
-        var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
-
-        if (user == null)
-        {
-            Console.WriteLine("[DEBUG] User not found.");
-            return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
-        }
-
-        Console.WriteLine($"[DEBUG] Current coin value: {user.Coin}");
-
-        // Optional: prevent double reward by checking if already received
-        if (user.Coin >= 20)
-        {
-            Console.WriteLine("[DEBUG] User already received reward.");
-            return Ok(new { message = "ქოინი უკვე დამატებულია." });
-        }
 
         user.Coin += 20;
 
         dbContext.Entry(user).Property(u => u.Coin).IsModified = true;
 
-        var saveResult = await dbContext.SaveChangesAsync();
-        Console.WriteLine($"[DEBUG] SaveChangesAsync result: {saveResult}, New coin: {user.Coin}");
+        var result = await dbContext.SaveChangesAsync();
+        Console.WriteLine($"[DEBUG] Coin added. Save result: {result}, New coin: {user.Coin}");
 
-        if (saveResult > 0)
-        {
-            return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
-        }
-        else
-        {
-            return Ok(new { message = "ქოინის დამატება ვერ მოხერხდა." });
-        }
+        return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
     }
 
     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
 }
+
 
 
 
