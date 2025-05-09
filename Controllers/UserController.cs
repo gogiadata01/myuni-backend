@@ -513,7 +513,7 @@ public async Task<IActionResult> GetQuizHistory(int userId)
         return BadRequest("Invalid quiz time format.");
 
     // Allow access only if 15 minutes have passed since the quiz start time
-    if (DateTime.UtcNow < quizStartTime.AddMinutes(15))
+    if (DateTime.UtcNow < quizStartTime.AddMinutes(1))
         return Ok(new List<object>()); // Return empty if it's too early
 
     var quizHistoryDtos = user.Quizes.Select(q => new
