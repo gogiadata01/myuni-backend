@@ -511,7 +511,7 @@ public async Task<IActionResult> GetQuizHistory(int userId)
         var timeWithYear = $"{currentYear}/{q.time}"; // e.g., "2025/05/10 15:00"
         if (DateTime.TryParseExact(timeWithYear, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime))
         {
-            return DateTime.UtcNow >= parsedTime.AddMinutes(15);
+            return DateTime.UtcNow >= parsedTime.AddMinutes(1);
         }
         return false;
     }).ToList();
