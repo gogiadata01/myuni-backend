@@ -294,80 +294,7 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
     return Ok("Remaining time updated to 0 for all users.");
 }
 
-// [HttpPost("AddQuizCompletion")]
-// public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
-// {
-//     int userId = data.UserId;
-//     string completedDate = data.CompletedDate?.Trim();
 
-//     Console.WriteLine($"[DEBUG] Incoming userId: {userId}");
-//     Console.WriteLine($"[DEBUG] Incoming completedDate: '{completedDate}'");
-
-//     var officialQuizDates = new List<string>
-//     {
-//         "05/10 15:00", "05/14 18:00", "05/18 15:00",
-//         "05/21 18:00", "05/24 15:00", "05/27 18:00", "05/31 15:00"
-//     };
-
-//     if (!officialQuizDates.Contains(completedDate))
-//     {
-//         Console.WriteLine($"[DEBUG] Date '{completedDate}' is NOT in official dates.");
-//         return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
-//     }
-//     Console.WriteLine($"[DEBUG] Date '{completedDate}' matches an official date.");
-
-//     var alreadyExists = await dbContext.UserQuizCompletions
-//         .AnyAsync(q => q.UserId == userId && q.CompletedDate == completedDate);
-
-//     Console.WriteLine($"[DEBUG] Already exists: {alreadyExists}");
-
-//     if (!alreadyExists)
-//     {
-//         dbContext.UserQuizCompletions.Add(new UserQuizCompletion
-//         {
-//             UserId = userId,
-//             CompletedDate = completedDate
-//         });
-//         await dbContext.SaveChangesAsync();
-//         Console.WriteLine($"[DEBUG] Added quiz completion to DB.");
-//     }
-
-//     var userCompletions = await dbContext.UserQuizCompletions
-//         .Where(q => q.UserId == userId)
-//         .Select(q => q.CompletedDate.Trim())
-//         .Distinct()
-//         .ToListAsync();
-
-//     Console.WriteLine($"[DEBUG] User completions: {string.Join(", ", userCompletions)}");
-
-//     var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
-//     Console.WriteLine($"[DEBUG] matchedCount: {matchedCount}");
-
-//     if (matchedCount == 7)
-//     {
-//         var user = await dbContext.MyUser
-//             .Where(u => u.Id == userId)
-//             .FirstOrDefaultAsync();
-
-//         if (user == null)
-//         {
-//             Console.WriteLine("[DEBUG] User not found.");
-//             return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
-//         }
-
-//         user.Coin += 20;
-
-//         // ✅ Force EF to mark the Coin property as modified:
-//         dbContext.Entry(user).Property(u => u.Coin).IsModified = true;
-
-//         var saveResult = await dbContext.SaveChangesAsync();
-//         Console.WriteLine($"[DEBUG] Coins added. SaveChangesAsync result: {saveResult}. New coin value: {user.Coin}");
-
-//         return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
-//     }
-
-//     return Ok(new { message = "ქვიზი შენახულია, ქოინი ჯერ არ დაგემატა." });
-// }
 [HttpPost("AddQuizCompletion")]
 public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
 {
@@ -379,8 +306,6 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
     int userId = data.UserId;
     string completedDate = data.CompletedDate.Trim();
 
-    Console.WriteLine($"[DEBUG] Incoming userId: {userId}");
-    Console.WriteLine($"[DEBUG] Incoming completedDate: '{completedDate}'");
 
     var officialQuizDates = new List<string>
     {
@@ -390,11 +315,9 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
     if (!officialQuizDates.Contains(completedDate))
     {
-        Console.WriteLine($"[DEBUG] Date '{completedDate}' is NOT in official dates.");
         return Ok(new { message = "არ ემთხვევა ოფიციალურ ქვიზის თარიღს." });
     }
 
-    Console.WriteLine($"[DEBUG] Date '{completedDate}' matches an official date.");
 
     var alreadyExists = await dbContext.UserQuizCompletions
         .AnyAsync(q => q.UserId == userId && q.CompletedDate == completedDate);
@@ -407,11 +330,9 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
             CompletedDate = completedDate
         });
         await dbContext.SaveChangesAsync();
-        Console.WriteLine($"[DEBUG] Added new quiz completion to DB.");
     }
     else
     {
-        Console.WriteLine($"[DEBUG] Completion already exists for user/date.");
     }
 
     // Fetch user's completions
@@ -422,13 +343,11 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
         .ToListAsync();
 
     var matchedCount = userCompletions.Count(date => officialQuizDates.Contains(date));
-    Console.WriteLine($"[DEBUG] User has completed {matchedCount} official quizzes.");
 
     var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
 
     if (user == null)
     {
-        Console.WriteLine("[DEBUG] User not found.");
         return Ok(new { message = "მომხმარებელი ვერ მოიძებნა." });
     }
 
