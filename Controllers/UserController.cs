@@ -488,7 +488,6 @@ public IActionResult CheckQuizRestriction(int userId)
         TimeUntilNextAttempt = 0
     });
 }
-using System.Globalization;
 
 [HttpGet("quiz-history/{userId}")]
 public async Task<IActionResult> GetQuizHistory(int userId)
