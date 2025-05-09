@@ -489,6 +489,8 @@ public IActionResult CheckQuizRestriction(int userId)
     });
 }
 
+
+
 [HttpGet("quiz-history/{userId}")]
 public async Task<IActionResult> GetQuizHistory(int userId)
 {
@@ -500,21 +502,9 @@ public async Task<IActionResult> GetQuizHistory(int userId)
         .FirstOrDefaultAsync(u => u.Id == userId);
 
     if (user == null)
+    {
         return NotFound("User not found.");
-
-    var quiz = await dbContext.MyQuiz.FirstOrDefaultAsync();
-    if (quiz == null)
-        return NotFound("No quiz found.");
-
-    var currentYear = DateTime.UtcNow.Year;
-    var timeWithYear = $"{currentYear}/{quiz.Time}"; // e.g., "2025/05/10 15:00"
-
-    if (!DateTime.TryParseExact(timeWithYear, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var quizStartTime))
-        return BadRequest("Invalid quiz time format.");
-
-    // Allow access only if 15 minutes have passed since the quiz start time
-    if (DateTime.UtcNow < quizStartTime.AddMinutes(1))
-        return Ok(new List<object>()); // Return empty if it's too early
+    }
 
     var quizHistoryDtos = user.Quizes.Select(q => new
     {
@@ -525,44 +515,13 @@ public async Task<IActionResult> GetQuizHistory(int userId)
             qq.correctanswer,
             qq.UserAnswer,
             qq.img,
-            BadAnswers = qq.BadAnswers.Select(b => new { b.badanswer }).ToList()
+            BadAnswers = qq.BadAnswers.Select(b => new  { b.badanswer})
+            .ToList()
         }).ToList()
     }).ToList();
 
     return Ok(quizHistoryDtos);
 }
-
-// [HttpGet("quiz-history/{userId}")]
-// public async Task<IActionResult> GetQuizHistory(int userId)
-// {
-//     var user = await dbContext.MyUser
-//         .AsNoTracking()
-//         .Include(u => u.Quizes)
-//             .ThenInclude(q => q.QuizQuestions)
-//                 .ThenInclude(qq => qq.BadAnswers)
-//         .FirstOrDefaultAsync(u => u.Id == userId);
-
-//     if (user == null)
-//     {
-//         return NotFound("User not found.");
-//     }
-
-//     var quizHistoryDtos = user.Quizes.Select(q => new
-//     {
-//         q.time,
-//         QuizQuestions = q.QuizQuestions.Select(qq => new
-//         {
-//             qq.question,
-//             qq.correctanswer,
-//             qq.UserAnswer,
-//             qq.img,
-//             BadAnswers = qq.BadAnswers.Select(b => new  { b.badanswer})
-//             .ToList()
-//         }).ToList()
-//     }).ToList();
-
-//     return Ok(quizHistoryDtos);
-// }
 
 [HttpDelete("quiz-history/{userId}")]
 public IActionResult DeleteUserQuizHistory(int userId)
