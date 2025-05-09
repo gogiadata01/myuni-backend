@@ -371,8 +371,13 @@ public async Task<IActionResult> UpdateRemainingTimeToAllUsers()
 [HttpPost("AddQuizCompletion")]
 public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto data)
 {
+    if (data == null || string.IsNullOrWhiteSpace(data.CompletedDate))
+    {
+        return BadRequest(new { message = "არასწორი თარიღი ან მონაცემი." });
+    }
+
     int userId = data.UserId;
-    string completedDate = data.CompletedDate?.Trim();
+    string completedDate = data.CompletedDate.Trim();
 
     Console.WriteLine($"[DEBUG] Incoming userId: {userId}");
     Console.WriteLine($"[DEBUG] Incoming completedDate: '{completedDate}'");
@@ -409,7 +414,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
         Console.WriteLine($"[DEBUG] Completion already exists for user/date.");
     }
 
-    // Re-fetch completions to ensure freshness
+    // Fetch user's completions
     var userCompletions = await dbContext.UserQuizCompletions
         .Where(q => q.UserId == userId)
         .Select(q => q.CompletedDate.Trim())
@@ -429,9 +434,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
     if (matchedCount == 7)
     {
-
         user.Coin += 20;
-
         dbContext.Entry(user).Property(u => u.Coin).IsModified = true;
 
         var result = await dbContext.SaveChangesAsync();
