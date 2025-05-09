@@ -434,11 +434,6 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
 
     if (matchedCount == 7)
     {
-        user.Coin += 20;
-        dbContext.Entry(user).Property(u => u.Coin).IsModified = true;
-
-        var result = await dbContext.SaveChangesAsync();
-        Console.WriteLine($"[DEBUG] Coin added. Save result: {result}, New coin: {user.Coin}");
 
         return Ok(new { message = "გილოცავ! დაემატა 20 ქოინი." });
     }
