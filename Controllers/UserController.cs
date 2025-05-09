@@ -488,6 +488,8 @@ public IActionResult CheckQuizRestriction(int userId)
         TimeUntilNextAttempt = 0
     });
 }
+using System.Globalization;
+
 [HttpGet("quiz-history/{userId}")]
 public async Task<IActionResult> GetQuizHistory(int userId)
 {
@@ -499,25 +501,23 @@ public async Task<IActionResult> GetQuizHistory(int userId)
         .FirstOrDefaultAsync(u => u.Id == userId);
 
     if (user == null)
-    {
         return NotFound("User not found.");
-    }
+
+    var quiz = await dbContext.MyQuiz.FirstOrDefaultAsync();
+    if (quiz == null)
+        return NotFound("No quiz found.");
 
     var currentYear = DateTime.UtcNow.Year;
-    
-    // Filter quizzes that are available 15 minutes after their scheduled time
-    var filteredQuizzes = user.Quizes.Where(q =>
-    {
-        var timeWithYear = $"{currentYear}/{q.time}"; // e.g., "2025/05/10 15:00"
-        if (DateTime.TryParseExact(timeWithYear, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime))
-        {
-            return DateTime.UtcNow >= parsedTime.AddMinutes(1);
-        }
-        return false;
-    }).ToList();
+    var timeWithYear = $"{currentYear}/{quiz.Time}"; // e.g., "2025/05/10 15:00"
 
-    // Now project the filtered quizzes
-    var quizHistoryDtos = filteredQuizzes.Select(q => new
+    if (!DateTime.TryParseExact(timeWithYear, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var quizStartTime))
+        return BadRequest("Invalid quiz time format.");
+
+    // Allow access only if 15 minutes have passed since the quiz start time
+    if (DateTime.UtcNow < quizStartTime.AddMinutes(15))
+        return Ok(new List<object>()); // Return empty if it's too early
+
+    var quizHistoryDtos = user.Quizes.Select(q => new
     {
         q.time,
         QuizQuestions = q.QuizQuestions.Select(qq => new
@@ -532,6 +532,7 @@ public async Task<IActionResult> GetQuizHistory(int userId)
 
     return Ok(quizHistoryDtos);
 }
+
 // [HttpGet("quiz-history/{userId}")]
 // public async Task<IActionResult> GetQuizHistory(int userId)
 // {
