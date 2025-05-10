@@ -407,7 +407,7 @@ public class EmailRequestDto
                 return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
             }
         }
-        [HttpGet("check-quiz-availability/{userId}")]
+[HttpGet("check-quiz-availability/{userId}")]
 public async Task<IActionResult> CheckQuizAvailability(int userId)
 {
     var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
@@ -418,7 +418,7 @@ public async Task<IActionResult> CheckQuizAvailability(int userId)
 
     if (user.LastQuizAttempt.HasValue)
     {
-        var cooldownDuration = TimeSpan.FromMinutes(1);
+        var cooldownDuration = TimeSpan.FromMinutes(1); // 1 minute cooldown
         var timeSinceLastAttempt = now - user.LastQuizAttempt.Value;
 
         if (timeSinceLastAttempt < cooldownDuration)
@@ -438,6 +438,7 @@ public async Task<IActionResult> CheckQuizAvailability(int userId)
         timeUntilNextAttempt = 0
     });
 }
+
 
     }
     
