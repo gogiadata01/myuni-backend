@@ -418,7 +418,7 @@ public async Task<IActionResult> CheckQuizAvailability(int userId)
 
     if (user.LastQuizAttempt.HasValue)
     {
-        var cooldownDuration = TimeSpan.FromMinutes(1); // 1 minute cooldown
+        var cooldownDuration = TimeSpan.FromMinutes(1); // 1-minute cooldown
         var timeSinceLastAttempt = now - user.LastQuizAttempt.Value;
 
         if (timeSinceLastAttempt < cooldownDuration)
@@ -432,12 +432,14 @@ public async Task<IActionResult> CheckQuizAvailability(int userId)
         }
     }
 
+    // Allow the quiz to start
     return Ok(new
     {
         canStartQuiz = true,
         timeUntilNextAttempt = 0
     });
 }
+
 
 
     }
