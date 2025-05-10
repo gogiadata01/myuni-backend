@@ -415,30 +415,25 @@ public async Task<IActionResult> CheckQuizAvailability(int userId)
         return NotFound("User not found.");
 
     var now = DateTime.UtcNow;
+    var cooldownDuration = TimeSpan.FromMinutes(1); // 1-minute cooldown
 
-    if (user.LastQuizAttempt.HasValue)
+    if (user.LastQuizAttempt.HasValue && (now - user.LastQuizAttempt.Value) < cooldownDuration)
     {
-        var cooldownDuration = TimeSpan.FromMinutes(1); // 1-minute cooldown
-        var timeSinceLastAttempt = now - user.LastQuizAttempt.Value;
-
-        if (timeSinceLastAttempt < cooldownDuration)
+        var timeLeft = (int)(cooldownDuration - (now - user.LastQuizAttempt.Value)).TotalSeconds;
+        return Ok(new
         {
-            var timeLeft = (int)(cooldownDuration - timeSinceLastAttempt).TotalSeconds;
-            return Ok(new
-            {
-                canStartQuiz = false,
-                timeUntilNextAttempt = timeLeft
-            });
-        }
+            canStartQuiz = false,
+            timeUntilNextAttempt = timeLeft
+        });
     }
 
-    // Allow the quiz to start
     return Ok(new
     {
         canStartQuiz = true,
         timeUntilNextAttempt = 0
     });
 }
+
 
 
 
