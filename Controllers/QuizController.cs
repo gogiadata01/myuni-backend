@@ -418,7 +418,7 @@ public async Task<IActionResult> CheckQuizAvailability(int userId)
 
     if (user.LastQuizAttempt.HasValue)
     {
-        var cooldownDuration = TimeSpan.FromMinutes(15);
+        var cooldownDuration = TimeSpan.FromMinutes(1);
         var timeSinceLastAttempt = now - user.LastQuizAttempt.Value;
 
         if (timeSinceLastAttempt < cooldownDuration)
