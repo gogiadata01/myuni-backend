@@ -357,16 +357,6 @@ public class EmailRequestDto
             return CreatedAtAction(nameof(GetQuizById), new { id = quizEntity.Id }, quizEntity);
         }
 
-
-
-
-
-
-
-
-
-
-
       [HttpDelete("{id}")]
         public IActionResult DeleteQuiz(int id)
         {
@@ -417,5 +407,38 @@ public class EmailRequestDto
                 return StatusCode(500, new { Message = "An error occurred while retrieving the quiz.", Error = ex.Message });
             }
         }
+        [HttpGet("check-quiz-availability/{userId}")]
+public async Task<IActionResult> CheckQuizAvailability(int userId)
+{
+    var user = await dbContext.MyUser.FirstOrDefaultAsync(u => u.Id == userId);
+    if (user == null)
+        return NotFound("User not found.");
+
+    var now = DateTime.UtcNow;
+
+    if (user.LastQuizAttempt.HasValue)
+    {
+        var cooldownDuration = TimeSpan.FromMinutes(15);
+        var timeSinceLastAttempt = now - user.LastQuizAttempt.Value;
+
+        if (timeSinceLastAttempt < cooldownDuration)
+        {
+            var timeLeft = (int)(cooldownDuration - timeSinceLastAttempt).TotalSeconds;
+            return Ok(new
+            {
+                canStartQuiz = false,
+                timeUntilNextAttempt = timeLeft
+            });
+        }
     }
+
+    return Ok(new
+    {
+        canStartQuiz = true,
+        timeUntilNextAttempt = 0
+    });
+}
+
+    }
+    
 }
