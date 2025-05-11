@@ -416,7 +416,7 @@ public async Task<IActionResult> SaveQuizEndTime(int userId)
     user.LastQuizAttempt = DateTime.UtcNow;
     await dbContext.SaveChangesAsync();
 
-    return Ok("Quiz end time saved");
+return Ok(new { message = "Quiz end time saved" });
 }
 
 [HttpGet("GetLastQuizEndTime/{userId}")]
