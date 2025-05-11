@@ -410,7 +410,7 @@ public class EmailRequestDto
 [HttpPost("SaveQuizEndTime/{userId}")]
 public async Task<IActionResult> SaveQuizEndTime(int userId)
 {
-    var user = await dbContext.Users.FindAsync(userId);
+    var user = await dbContext.MyUser.FindAsync(userId);
     if (user == null) return NotFound("User not found");
 
     user.LastQuizAttempt = DateTime.UtcNow;
@@ -422,7 +422,7 @@ public async Task<IActionResult> SaveQuizEndTime(int userId)
 [HttpGet("GetLastQuizEndTime/{userId}")]
 public async Task<IActionResult> GetLastQuizEndTime(int userId)
 {
-    var user = await dbContext.Users.FindAsync(userId);
+    var user = await dbContext.MyUser.FindAsync(userId);
     if (user == null) return NotFound("User not found");
 
     return Ok(user.LastQuizAttempt); // returns null or DateTime
