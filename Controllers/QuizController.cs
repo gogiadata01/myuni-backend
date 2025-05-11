@@ -421,10 +421,8 @@ return Ok(new { message = "Quiz end time saved" });
 public async Task<IActionResult> CanStartQuizAsync(int userId)
 {
     var user = await dbContext.MyUser.FindAsync(userId); // Assuming you have a method to get the user
-    if (user == null)
-    {
-        return NotFound("User not found");
-    }
+    if (user == null) return NotFound("User not found");
+
 
     DateTime lastQuizEndTime = user.LastQuizAttempt ?? DateTime.MinValue; // Use DateTime.MinValue if no quiz data exists
     DateTime currentUtcTime = DateTime.UtcNow;
