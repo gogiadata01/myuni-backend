@@ -571,6 +571,13 @@ public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
         TotalCoins = user.Coin
     });
 }
+[HttpGet("count")]
+public IActionResult GetUserCount()
+{
+    int userCount = dbContext.MyUser.Count();
+
+    return Ok(userCount);
+}
 
 }
 
