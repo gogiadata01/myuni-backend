@@ -418,21 +418,31 @@ public async Task<IActionResult> SaveQuizEndTime(int userId)
 
 return Ok(new { message = "Quiz end time saved" });
 }
+
 [HttpPost("CanStartQuizAsync/{userId}")]
 public async Task<IActionResult> CanStartQuizAsync(int userId)
 {
-    var user = await dbContext.MyUser.FindAsync(userId); // Assuming you have a method to get the user
-    if (user == null) return NotFound("User not found");
+    // Fetch the user from the database asynchronously
+    var user = await dbContext.MyUser.FindAsync(userId); // Correct usage of await
+    if (user == null)
+    {
+        return NotFound("User not found");
+    }
 
-
-    DateTime lastQuizEndTime = user.LastQuizAttempt ?? DateTime.MinValue; // Use DateTime.MinValue if no quiz data exists
+    // Get the last quiz attempt time, fallback to DateTime.MinValue if it's null
+    DateTime lastQuizEndTime = user.LastQuizAttempt ?? DateTime.MinValue; // Correct handling of null values
     DateTime currentUtcTime = DateTime.UtcNow;
+
+    // Calculate the time difference
     TimeSpan timeDifference = currentUtcTime - lastQuizEndTime;
 
-    bool canStartQuiz = timeDifference.TotalMinutes >= 15; // 15 minutes check
+    // Determine if 15 minutes have passed
+    bool canStartQuiz = timeDifference.TotalMinutes >= 15;
 
+    // Return the result
     return Ok(new { canStartQuiz, lastQuizEndTime });
 }
+
 
 [HttpGet("GetLastQuizEndTime/{userId}")]
 public async Task<IActionResult> GetLastQuizEndTime(int userId)
