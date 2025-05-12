@@ -422,24 +422,17 @@ return Ok(new { message = "Quiz end time saved" });
 [HttpPost("CanStartQuizAsync/{userId}")]
 public async Task<IActionResult> CanStartQuizAsync(int userId)
 {
-    // Fetch the user from the database asynchronously
-    var user = await dbContext.MyUser.FindAsync(userId); // Correct usage of await
+    var user = await dbContext.MyUser.FindAsync(userId);
     if (user == null)
     {
         return NotFound("User not found");
     }
 
-    // Get the last quiz attempt time, fallback to DateTime.MinValue if it's null
-    DateTime lastQuizEndTime = user.LastQuizAttempt ?? DateTime.MinValue; // Correct handling of null values
+    DateTime lastQuizEndTime = user.LastQuizAttempt ?? DateTime.MinValue;
     DateTime currentUtcTime = DateTime.UtcNow;
-
-    // Calculate the time difference
     TimeSpan timeDifference = currentUtcTime - lastQuizEndTime;
-
-    // Determine if 15 minutes have passed
     bool canStartQuiz = timeDifference.TotalMinutes >= 15;
 
-    // Return the result
     return Ok(new { canStartQuiz, lastQuizEndTime });
 }
 
