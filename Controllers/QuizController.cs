@@ -413,7 +413,7 @@ public async Task<IActionResult> SaveQuizEndTime(int userId)
     var user = await dbContext.MyUser.FindAsync(userId);
     if (user == null) return NotFound("User not found");
 
-    user.LastQuizAttempt = DateTime.UtcNow;w
+    user.LastQuizAttempt = DateTime.UtcNow;
     await dbContext.SaveChangesAsync();
 
 return Ok(new { message = "Quiz end time saved" });
