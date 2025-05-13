@@ -508,6 +508,7 @@ public async Task<IActionResult> GetQuizHistory(int userId)
 
     var quizHistoryDtos = user.Quizes.Select(q => new
     {
+        q.Id
         q.time,
         QuizQuestions = q.QuizQuestions.Select(qq => new
         {
@@ -522,6 +523,42 @@ public async Task<IActionResult> GetQuizHistory(int userId)
 
     return Ok(quizHistoryDtos);
 }
+[HttpDelete("delete-quiz/{userId}/{quizId}")]
+public async Task<IActionResult> DeleteQuizById(int userId, int quizId)
+{
+    var user = await dbContext.MyUser
+        .Include(u => u.Quizes)
+            .ThenInclude(q => q.QuizQuestions)
+                .ThenInclude(qq => qq.BadAnswers)
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    var quizToRemove = user.Quizes.FirstOrDefault(q => q.Id == quizId);
+    if (quizToRemove == null)
+    {
+        return NotFound("Quiz not found.");
+    }
+
+    // Remove child BadAnswers first
+    foreach (var question in quizToRemove.QuizQuestions)
+    {
+        dbContext.RemoveRange(question.BadAnswers);
+    }
+
+    // Then remove quiz questions
+    dbContext.RemoveRange(quizToRemove.QuizQuestions);
+
+    // Then remove the quiz itself
+    user.Quizes.Remove(quizToRemove);
+
+    await dbContext.SaveChangesAsync();
+    return Ok(new { message = "Quiz deleted successfully." });
+}
+
 
 [HttpDelete("quiz-history/{userId}")]
 public IActionResult DeleteUserQuizHistory(int userId)
