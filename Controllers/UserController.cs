@@ -508,7 +508,7 @@ public async Task<IActionResult> GetQuizHistory(int userId)
 
     var quizHistoryDtos = user.Quizes.Select(q => new
     {
-        q.Id
+        q.Id,
         q.time,
         QuizQuestions = q.QuizQuestions.Select(qq => new
         {
