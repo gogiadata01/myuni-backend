@@ -558,31 +558,6 @@ public async Task<IActionResult> DeleteQuizById(int userId, int quizId)
     await dbContext.SaveChangesAsync();
     return Ok(new { message = "Quiz deleted successfully." });
 }
-
-
-[HttpDelete("quiz-history/{userId}")]
-public IActionResult DeleteUserQuizHistory(int userId)
-{
-    var user = dbContext.MyUser
-        .Include(u => u.Quizes)
-            .ThenInclude(q => q.QuizQuestions)
-                .ThenInclude(qq => qq.BadAnswers)
-        .FirstOrDefault(u => u.Id == userId);
-
-    if (user == null)
-    {
-        return NotFound("User not found.");
-    }
-
-    // Remove quiz history directly from user
-    user.Quizes.Clear();
-
-    dbContext.SaveChanges();
-    return NoContent();
-}
-
-
-
 [HttpPost("end-quiz/{userId}")]
 public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
 {
@@ -608,6 +583,28 @@ public IActionResult EndQuiz(int userId, [FromBody] int correctAnswers)
         TotalCoins = user.Coin
     });
 }
+
+[HttpDelete("quiz-history/{userId}")]
+public IActionResult DeleteUserQuizHistory(int userId)
+{
+    var user = dbContext.MyUser
+        .Include(u => u.Quizes)
+            .ThenInclude(q => q.QuizQuestions)
+                .ThenInclude(qq => qq.BadAnswers)
+        .FirstOrDefault(u => u.Id == userId);
+
+    if (user == null)
+    {
+        return NotFound("User not found.");
+    }
+
+    // Remove quiz history directly from user
+    user.Quizes.Clear();
+
+    dbContext.SaveChanges();
+    return NoContent();
+}
+
 [HttpGet("count")]
 public IActionResult GetUserCount()
 {
