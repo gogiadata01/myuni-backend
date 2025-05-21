@@ -311,7 +311,7 @@ public async Task<IActionResult> AddQuizCompletion([FromBody] QuizCompletionDto 
     var officialQuizDates = new List<string>
     {
         "05/10 15:00", "05/14 18:00", "05/18 15:00",
-        "05/21 18:00", "05/24 15:00", "05/27 18:00", "05/31 15:00"
+        "05/21 19:00", "05/24 15:00", "05/27 18:00", "05/31 15:00"
     };
 
     if (!officialQuizDates.Contains(completedDate))
