@@ -35,6 +35,7 @@ public IActionResult GetAllEventCard()
             ec.Title,
             ec.Time,
             ec.Numbering,
+            ec.Description,
             Types = ec.Types.Select(t => new
             {
                 t.Type
@@ -69,6 +70,7 @@ public IActionResult GetAllEventCard()
                 Link = addEventCardDto.Link,                
                 isFeatured = addEventCardDto.isFeatured,
                 Numbering = addEventCardDto.Numbering,
+                Description = addEventCardDto.Description,
         	saregistracioForma = addEventCardDto.saregistracioForma, // Ensure this field is mapped
                 Types = addEventCardDto.Types.Select(x => new EventType
                 {
@@ -146,6 +148,7 @@ public IActionResult GetEventCardForHome()
                 ec.Time,
                 ec.isFeatured,
                 ec.Numbering,
+                ec.Description,
                 Types = ec.Types.Select(t => new { t.Type }) // Select only the Type
             })
             .ToList();
