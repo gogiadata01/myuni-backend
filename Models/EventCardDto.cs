@@ -14,6 +14,7 @@ namespace MyUni.Models
 	    public string saregistracioForma { get; set; }
         public bool isFeatured { get; set; }
         public int Numbering { get; set; }
+        public string Description  { get; set; }
         public ICollection<EventTypeDto> Types { get; set; }
     }
 
