@@ -44,7 +44,7 @@ public IActionResult AddUniCardEn([FromBody] UnicardEnDto addUniCardDto)
         return BadRequest(ModelState);
     }
 
-    Console.WriteLine(JsonConvert.SerializeObject(addUniCardDto, Formatting.Indented));
+            Console.WriteLine(JsonConvert.SerializeObject(addUniCardDto, Newtonsoft.Json.Formatting.Indented));
 
     var uniCardEntity = new UnicardEn
     {
