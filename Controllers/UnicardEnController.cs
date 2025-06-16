@@ -115,7 +115,55 @@ public IActionResult AddUniCardEn([FromBody] UnicardEnDto addUniCardDto)
     return Ok(uniCardEntity);
 }
 
+        [HttpGet("{id}")]
+        public IActionResult GetUniCardDetailsById(int id)
+        {
+            var UniCard = dbContext.MyUniCardEn
+                .Include(card => card.Events_en)
+                .Include(card => card.Sections_en)
+                    .ThenInclude(section => section.ProgramNames_en)
+                .Where(card => card.Id == id)
+                .Select(card => new
+                {
+                    Id = card.Id,
+                    Url_en = card.Url_en,
+                    Title_en = card.Title_en,
+                    MainText_en = card.MainText_en,
+                    History_en = card.History_en,
+                    ForPupil_en = card.ForPupil_en,
+                    ScholarshipAndFunding_en = card.ScholarshipAndFunding_en,
+                    ExchangePrograms_en = card.ExchangePrograms_en,
+                    Labs_en = card.Labs_en,
+                    StudentsLife_en = card.StudentsLife_en,
+                    PaymentMethods_en = card.PaymentMethods_en,
+                    Events_en = card.Events_en.Select(e => new
+                    {
+                        e.Id,
+                        e.Url_en,
+                        e.Title_en,
+                        e.Time_en,
+                        e.Link_en
+                    }).ToList(),
+                    Sections_en = card.Sections_en.Select(s => new
+                    {
+                        s.Id,
+                        s.Title_en,
+                        ProgramNames_en = s.ProgramNames_en.Select(pn => new
+                        {
+                            pn.Id,
+                            pn.ProgramName_en
+                        }).ToList()
+                    }).ToList()
+                })
+                .FirstOrDefault();
 
+            if (UniCard is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(UniCard);
+        }
     }
     
     
@@ -123,83 +171,3 @@ public IActionResult AddUniCardEn([FromBody] UnicardEnDto addUniCardDto)
 
 
 
-
-
-        //   [HttpPost]
-        // public IActionResult AddUniCard([FromBody] UnicardEnDto addUniCardDto)
-        // {
-        //     if (!ModelState.IsValid)
-        //     {
-        //         return BadRequest(ModelState);
-        //     }
-
-        //     // Log received data
-        //     Console.WriteLine(JsonConvert.SerializeObject(addUniCardDto, Newtonsoft.Json.Formatting.Indented));
-
-        //     // Existing code to map and save entity...
-        //     var UniCardEntity = new UnicardEnDto
-        //     {
-        //         Url_en = addUniCardDto.Url_en,
-        //         Title_en = addUniCardDto.Title_en,
-        //         MainText_en = addUniCardDto.MainText_en,
-        //         History_en = addUniCardDto.History_en,
-        //         ForPupil_en = addUniCardDto.ForPupil_en,
-        //         ScholarshipAndFunding_en = addUniCardDto.ScholarshipAndFunding_en,
-        //         ExchangePrograms_en = addUniCardDto.ExchangePrograms_en,
-        //         Labs_en = addUniCardDto.Labs_en,
-        //         StudentsLife_en = addUniCardDto.StudentsLife_en,
-        //         PaymentMethods_en = addUniCardDto.PaymentMethods_en,
-        //         Events_en = addUniCardDto.Events_en?.Select(e => new UnicardEnDto.Event_en
-        //         {
-        //             Url_en = e.Url_en,
-        //             Title_en = e.Title_en,
-        //             Text_en = e.Text_en
-        //         }).ToList(),
-        //         Sections_en = addUniCardDto.Sections_en?.Select(s => new UnicardEnDto.Section_en
-        //         {
-        //             Title_en = s.Title_en,
-        //             ProgramNames_en = s.ProgramNames_en?.Select(p => new UnicardEnDto.Programname_en
-        //             {
-        //                 ProgramName_en = p.ProgramName_en,
-        //                 Jobs_en = p.Jobs_en,
-        //                 SwavlebisEna_en = p.SwavlebisEna_en,
-        //                 Kvalifikacia_en = p.Kvalifikacia_en,
-        //                 Dafinanseba_en = p.Dafinanseba_en,
-        //                 KreditebisRaodenoba_en = p.KreditebisRaodenoba_en,
-        //                 AdgilebisRaodenoba_en = p.AdgilebisRaodenoba_en,
-        //                 Fasi_en = p.Fasi_en,
-        //                 Kodi_en = p.Kodi_en,
-        //                 ProgramisAgwera_en = p.ProgramisAgwera_en,
-        //             }).ToList()
-        //         }).ToList(),
-        //         Sections2_en = addUniCardDto.Sections2_en?.Select(s2 => new UnicardEnDto.Section2_en
-        //         {
-        //             Title_en = s2.Title_en,
-        //             SavaldebuloSagnebi_en = s2.SavaldebuloSagnebi_en?.Select(ss => new UnicardEnDto.SavaldebuloSagnebi_en
-        //             {
-        //                 SagnisSaxeli_en = ss.SagnisSaxeli_en,
-        //                 Koeficienti_en = ss.Koeficienti_en,
-        //                 MinimaluriZgvari_en = ss.MinimaluriZgvari_en,
-        //                 Prioriteti_en = ss.Prioriteti_en,
-        //                 AdgilebisRaodenoba_en = ss.AdgilebisRaodenoba_en,
-        //             }).ToList()
-        //         }).ToList(),
-        //         ArchevitiSavaldebuloSaganebi_en = addUniCardDto.ArchevitiSavaldebuloSaganebi_en?.Select(a => new UnicardEnDto.ArchevitiSavaldebuloSagani_en
-        //         {
-        //             Title_en = a.Title_en,
-        //             ArchevitiSavaldebuloSagnebi_en = a.ArchevitiSavaldebuloSagnebi_en?.Select(asb => new UnicardEnDto.ArchevitiSavaldebuloSagnebi_en
-        //             {
-        //                 SagnisSaxeli_en = asb.SagnisSaxeli_en,
-        //                 Koeficienti_en = asb.Koeficienti_en,
-        //                 MinimaluriZgvari_en = asb.MinimaluriZgvari_en,
-        //                 Prioriteti_en = asb.Prioriteti_en,
-        //                 AdgilebisRaodenoba_en = asb.AdgilebisRaodenoba_en
-        //             }).ToList()
-        //         }).ToList()
-        //     };
-
-        //     dbContext.MyUniCardEn.Add(UniCardEntity);
-        //     dbContext.SaveChanges();
-
-        //     return Ok(UniCardEntity);
-        // }
