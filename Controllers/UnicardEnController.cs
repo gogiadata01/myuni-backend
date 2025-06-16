@@ -175,17 +175,17 @@ public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [
                 .ThenInclude(section => section.ProgramNames_en)
             .Where(card => card.Title_en == title &&
                            card.Sections_en.Any(section => section.ProgramNames_en
-                                                        .Any(program => program.ProgramName_en == programName_en)))
+                                                        .Any(program => program.ProgramName_en == programName)))
             .Select(card => new
             {
                 card.Title_en, // Only returning Title for UniCard
                 Sections_en = card.Sections_en
-                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName_en)) // Filter sections to only include those with matching program names
+                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName)) // Filter sections to only include those with matching program names
                     .Select(section => new
                     {
                         section.Title_en, // Only returning Title for Sections
                         ProgramNames_en = section.ProgramNames_en
-                            .Where(program => program.ProgramName_en == programName_en) // Select only the matching program name
+                            .Where(program => program.ProgramName_en == programName) // Select only the matching program name
                             .Select(program => new
                             {
                                 program.ProgramName_en,
