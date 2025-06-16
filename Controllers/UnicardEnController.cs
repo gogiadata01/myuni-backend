@@ -257,7 +257,7 @@ public IActionResult GetUniCardByProgramName(string programName)
             .ThenInclude(section => section.ProgramNames_en)
         .Where(card => card.Sections_en
             .Any(section => section.ProgramNames_en
-                .Any(pn => pn.ProgramNames_en == programName)))
+                .Any(pn => pn.ProgramName_en == programName)))
         .Select(card => new 
         {
             Id = card.Id,
@@ -289,7 +289,7 @@ public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery
                 .ThenInclude(section => section.ProgramNames_en)
             .Where(card => card.Id == id &&  // Filter by Id instead of Title
                            card.Sections_en.Any(section => section.ProgramNames_en
-                                                        .Any(program => program.ProgramNames_en == programName)))
+                                                        .Any(program => program.ProgramName_en == programName)))
             .Select(card => new
             {
                 card.Id, // Returning Id for UniCard
