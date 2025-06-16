@@ -266,8 +266,8 @@ public IActionResult GetUniCardByProgramName(string programName)
             MainText_en = card.MainText_en,
             // Only select the matched programName
             ProgramNames_en = card.Sections_en.SelectMany(s => s.ProgramNames_en
-                .Where(pn => pn.ProgramNames_en == programName)
-                .Select(pn => new { pn.Id, pn.ProgramNames_en })).ToList()
+                .Where(pn => pn.ProgramName_en == programName)
+                .Select(pn => new { pn.Id, pn.ProgramName_en })).ToList()
         })
         .ToList();
 
@@ -295,7 +295,7 @@ public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery
                 card.Id, // Returning Id for UniCard
                 card.Title_en, // Optionally, return Title for UniCard
                 Sections_en = card.Sections_en
-                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramNames_en == programName)) // Filter sections to only include those with matching program names
+                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName)) // Filter sections to only include those with matching program names
                     .Select(section => new
                     {
                         section.Title_en, // Returning Title for Sections
