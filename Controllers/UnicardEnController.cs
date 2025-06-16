@@ -300,7 +300,7 @@ public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery
                     {
                         section.Title_en, // Returning Title for Sections
                         ProgramNames_en = section.ProgramNames_en
-                            .Where(program => program.ProgramNames_en == programName) // Select only the matching program name
+                            .Where(program => program.ProgramName_en == programName) // Select only the matching program name
                             .Select(program => new
                             {
                                 program.ProgramName_en,
