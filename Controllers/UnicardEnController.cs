@@ -164,7 +164,8 @@ public IActionResult AddUniCardEn([FromBody] UnicardEnDto addUniCardDto)
 
             return Ok(UniCard);
 
-            [HttpGet("search")]
+        }
+                    [HttpGet("search")]
 public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [FromQuery] string programName)
 {
     try
@@ -216,7 +217,6 @@ public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [
         return StatusCode(500, "Internal server error");
     }
 }
-        }
     }
     
     
