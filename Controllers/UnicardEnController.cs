@@ -163,6 +163,59 @@ public IActionResult AddUniCardEn([FromBody] UnicardEnDto addUniCardDto)
             }
 
             return Ok(UniCard);
+
+            [HttpGet("search")]
+public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [FromQuery] string programName)
+{
+    try
+    {
+        var result = dbContext.MyUniCardEn
+            .Include(card => card.Sections_en)
+                .ThenInclude(section => section.ProgramNames_en)
+            .Where(card => card.Title_en == title &&
+                           card.Sections_en.Any(section => section.ProgramNames_en
+                                                        .Any(program => program.ProgramName_en == programName_en)))
+            .Select(card => new
+            {
+                card.Title_en, // Only returning Title for UniCard
+                Sections_en = card.Sections_en
+                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName_en)) // Filter sections to only include those with matching program names
+                    .Select(section => new
+                    {
+                        section.Title_en, // Only returning Title for Sections
+                        ProgramNames_en = section.ProgramNames_en
+                            .Where(program => program.ProgramName_en == programName_en) // Select only the matching program name
+                            .Select(program => new
+                            {
+                                program.ProgramName_en,
+                                program.Jobs_en,
+                                program.SwavlebisEna_en,
+                                program.Kvalifikacia_en,
+                                program.Dafinanseba_en,
+                                program.KreditebisRaodenoba_en,
+                                program.AdgilebisRaodenoba_en,
+                                program.Fasi_en,
+                                program.Kodi_en,
+                                program.ProgramisAgwera_en,
+                            }).ToList()
+                    }).ToList()
+            })
+            .ToList();
+
+        if (!result.Any())
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        // Log the exception (you might use a logging framework)
+        Console.Error.WriteLine($"Error: {ex.Message}");
+        return StatusCode(500, "Internal server error");
+    }
+}
         }
     }
     
