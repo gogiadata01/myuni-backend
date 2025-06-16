@@ -217,6 +217,144 @@ public IActionResult GetUniCardByTitleAndProgramName([FromQuery] string title, [
         return StatusCode(500, "Internal server error");
     }
 }
+[HttpGet("searchByTitleMainTextUrl")]
+public IActionResult GetUniCardByTitleMainTextUrl([FromQuery] string title)
+{
+    try
+    {
+        // Fetch UniCards that match the title and select only the required fields
+        var result = dbContext.MyUniCardEn
+            .Where(card => card.Title_en.Contains(title)) // Searching with partial match (use .Equals() if you want exact match)
+            .Select(card => new
+            {
+                card.Id,
+                card.Title_en,
+                card.MainText_en,
+                card.Url_en
+            })
+            .ToList();
+
+        if (!result.Any())
+        {
+            return NotFound("No UniCards found with the specified title.");
+        }
+
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        // Log the exception if needed
+        Console.Error.WriteLine($"Error: {ex.Message}");
+        return StatusCode(500, "Internal server error");
+    }
+}
+[HttpGet("by-program-name")]
+public IActionResult GetUniCardByProgramName(string programName)
+{
+    var uniCard = dbContext.MyUniCardEn
+    .AsNoTracking() // Add this line
+        .Include(card => card.Sections_en)
+            .ThenInclude(section => section.ProgramNames_en)
+        .Where(card => card.Sections_en
+            .Any(section => section.ProgramNames_en
+                .Any(pn => pn.ProgramNames_en == programName)))
+        .Select(card => new 
+        {
+            Id = card.Id,
+            Url_en = card.Url_en,
+            Title_en = card.Title_en,
+            MainText_en = card.MainText_en,
+            // Only select the matched programName
+            ProgramNames_en = card.Sections_en.SelectMany(s => s.ProgramNames_en
+                .Where(pn => pn.ProgramNames_en == programName)
+                .Select(pn => new { pn.Id, pn.ProgramNames_en })).ToList()
+        })
+        .ToList();
+
+    if (!uniCard.Any())
+    {
+        return NotFound();
+    }
+
+    return Ok(uniCard);
+}
+
+[HttpGet("searchById")]
+public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery] string programName)
+{
+    try
+    {
+        var result = dbContext.MyUniCardEn
+            .Include(card => card.Sections_en)
+                .ThenInclude(section => section.ProgramNames_en)
+            .Where(card => card.Id == id &&  // Filter by Id instead of Title
+                           card.Sections_en.Any(section => section.ProgramNames_en
+                                                        .Any(program => program.ProgramNames_en == programName)))
+            .Select(card => new
+            {
+                card.Id, // Returning Id for UniCard
+                card.Title_en, // Optionally, return Title for UniCard
+                Sections_en = card.Sections_en
+                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramNames_en == programName)) // Filter sections to only include those with matching program names
+                    .Select(section => new
+                    {
+                        section.Title_en, // Returning Title for Sections
+                        ProgramNames_en = section.ProgramNames_en
+                            .Where(program => program.ProgramNames_en == programName) // Select only the matching program name
+                            .Select(program => new
+                            {
+                                program.ProgramName_en,
+                                program.Jobs_en,
+                                program.SwavlebisEna_en,
+                                program.Kvalifikacia_en,
+                                program.Dafinanseba_en,
+                                program.KreditebisRaodenoba_en,
+                                program.AdgilebisRaodenoba_en,
+                                program.Fasi_en,
+                                program.Kodi_en,
+                                program.ProgramisAgwera_en,
+                            }).ToList()
+                    }).ToList()
+            })
+            .ToList();
+
+        if (!result.Any())
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        // Log the exception (you might use a logging framework)
+        Console.Error.WriteLine($"Error: {ex.Message}");
+        return StatusCode(500, "Internal server error");
+    }
+}
+[HttpGet("{uniCardId}/event/{eventId}")]
+public IActionResult GetEventCardById(int uniCardId, int eventId)
+{
+    // Find the UniCard by ID including its events
+    var uniCard = dbContext.MyUniCardEn
+        .Include(card => card.Events_en)
+        .FirstOrDefault(card => card.Id == uniCardId);
+
+    if (uniCard == null)
+    {
+        return NotFound($"No UniCard found with ID {uniCardId}.");
+    }
+
+    // Find the event within the UniCard
+    var eventCard = uniCard.Events_en.FirstOrDefault(e => e.Id == eventId);
+
+    if (eventCard == null)
+    {
+        return NotFound($"No event found with ID {eventId} in UniCard {uniCardId}.");
+    }
+
+    return Ok(eventCard);
+} 
     }
     
     
