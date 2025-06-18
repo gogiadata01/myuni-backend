@@ -147,7 +147,19 @@ public async Task<IActionResult> GetAllFieldNames()
 
     return Ok(fieldNamesList);
 }
+[HttpGet("GetFields")]
+public IActionResult GetAllFields()
+{
+    var fields = dbContext.MyprogramCardEn
+        .SelectMany(card => card.Fields_en)
+        .Select(field => new 
+        {
+            field.FieldName_en // Only get FieldName
+        })
+        .ToList();
 
+    return Ok(fields);
+}
 
 
     }
