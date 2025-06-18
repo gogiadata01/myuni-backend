@@ -109,18 +109,19 @@ public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] Lis
             ProgramCardId = card.Id,
             ProgramNames_en = card.Fields_en.SelectMany(field => field.ProgramNames_en)
                 .Where(program => program.CheckBoxes_en
-                    .Any(checkBox => subjects.Contains(checkBox.ProgramNames_en)))
+                    .Any(checkBox => subjects.Contains(checkBox.CheckBoxName_en))) // FIXED LINE
                 .Select(program => new 
                 {
                     ProgramName_en = program.ProgramName_en,
                     CheckBoxes_en = program.CheckBoxes_en
-                        .Where(checkBox => subjects.Contains(checkBox.CheckBoxName_en))
+                        .Where(checkBox => subjects.Contains(checkBox.CheckBoxName_en)) // FIXED LINE
                         .Select(checkBox => new 
                         {
                             CheckBoxName_en = checkBox.CheckBoxName_en
                         }).ToList()
                 }).ToList()
-        }).Where(card => card.ProgramNames_en.Any()) // Filter out cards with no matching programs
+        })
+        .Where(card => card.ProgramNames_en.Any()) // Filter out cards with no matching programs
         .ToListAsync();
 
     if (programCardDetails == null || !programCardDetails.Any())
@@ -130,6 +131,7 @@ public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] Lis
 
     return Ok(programCardDetails);
 }
+
 
     }
 
