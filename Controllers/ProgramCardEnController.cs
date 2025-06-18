@@ -160,7 +160,37 @@ public IActionResult GetAllFields()
 
     return Ok(fields);
 }
+ [HttpGet("{id}")]
+public IActionResult GetProgramCardById(int id)
+{
+    var programCard = dbContext.MyprogramCardEn
+        .Include(card => card.Fields_en)
+            .ThenInclude(field => field.ProgramNames_en)
+        .FirstOrDefault(card => card.Id == id);
 
+    if (programCard == null)
+    {
+        return NotFound();
+    }
+
+    // Optionally select only the properties you need if you don't want the full entities
+    var result = new 
+    {
+        programCard.Id,
+        Fields_en = programCard.Fields_en.Select(field => new 
+        {
+            field.Id,
+            field.FieldName_en,
+            ProgramNames_en = field.ProgramNames_en.Select(program => new
+            {
+                program.Id,
+                program.ProgramName_en
+            }).ToList()
+        }).ToList()
+    };
+
+    return Ok(result);
+}
 
     }
 
