@@ -87,7 +87,7 @@ public IActionResult GetProgramCardWithProgramName(string programname)
     // If no matching records are found, return NotFound
     if (!result.Any())
     {
-        return NotFound($"No program found with the name '{ProgramName_en}'.");
+        return NotFound($"No program found with the name '{programname}'.");
     }
 
     return Ok(result);
