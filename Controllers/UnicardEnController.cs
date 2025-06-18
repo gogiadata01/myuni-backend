@@ -279,59 +279,112 @@ public IActionResult GetUniCardByProgramName(string programName)
     return Ok(uniCard);
 }
 
+// [HttpGet("searchById")]
+// public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery] string programName)
+// {
+//     try
+//     {
+//         var result = dbContext.MyUniCardEn
+//             .Include(card => card.Sections_en)
+//                 .ThenInclude(section => section.ProgramNames_en)
+//             .Where(card => card.Id == id &&  // Filter by Id instead of Title
+//                            card.Sections_en.Any(section => section.ProgramNames_en
+//                                                         .Any(program => program.ProgramName_en == programName)))
+//             .Select(card => new
+//             {
+//                 card.Id, // Returning Id for UniCard
+//                 card.Title_en, // Optionally, return Title for UniCard
+//                 Sections_en = card.Sections_en
+//                     .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName)) // Filter sections to only include those with matching program names
+//                     .Select(section => new
+//                     {
+//                         section.Title_en, // Returning Title for Sections
+//                         ProgramNames_en = section.ProgramNames_en
+//                             .Where(program => program.ProgramName_en == programName) // Select only the matching program name
+//                             .Select(program => new
+//                             {
+//                                 program.ProgramName_en,
+//                                 program.Jobs_en,
+//                                 program.SwavlebisEna_en,
+//                                 program.Kvalifikacia_en,
+//                                 program.Dafinanseba_en,
+//                                 program.KreditebisRaodenoba_en,
+//                                 program.AdgilebisRaodenoba_en,
+//                                 program.Fasi_en,
+//                                 program.Kodi_en,
+//                                 program.ProgramisAgwera_en,
+//                             }).ToList()
+//                     }).ToList()
+//             })
+//             .ToList();
+
+//         if (!result.Any())
+//         {
+//             return NotFound();
+//         }
+
+//         return Ok(result);
+//     }
+//     catch (Exception ex)
+//     {
+//         // Log the exception (you might use a logging framework)
+//         Console.Error.WriteLine($"Error: {ex.Message}");
+//         return StatusCode(500, "Internal server error");
+//     }
+// }
 [HttpGet("searchById")]
 public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery] string programName)
 {
     try
     {
-        var result = dbContext.MyUniCardEn
-            .Include(card => card.Sections_en)
-                .ThenInclude(section => section.ProgramNames_en)
-            .Where(card => card.Id == id &&  // Filter by Id instead of Title
-                           card.Sections_en.Any(section => section.ProgramNames_en
-                                                        .Any(program => program.ProgramName_en == programName)))
-            .Select(card => new
-            {
-                card.Id, // Returning Id for UniCard
-                card.Title_en, // Optionally, return Title for UniCard
-                Sections_en = card.Sections_en
-                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName)) // Filter sections to only include those with matching program names
-                    .Select(section => new
-                    {
-                        section.Title_en, // Returning Title for Sections
-                        ProgramNames_en = section.ProgramNames_en
-                            .Where(program => program.ProgramName_en == programName) // Select only the matching program name
-                            .Select(program => new
-                            {
-                                program.ProgramName_en,
-                                program.Jobs_en,
-                                program.SwavlebisEna_en,
-                                program.Kvalifikacia_en,
-                                program.Dafinanseba_en,
-                                program.KreditebisRaodenoba_en,
-                                program.AdgilebisRaodenoba_en,
-                                program.Fasi_en,
-                                program.Kodi_en,
-                                program.ProgramisAgwera_en,
-                            }).ToList()
-                    }).ToList()
-            })
-            .ToList();
+        var card = dbContext.MyUniCardEn
+            .Include(c => c.Sections_en)
+                .ThenInclude(s => s.ProgramNames_en)
+            .FirstOrDefault(c => c.Id == id &&
+                                 c.Sections_en.Any(section =>
+                                     section.ProgramNames_en.Any(p => p.ProgramName_en == programName)));
 
-        if (!result.Any())
+        if (card == null)
         {
             return NotFound();
         }
+
+        var result = new
+        {
+            card.Id,
+            card.Title_en,
+            Sections_en = card.Sections_en
+                .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName))
+                .Select(section => new
+                {
+                    section.Title_en,
+                    ProgramNames_en = section.ProgramNames_en
+                        .Where(program => program.ProgramName_en == programName)
+                        .Select(program => new
+                        {
+                            program.ProgramName_en,
+                            program.Jobs_en,
+                            program.SwavlebisEna_en,
+                            program.Kvalifikacia_en,
+                            program.Dafinanseba_en,
+                            program.KreditebisRaodenoba_en,
+                            program.AdgilebisRaodenoba_en,
+                            program.Fasi_en,
+                            program.Kodi_en,
+                            program.ProgramisAgwera_en
+                        }).ToList()
+                }).ToList()
+        };
 
         return Ok(result);
     }
     catch (Exception ex)
     {
-        // Log the exception (you might use a logging framework)
         Console.Error.WriteLine($"Error: {ex.Message}");
         return StatusCode(500, "Internal server error");
     }
 }
+
 [HttpGet("{uniCardId}/event/{eventId}")]
 public IActionResult GetEventCardById(int uniCardId, int eventId)
 {
