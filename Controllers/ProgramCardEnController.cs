@@ -63,6 +63,35 @@ public IActionResult GetProgramsByField(string fieldName)
 
     return Ok(programs.ProgramNames_en);
 } 
+[HttpGet("getProgramCardWithProgramName/{programname}")]
+public IActionResult GetProgramCardWithProgramName(string programname)
+{
+    // Find ProgramCard that has the searched program name
+    var result = dbContext.MyprogramCardEn
+        .Include(card => card.Fields_en)
+            .ThenInclude(field => field.ProgramNames_en)
+        .Where(card => card.Fields_en.Any(field => field.ProgramNames_en
+            .Any(program => program.ProgramName_en == programname)))
+        .SelectMany(card => card.Fields_en
+            .Where(field => field.ProgramNames_en.Any(program => program.ProgramName_en == programname))
+            .Select(field => new 
+            {
+                FieldName_en = field.FieldName_en,
+                ProgramNames_en = field.ProgramNames_en
+                    .Where(program => program.ProgramName_en == programname)
+                    .Select(program => program.ProgramName_en)
+                    .FirstOrDefault() // This ensures you only get the program name once
+            }))
+        .ToList();
+
+    // If no matching records are found, return NotFound
+    if (!result.Any())
+    {
+        return NotFound($"No program found with the name '{ProgramName_en}'.");
+    }
+
+    return Ok(result);
+}
 
     }
 
