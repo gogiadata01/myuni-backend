@@ -41,6 +41,29 @@ public async Task<IActionResult> GetAllProgramCards()
 
     return Ok(result);
 }
+[HttpGet("GetProgramsByField/{fieldName}")]
+public IActionResult GetProgramsByField(string fieldName)
+{
+    var programs = dbContext.MyprogramCardEn
+        .SelectMany(card => card.Fields_en)
+        .Where(field => field.FieldName_en == fieldName)
+        .Select(field => new 
+        {
+            ProgramNames_en = field.ProgramNames_en.Select(program => new
+            {
+                program.ProgramName_en // Only include programname
+            }).ToList()
+        })
+        .FirstOrDefault();
+
+    if (programs == null)
+    {
+        return NotFound();
+    }
+
+    return Ok(programs.ProgramNames_en);
+} 
+
     }
 
 }
