@@ -337,44 +337,41 @@ public IActionResult GetUniCardByIdAndProgramName([FromQuery] int id, [FromQuery
 {
     try
     {
-        var card = dbContext.MyUniCardEn
-            .Include(c => c.Sections_en)
-                .ThenInclude(s => s.ProgramNames_en)
-            .FirstOrDefault(c => c.Id == id &&
-                                 c.Sections_en.Any(section =>
-                                     section.ProgramNames_en.Any(p => p.ProgramName_en == programName)));
+        var result = dbContext.MyUniCardEn
+            .Where(card => card.Id == id &&
+                           card.Sections_en.Any(section =>
+                               section.ProgramNames_en.Any(p => p.ProgramName_en == programName)))
+            .Select(card => new
+            {
+                card.Id,
+                card.Title_en,
+                Sections_en = card.Sections_en
+                    .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName))
+                    .Select(section => new
+                    {
+                        section.Title_en,
+                        ProgramNames_en = section.ProgramNames_en
+                            .Where(program => program.ProgramName_en == programName)
+                            .Select(program => new
+                            {
+                                program.ProgramName_en,
+                                program.Jobs_en,
+                                program.SwavlebisEna_en,
+                                program.Kvalifikacia_en,
+                                program.Dafinanseba_en,
+                                program.KreditebisRaodenoba_en,
+                                program.AdgilebisRaodenoba_en,
+                                program.Fasi_en,
+                                program.Kodi_en,
+                                program.ProgramisAgwera_en
+                            }).ToList()
+                    }).ToList()
+            })
+            .AsNoTracking() // Important for performance
+            .FirstOrDefault();
 
-        if (card == null)
-        {
+        if (result == null)
             return NotFound();
-        }
-
-        var result = new
-        {
-            card.Id,
-            card.Title_en,
-            Sections_en = card.Sections_en
-                .Where(section => section.ProgramNames_en.Any(program => program.ProgramName_en == programName))
-                .Select(section => new
-                {
-                    section.Title_en,
-                    ProgramNames_en = section.ProgramNames_en
-                        .Where(program => program.ProgramName_en == programName)
-                        .Select(program => new
-                        {
-                            program.ProgramName_en,
-                            program.Jobs_en,
-                            program.SwavlebisEna_en,
-                            program.Kvalifikacia_en,
-                            program.Dafinanseba_en,
-                            program.KreditebisRaodenoba_en,
-                            program.AdgilebisRaodenoba_en,
-                            program.Fasi_en,
-                            program.Kodi_en,
-                            program.ProgramisAgwera_en
-                        }).ToList()
-                }).ToList()
-        };
 
         return Ok(result);
     }
