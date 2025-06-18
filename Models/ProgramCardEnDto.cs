@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MyUni.Models
 {
-    public class ProgramCardDto
+    public class ProgramCardEnDto
     {
         [Required]
         public ICollection<FieldEnDto> Fields_en { get; set; }

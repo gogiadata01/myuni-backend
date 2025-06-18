@@ -221,7 +221,7 @@ public IActionResult GetProgramNameByCheckboxName(string checkboxName)
     return Ok(programNames);
 }
 [HttpPost("AddProgramCardEn")]
-public IActionResult AddProgramCardEn([FromBody] ProgramCardDto addProgramCardDto)
+public IActionResult AddProgramCardEn([FromBody] ProgramCardEnDto addProgramCardDto)
 {
     if (!ModelState.IsValid)
     {
