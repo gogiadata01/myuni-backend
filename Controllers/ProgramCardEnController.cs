@@ -107,7 +107,7 @@ public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] Lis
         .Select(card => new 
         {
             ProgramCardId = card.Id,
-            ProgramNames_en = card.Fields_en.SelectMany(field => field.ProgramNames)
+            ProgramNames_en = card.Fields_en.SelectMany(field => field.ProgramNames_en)
                 .Where(program => program.CheckBoxes_en
                     .Any(checkBox => subjects.Contains(checkBox.ProgramNames_en)))
                 .Select(program => new 
