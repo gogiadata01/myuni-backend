@@ -18,6 +18,29 @@ namespace MyUni.Controllers
             this.dbContext = dbContext;
 
         }
+        [HttpGet]
+public async Task<IActionResult> GetAllProgramCards()
+{
+    var allProgramCards = await dbContext.MyprogramCardEn
+        .Include(card => card.Fields_en)
+            .ThenInclude(field => field.ProgramNames_en)
+        .ToListAsync();
+
+    var result = allProgramCards.Select(card => new
+    {
+        Fields_en = card.Fields_en.Select(field => new 
+        {
+            field.FieldName_en, // Only include FieldName
+            ProgramNames_en = field.ProgramNames_en.Select(program => new
+            {
+                program.Id,
+                program.ProgramName_en // Only include programname
+            }).ToList()
+        }).ToList()
+    });
+
+    return Ok(result);
+}
     }
 
 }
