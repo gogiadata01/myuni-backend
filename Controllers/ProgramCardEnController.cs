@@ -191,6 +191,35 @@ public IActionResult GetProgramCardById(int id)
 
     return Ok(result);
 }
+[HttpGet("byCheckboxName/{checkboxName}")]
+public IActionResult GetProgramNameByCheckboxName(string checkboxName)
+{
+    var programNames = dbContext.MyprogramCardEn
+        .Include(card => card.Fields_en)
+            .ThenInclude(field => field.ProgramNames_en)
+                .ThenInclude(program => program.CheckBoxes_en)
+        .Where(card => card.Fields_en
+            .Any(field => field.ProgramNames_en
+                .Any(program => program.CheckBoxes_en
+                    .Any(checkbox => checkbox.CheckBoxName_en == checkboxName))))
+        .SelectMany(card => card.Fields_en)
+        .SelectMany(field => field.ProgramNames_en)
+        .Where(program => program.CheckBoxes_en
+            .Any(checkbox => checkbox.CheckBoxName_en == checkboxName))
+        .Select(program => new
+        {
+            program.Id,
+            program.ProgramName_en
+        })
+        .ToList();
+
+    if (programNames == null || !programNames.Any())
+    {
+        return NotFound();
+    }
+
+    return Ok(programNames);
+}
 
     }
 
