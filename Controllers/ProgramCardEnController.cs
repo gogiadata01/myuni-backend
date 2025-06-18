@@ -220,6 +220,51 @@ public IActionResult GetProgramNameByCheckboxName(string checkboxName)
 
     return Ok(programNames);
 }
+[HttpPost("AddProgramCardEn")]
+public IActionResult AddProgramCardEn([FromBody] ProgramCardDto addProgramCardDto)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    // Log incoming data
+    Console.WriteLine("Received ProgramCardEnDto:");
+    foreach (var field in addProgramCardDto.Fields_en)
+    {
+        Console.WriteLine($"FieldName_en: {field.FieldName_en}");
+        foreach (var programName in field.ProgramNames_en)
+        {
+            Console.WriteLine($"ProgramName_en: {programName.ProgramName_en}");
+            foreach (var checkBox in programName.CheckBoxes_en)
+            {
+                Console.WriteLine($"CheckBoxName_en: {checkBox.CheckBoxName_en}");
+            }
+        }
+    }
+
+    var programCardEntity = new ProgramCardEn
+    {
+        Fields_en = addProgramCardDto.Fields_en?.Select(f => new ProgramCardEn.FieldEn
+        {
+            FieldName_en = f.FieldName_en,
+            ProgramNames_en = f.ProgramNames_en?.Select(p => new ProgramCardEn.ProgramNamesEn
+            {
+                ProgramName_en = p.ProgramName_en,
+                CheckBoxes_en = p.CheckBoxes_en?.Select(c => new ProgramCardEn.CheckBoxesEn
+                {
+                    CheckBoxName_en = c.CheckBoxName_en
+                }).ToList()
+            }).ToList()
+        }).ToList()
+    };
+
+    dbContext.MyprogramCardEn.Add(programCardEntity);
+    dbContext.SaveChanges();
+
+    return Ok(programCardEntity);
+}
+
 
     }
 
