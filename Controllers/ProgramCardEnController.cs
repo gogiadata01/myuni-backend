@@ -92,6 +92,44 @@ public IActionResult GetProgramCardWithProgramName(string programname)
 
     return Ok(result);
 }
+[HttpGet("GetProgramCardDetailsBySubjects")]
+public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] List<string> subjects)
+{
+    if (subjects == null || !subjects.Any())
+    {
+        return BadRequest("Please provide at least one subject.");
+    }
+
+    var programCardDetails = await dbContext.MyprogramCardEn
+        .Include(card => card.Fields_en)
+            .ThenInclude(field => field.ProgramNames_en)
+                .ThenInclude(program => program.CheckBoxes_en)
+        .Select(card => new 
+        {
+            ProgramCardId = card.Id,
+            ProgramNames_en = card.Fields_en.SelectMany(field => field.ProgramNames)
+                .Where(program => program.CheckBoxes_en
+                    .Any(checkBox => subjects.Contains(checkBox.ProgramNames_en)))
+                .Select(program => new 
+                {
+                    ProgramName_en = program.ProgramName_en,
+                    CheckBoxes_en = program.CheckBoxes_en
+                        .Where(checkBox => subjects.Contains(checkBox.CheckBoxName_en))
+                        .Select(checkBox => new 
+                        {
+                            CheckBoxName_en = checkBox.CheckBoxName_en
+                        }).ToList()
+                }).ToList()
+        }).Where(card => card.ProgramNames_en.Any()) // Filter out cards with no matching programs
+        .ToListAsync();
+
+    if (programCardDetails == null || !programCardDetails.Any())
+    {
+        return NotFound("No matching programs found.");
+    }
+
+    return Ok(programCardDetails);
+}
 
     }
 
