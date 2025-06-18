@@ -131,6 +131,22 @@ public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] Lis
 
     return Ok(programCardDetails);
 }
+[HttpGet("GetAllFieldNames")]
+public async Task<IActionResult> GetAllFieldNames()
+{
+    var fieldNamesList = await dbContext.MyprogramCardEn
+        .Include(card => card.FieldName_en)
+        .SelectMany(card => card.FieldName_en
+            .Select(field => new { fieldName = field.FieldName_en }))
+        .ToListAsync();
+
+    if (!fieldNamesList.Any())
+    {
+        return NotFound("No field names found");
+    }
+
+    return Ok(fieldNamesList);
+}
 
 
     }
