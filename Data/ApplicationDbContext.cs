@@ -17,6 +17,7 @@ namespace MyUni.Data
 
         public DbSet<ProgramCard> MyprogramCard { get; set; }
 
+        public DbSet<ProgramCardEn> MyprogramCardEn { get; set; }
 
         public DbSet<User> MyUser { get; set; }
 
