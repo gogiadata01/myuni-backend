@@ -135,8 +135,8 @@ public async Task<IActionResult> GetProgramCardDetailsBySubjects([FromQuery] Lis
 public async Task<IActionResult> GetAllFieldNames()
 {
     var fieldNamesList = await dbContext.MyprogramCardEn
-        .Include(card => card.FieldName_en)
-        .SelectMany(card => card.FieldName_en
+        .Include(card => card.Fields_en)
+        .SelectMany(card => card.Fields_en
             .Select(field => new { fieldName = field.FieldName_en }))
         .ToListAsync();
 
@@ -147,6 +147,7 @@ public async Task<IActionResult> GetAllFieldNames()
 
     return Ok(fieldNamesList);
 }
+
 
 
     }
