@@ -264,7 +264,41 @@ public IActionResult AddProgramCardEn([FromBody] ProgramCardEnDto addProgramCard
 
     return Ok(programCardEntity);
 }
+[HttpGet("byProgramName/{programname}")]
+public IActionResult GetProgramCardByProgramName(string programname)
+{
+    var programCards = dbContext.MyprogramCardEn
+        .Include(card => card.Fields_en)
+            .ThenInclude(field => field.ProgramNames_en)
+        .Where(card => card.Fields_en.Any(field => field.ProgramNames_en
+                                          .Any(p => p.ProgramName_en == programname)))
+        .ToList();
 
+    if (programCards == null || !programCards.Any())
+    {
+        return NotFound();
+    }
+
+    // Optionally select only the properties you need if you don't want the full entities
+    var result = programCards.Select(card => new
+    {
+        card.Id,
+        Fields_en = card.Fields_en.Select(field => new
+        {
+            field.Id,
+            field.FieldName_en,
+            ProgramNames_en = field.ProgramNames_en
+                .Where(p => p.ProgramName_en == programname)
+                .Select(program => new
+                {
+                    program.Id,
+                    program.ProgramName_en
+                }).ToList()
+        }).ToList()
+    });
+
+    return Ok(result);
+}
 
     }
 
