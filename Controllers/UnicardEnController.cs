@@ -405,29 +405,29 @@ public IActionResult GetEventCardById(int uniCardId, int eventId)
 
     return Ok(eventCard);
 } 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteUniCard(int id)
-        {
-            var uniCard = dbContext.MyUniCardEn
-                .Include(card => card.Event_en)
-                .Include(card => card.Section_en)
-                    .ThenInclude(section => section.ProgramNames_en)
-                .Include(card => card.Section2_en)
-                    .ThenInclude(section2 => section2.SavaldebuloSagnebi_en)
-                .Include(card => card.ArchevitiSavaldebuloSaganebi_en)
-                    .ThenInclude(archeviti => archeviti.ArchevitiSavaldebuloSagani_en)
-                .FirstOrDefault(card => card.Id == id);
+        // [HttpDelete("{id}")]
+        // public IActionResult DeleteUniCard(int id)
+        // {
+        //     var uniCard = dbContext.MyUniCardEn
+        //         .Include(card => card.Event_en)
+        //         .Include(card => card.Section_en)
+        //             .ThenInclude(section => section.ProgramNames_en)
+        //         .Include(card => card.Section2_en)
+        //             .ThenInclude(section2 => section2.SavaldebuloSagnebi_en)
+        //         .Include(card => card.ArchevitiSavaldebuloSaganebi_en)
+        //             .ThenInclude(archeviti => archeviti.ArchevitiSavaldebuloSagani_en)
+        //         .FirstOrDefault(card => card.Id == id);
 
-            if (uniCard == null)
-            {
-                return NotFound();
-            }
+        //     if (uniCard == null)
+        //     {
+        //         return NotFound();
+        //     }
 
-            dbContext.MyUniCardEn.Remove(uniCard);
-            dbContext.SaveChanges();
+        //     dbContext.MyUniCardEn.Remove(uniCard);
+        //     dbContext.SaveChanges();
 
-            return NoContent();
-        }
+        //     return NoContent();
+        // }
     }
     
     
