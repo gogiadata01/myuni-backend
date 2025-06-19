@@ -409,7 +409,7 @@ public IActionResult GetEventCardById(int uniCardId, int eventId)
         public IActionResult DeleteUniCard(int id)
         {
             var uniCard = dbContext.MyUniCardEn
-                .Include(card => card.Event)
+                .Include(card => card.Event_en)
                 .Include(card => card.Section_en)
                     .ThenInclude(section => section.ProgramNames_en)
                 .Include(card => card.Section2_en)
