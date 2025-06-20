@@ -28,9 +28,10 @@ public async Task<IActionResult> GetAllProgramCards()
 
     var result = allProgramCards.Select(card => new
     {
+        card.Id
         Fields_en = card.Fields_en.Select(field => new 
         {
-            field.Id
+            field.Id,
             field.FieldName_en, // Only include FieldName
             ProgramNames_en = field.ProgramNames_en.Select(program => new
             {
