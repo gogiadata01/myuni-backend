@@ -12,9 +12,8 @@ namespace MyUni.Models.Entities
         public int Numbering_en { get; set; }
         public string Description_en  { get; set; }
 	    public string saregistracioForma_en { get; set; }
-        public ICollection<EventTypeEn> Types_en { get; set; }
-        
-        public class EventTypeEn
+        public ICollection<EventType_en> Types_en { get; set; }
+        public class EventType_en
         {
             public int Id { get; set; }
             public string Type_en { get; set; }
