@@ -66,7 +66,7 @@ public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
         Numbering_en = addEventCardDto.Numbering_en,
         Description_en = addEventCardDto.Description_en,
         saregistracioForma_en = addEventCardDto.saregistracioForma_en,
-        Types_en = addEventCardDto.Types_en.Select(x => new EventTypeEn
+        Types_en = addEventCardDto.Types_en.Select(x => new EventType_en
         {
             Type_en = x.Type_en
         }).ToList()
