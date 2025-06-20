@@ -34,7 +34,7 @@ public IActionResult GetAllEventCard()
             ec.Time_en,
             ec.Numbering_en,
             ec.Description_en,
-            Type_en = ec.Type_en.Select(t => new
+            Types_en = ec.Types_en.Select(t => new
             {
                 t.Type_en
             }).ToList() // Select both Id and Type properties from Types

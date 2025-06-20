@@ -15,8 +15,6 @@ namespace MyUni.Models.Entities
 //new element
 	public string saregistracioForma_en { get; set; }
         public ICollection<EventType_en> Types_en { get; set; }
-
-
         public class EventType_en
         {
             public int Id { get; set; }
