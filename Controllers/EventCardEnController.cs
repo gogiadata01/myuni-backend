@@ -25,7 +25,7 @@ public IActionResult GetAllEventCard()
 {
     // Eagerly load the related 'Types' property and select necessary fields
     var allEventCards = dbContext.MyEventCardEn
-        .Include(ec => ec.Type_en) // Include related 'Types' entity
+        .Include(ec => ec.Types_en) // Include related 'Types' entity
         .Select(ec => new 
         {
             ec.Id,
@@ -66,7 +66,7 @@ public IActionResult GetAllEventCard()
                 Numbering_en = addEventCardDto.Numbering_en,
                 Description_en = addEventCardDto.Description_en,
         	saregistracioForma_en = addEventCardDto.saregistracioForma_en, // Ensure this field is mapped
-                Types_en = addEventCardDto.Types_en.Select(x => new EventType
+                Types_en = addEventCardDto.Types_en.Select(x => new EventType_en
                 {
                     Type_en = x.Type_en
                 }).ToList() // Convert to List
@@ -83,7 +83,7 @@ public IActionResult GetAllEventCard()
         {
             // Find the event card by its ID
             var eventCard = dbContext.MyEventCardEn
-                .Include(ec => ec.Type_en) // Include related 'Types' to ensure they are also deleted if necessary
+                .Include(ec => ec.Types_en) // Include related 'Types' to ensure they are also deleted if necessary
                 .FirstOrDefault(ec => ec.Id == id);
 
             // Check if the event card exists
@@ -138,7 +138,7 @@ public IActionResult GetEventCardForHome()
                 ec.isFeatured_en,
                 ec.Numbering_en,
                 ec.Description_en,
-                Type_en = ec.Type_en.Select(t => new { t.Type_en }) // Select only the Type
+                Types_en = ec.Types_en.Select(t => new { t.Type_en }) // Select only the Type
             })
             .ToList();
 
