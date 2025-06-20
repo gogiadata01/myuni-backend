@@ -299,30 +299,7 @@ public IActionResult GetProgramCardByProgramName(string programname)
 
     return Ok(result);
 }
-        [HttpDelete("{id}")]
-        public IActionResult DeleteProgramCard(int id)
-        {
-            // Find the ProgramCard by ID
-            var programCard = dbContext.MyprogramCardEn
-                .Include(card => card.Fields_en)
-                    .ThenInclude(field => field.ProgramNames_en)
-                        .ThenInclude(program => program.CheckBoxes_en)
-                .FirstOrDefault(card => card.Id == id);
-
-            // If the ProgramCard is not found, return a 404 Not Found response
-            if (programCard == null)
-            {
-                return NotFound();
-            }
-
-            // Remove the ProgramCard from the databas{e
-            dbContext.MyprogramCardEn.Remove(programCard);
-            dbContext.SaveChanges();
-
-            // Return a 204 No Content response to indicate successful deletion
-            return NoContent();
-        }
-                [HttpDelete("{id}")]
+     [HttpDelete("{id}")]
         public IActionResult DeleteProgramCard(int id)
         {
             // Find the ProgramCard by ID
