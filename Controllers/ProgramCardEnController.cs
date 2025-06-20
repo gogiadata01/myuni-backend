@@ -304,7 +304,7 @@ public IActionResult GetProgramCardByProgramName(string programname)
         {
             // Find the ProgramCard by ID
             var programCard = dbContext.MyprogramCardEn
-                .Include(card => card.FieldEn)
+                .Include(card => card.Fields_en)
                     .ThenInclude(field => field.ProgramNames_en)
                         .ThenInclude(program => program.CheckBoxes_en)
                 .FirstOrDefault(card => card.Id == id);
