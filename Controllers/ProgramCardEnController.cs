@@ -28,7 +28,7 @@ public async Task<IActionResult> GetAllProgramCards()
 
     var result = allProgramCards.Select(card => new
     {
-        card.Id
+        card.Id,
         Fields_en = card.Fields_en.Select(field => new 
         {
             field.Id,
