@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyUni.Data;
-using MyUni.Models.Entities;
+using MyUni.Models.Entities.EventCardEn;
 using Newtonsoft.Json;
 using MyUni.Models;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +66,7 @@ public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
         Numbering_en = addEventCardDto.Numbering_en,
         Description_en = addEventCardDto.Description_en,
         saregistracioForma_en = addEventCardDto.saregistracioForma_en,
-        Types_en = addEventCardDto.Types_en.Select(x => new Types_en
+        Types_en = addEventCardDto.Types_en.Select(x => new EventType_en
         {
             Type_en = x.Type_en
         }).ToList()

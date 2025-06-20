@@ -11,9 +11,7 @@ namespace MyUni.Models.Entities
         public string Link_en { get; set; }
         public int Numbering_en { get; set; }
         public string Description_en  { get; set; }
-
-//new element
-	public string saregistracioForma_en { get; set; }
+	    public string saregistracioForma_en { get; set; }
         public ICollection<EventType_en> Types_en { get; set; }
         public class EventType_en
         {
