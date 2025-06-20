@@ -16,10 +16,10 @@ namespace MyUni.Models.Entities
         public ICollection<EventType_en> Types_en { get; set; }
 
 
+    }
         public class EventType_en
         {
             public string Type_en { get; set; }
         }
-    }
 
 }
