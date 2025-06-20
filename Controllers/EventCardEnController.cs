@@ -43,40 +43,40 @@ public IActionResult GetAllEventCard()
 
     return Ok(allEventCards);
 }
-// [HttpPost]
-// public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
-// {
-//     if (!ModelState.IsValid)
-//     {
-//         return BadRequest(ModelState);
-//     }
+[HttpPost]
+public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
 
-//     // Log received data
-//     Console.WriteLine(JsonConvert.SerializeObject(addEventCardDto, Formatting.Indented));
+    // Log received data
+    Console.WriteLine(JsonConvert.SerializeObject(addEventCardDto, Formatting.Indented));
 
-//     // Map DTO to entity
-//     var eventCardEntity = new EventCardEn
-//     {
-//         Url_en = addEventCardDto.Url_en,
-//         Title_en = addEventCardDto.Title_en,
-//         Text_en = addEventCardDto.Text_en,
-//         Time_en = addEventCardDto.Time_en,
-//         Link_en = addEventCardDto.Link_en,
-//         isFeatured_en = addEventCardDto.isFeatured_en,
-//         Numbering_en = addEventCardDto.Numbering_en,
-//         Description_en = addEventCardDto.Description_en,
-//         saregistracioForma_en = addEventCardDto.saregistracioForma_en,
-//         Types_en = addEventCardDto.Types_en.Select(x => new EventType_en
-//         {
-//             Type_en = x.Type_en
-//         }).ToList()
-//     };
+    // Map DTO to entity
+    var eventCardEntity = new EventCardEn
+    {
+        Url_en = addEventCardDto.Url_en,
+        Title_en = addEventCardDto.Title_en,
+        Text_en = addEventCardDto.Text_en,
+        Time_en = addEventCardDto.Time_en,
+        Link_en = addEventCardDto.Link_en,
+        isFeatured_en = addEventCardDto.isFeatured_en,
+        Numbering_en = addEventCardDto.Numbering_en,
+        Description_en = addEventCardDto.Description_en,
+        saregistracioForma_en = addEventCardDto.saregistracioForma_en,
+        Types_en = addEventCardDto.Types_en.Select(x => new EventType_en
+        {
+            Type_en = x.Type_en
+        }).ToList()
+    };
 
-//     dbContext.MyEventCardEn.Add(eventCardEntity);
-//     dbContext.SaveChanges();
+    dbContext.MyEventCardEn.Add(eventCardEntity);
+    dbContext.SaveChanges();
 
-//     return Ok(eventCardEntity);
-// }
+    return Ok(eventCardEntity);
+}
 
             [HttpDelete("{id}")]
         public IActionResult DeleteEventCard(int id)
