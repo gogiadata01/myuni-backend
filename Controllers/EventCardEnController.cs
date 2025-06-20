@@ -51,7 +51,10 @@ public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
         return BadRequest(ModelState);
     }
 
-    // Map DTO to Entity
+    // Log received data
+    Console.WriteLine(JsonConvert.SerializeObject(addEventCardDto, Formatting.Indented));
+
+    // Map DTO to entity
     var eventCardEntity = new EventCardEn
     {
         Url_en = addEventCardDto.Url_en,
@@ -63,7 +66,7 @@ public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
         Numbering_en = addEventCardDto.Numbering_en,
         Description_en = addEventCardDto.Description_en,
         saregistracioForma_en = addEventCardDto.saregistracioForma_en,
-        Types_en = addEventCardDto.Types_en.Select(x => new EventTypeEn
+        Types_en = addEventCardDto.Types_en.Select(x => new EventType_en
         {
             Type_en = x.Type_en
         }).ToList()
@@ -74,7 +77,6 @@ public IActionResult AddEventCard([FromBody] EventCardEnDto addEventCardDto)
 
     return Ok(eventCardEntity);
 }
-
 
             [HttpDelete("{id}")]
         public IActionResult DeleteEventCard(int id)
