@@ -303,7 +303,7 @@ public IActionResult GetProgramCardByProgramName(string programname)
         public IActionResult DeleteProgramCard(int id)
         {
             // Find the ProgramCard by ID
-            var programCard = dbContext.MyEventCardEn
+            var programCard = dbContext.MyprogramCardEn
                 .Include(card => card.FieldEn)
                     .ThenInclude(field => field.ProgramNames_en)
                         .ThenInclude(program => program.CheckBoxes_en)
