@@ -30,6 +30,7 @@ public async Task<IActionResult> GetAllProgramCards()
     {
         Fields_en = card.Fields_en.Select(field => new 
         {
+            field.Id
             field.FieldName_en, // Only include FieldName
             ProgramNames_en = field.ProgramNames_en.Select(program => new
             {
