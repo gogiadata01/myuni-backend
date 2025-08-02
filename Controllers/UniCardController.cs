@@ -30,7 +30,19 @@ namespace MyUni.Controllers
                     Id = card.Id,        
                     Url = card.Url,    
                     Title = card.Title, 
-                    MainText = card.MainText 
+                    MainText = card.MainText,
+                    history= card.history,
+                    forPupil = card.forPupil,
+                    scholarshipAndFunding = card.scholarshipAndFunding,
+                    exchangePrograms = card.exchangePrograms,
+                    labs = card.labs,
+                    studentsLife = card.studentsLife,
+                    paymentMethods = card.paymentMethods,
+                    events = card.events,
+                    sections = card.sections,
+                    sections2 = card.sections2,
+                    archevitiSavaldebuloSaganebi = card.archevitiSavaldebuloSaganebi,
+                    
                 })
                 .ToList();
 
