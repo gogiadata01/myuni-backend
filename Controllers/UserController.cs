@@ -36,16 +36,7 @@ public class UserController : ControllerBase
                 user.Name,
                 user.Img,
                 user.Coin,
-                user.Type,
-                user.Password,
-                user.RemainingTime,
-                user.Token,
-                user.Quizes,
-                user.ResetTokenExpiry,
-                user.LastQuizAttempt,
-                user.LastLogin,
-                user.LastCoinAwardTime
-
+                user.RemainingTime
             })
             .ToList();
 

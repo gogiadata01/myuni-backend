@@ -30,47 +30,7 @@ namespace MyUni.Controllers
                     Id = card.Id,        
                     Url = card.Url,    
                     Title = card.Title, 
-                    MainText = card.MainText,
-                    History= card.History,
-                    ForPupil = card.ForPupil,
-                    ScholarshipAndFunding = card.ScholarshipAndFunding,
-                    ExchangePrograms = card.ExchangePrograms,
-                    Labs = card.Labs,
-                    StudentsLife = card.StudentsLife,
-                    PaymentMethods = card.PaymentMethods,
-                    // Events = card.Events,
-                    // Sections = card.Sections,
-                    // Sections2 = card.Sections2,
-                    ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi,
-                    Events = card.Events.Select(e => new
-                    {
-                        e.Id,
-                        e.Url,
-                        e.Title,
-                        e.Time,
-                        e.Link
-                    }).ToList(),
-                    Sections = card.Sections.Select(s => new
-                    {
-                        s.Id,
-                        s.Title,
-                        ProgramNames = s.ProgramNames.Select(pn => new
-                        {
-                            pn.Id,
-                            pn.ProgramName,
-                            pn.Jobs,
-                            pn.SwavlebisEna,
-                            pn.Kvalifikacia,
-                            pn.Dafinanseba,
-                            pn.KreditebisRaodenoba,
-                            pn.AdgilebisRaodenoba,
-                            pn.Fasi,
-                            pn.Kodi,
-                            pn.ProgramisAgwera,
-                            pn.Mizani
-
-                        }).ToList()
-                    }).ToList()
+                    MainText = card.MainText ზ
                 })
                 .ToList();
 
