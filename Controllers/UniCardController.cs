@@ -101,7 +101,7 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
                 .Include(card => card.Events)
                 .Include(card => card.Sections)
                     .ThenInclude(section => section.ProgramNames)
-                .Where(card => card.Id == id)
+                // .Where(card => card.Id == id)
                 .Select(card => new
                 {
                     Id = card.Id,
