@@ -30,7 +30,7 @@ namespace MyUni.Controllers
                     Id = card.Id,        
                     Url = card.Url,    
                     Title = card.Title, 
-                    MainText = card.MainText ზ
+                    MainText = card.MainText 
                 })
                 .ToList();
 
