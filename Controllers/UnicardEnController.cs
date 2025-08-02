@@ -29,7 +29,45 @@ namespace MyUni.Controllers
                     Id = card.Id,        
                     Url_en = card.Url_en,    
                     Title_en = card.Title_en, 
-                    MainText_en = card.MainText_en 
+                    MainText_en = card.MainText_en,
+                    History_en= card.History_en,
+                    ForPupil_en = card.ForPupil_en,
+                    ScholarshipAndFunding_en = card.ScholarshipAndFunding_en,
+                    ExchangePrograms_en = card.ExchangePrograms_en,
+                    Labs_en = card.Labs_en,
+                    StudentsLife_en = card.StudentsLife_en,
+                    PaymentMethods_en = card.PaymentMethods_en,
+                    // Events = card.Events,
+                    // Sections = card.Sections,
+                    // Sections2 = card.Sections2,
+                    ArchevitiSavaldebuloSaganebi_en = card.ArchevitiSavaldebuloSaganebi_en,
+                    Events_en = card.Events_en.Select(e => new
+                    {
+                        e.Id,
+                        e.Url_en,
+                        e.Title_en,
+                        e.Time_en,
+                        e.Link_en
+                    }).ToList(),
+                    Section_en = card.Section_en.Select(s => new
+                    {
+                        s.Id,
+                        s.Title_en,
+                        ProgramNames_en = s.ProgramNames_en.Select(pn => new
+                        {
+                            pn.Id,
+                            pn.ProgramName_en,
+                            pn.Jobs_en,
+                            pn.SwavlebisEna_en,
+                            pn.Kvalifikacia_en,
+                            pn.Dafinanseba_en,
+                            pn.KreditebisRaodenoba_en,
+                            pn.AdgilebisRaodenoba_en,
+                            pn.Fasi_en,
+                            pn.Kodi_en,
+                            pn.ProgramisAgwera_en,
+                        }).ToList()
+                    }).ToList()
                 })
                 .ToList();
 
