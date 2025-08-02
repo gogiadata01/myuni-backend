@@ -41,7 +41,10 @@ public class UserController : ControllerBase
                 user.RemainingTime,
                 user.Token,
                 user.Quizes,
-                
+                user.ResetTokenExpiry,
+                user.LastQuizAttempt,
+                user.LastLogin,
+                user.LastCoinAwardTime
 
             })
             .ToList();
