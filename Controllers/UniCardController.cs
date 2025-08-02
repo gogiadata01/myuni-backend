@@ -31,18 +31,18 @@ namespace MyUni.Controllers
                     Url = card.Url,    
                     Title = card.Title, 
                     MainText = card.MainText,
-                    history= card.history,
-                    forPupil = card.forPupil,
-                    scholarshipAndFunding = card.scholarshipAndFunding,
-                    exchangePrograms = card.exchangePrograms,
-                    labs = card.labs,
-                    studentsLife = card.studentsLife,
-                    paymentMethods = card.paymentMethods,
-                    events = card.events,
-                    sections = card.sections,
-                    sections2 = card.sections2,
-                    archevitiSavaldebuloSaganebi = card.archevitiSavaldebuloSaganebi,
-                    
+                    History= card.History,
+                    ForPupil = card.ForPupil,
+                    ScholarshipAndFunding = card.ScholarshipAndFunding,
+                    ExchangePrograms = card.ExchangePrograms,
+                    Labs = card.Labs,
+                    StudentsLife = card.StudentsLife,
+                    PaymentMethods = card.PaymentMethods,
+                    Events = card.Events,
+                    Sections = card.Sections,
+                    Sections2 = card.Sections2,
+                    ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi,
+
                 })
                 .ToList();
 
