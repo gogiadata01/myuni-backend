@@ -94,14 +94,14 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
     return Ok(programNameToUpdate);
 }
 
-        [HttpGet()]
-        public IActionResult GetUniCardDetailsById()
+        [HttpGet("{id}")]
+        public IActionResult GetUniCardDetailsById(int id)
         {
             var UniCard = dbContext.MyUniCard
                 .Include(card => card.Events)
                 .Include(card => card.Sections)
                     .ThenInclude(section => section.ProgramNames)
-                // .Where(card => card.Id == id)
+                .Where(card => card.Id == id)
                 .Select(card => new
                 {
                     Id = card.Id,
@@ -130,18 +130,7 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
                         ProgramNames = s.ProgramNames.Select(pn => new
                         {
                             pn.Id,
-                            pn.ProgramName,
-                            pn.Jobs,
-                            pn.SwavlebisEna,
-                            pn.Kvalifikacia,
-                            pn.Dafinanseba,
-                            pn.KreditebisRaodenoba,
-                            pn.AdgilebisRaodenoba,
-                            pn.Fasi,
-                            pn.Kodi,
-                            pn.ProgramisAgwera,
-                            pn.Mizani
-
+                            pn.ProgramName
                         }).ToList()
                     }).ToList()
                 })
