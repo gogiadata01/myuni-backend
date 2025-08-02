@@ -42,7 +42,11 @@ namespace MyUni.Controllers
                     Sections = card.Sections,
                     Sections2 = card.Sections2,
                     ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi,
-
+                    ProgramNames = s.ProgramNames.Select(pn => new
+                        {
+                            pn.Id,
+                            pn.ProgramName
+                        }).ToList()
                 })
                 .ToList();
 
