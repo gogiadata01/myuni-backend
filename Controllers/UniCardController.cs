@@ -41,12 +41,7 @@ namespace MyUni.Controllers
                     Events = card.Events,
                     Sections = card.Sections,
                     Sections2 = card.Sections2,
-                    ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi,
-                    ProgramNames = s.ProgramNames.Select(pn => new
-                        {
-                            pn.Id,
-                            pn.ProgramName
-                        }).ToList()
+                    ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi
                 })
                 .ToList();
 
@@ -99,8 +94,8 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
     return Ok(programNameToUpdate);
 }
 
-        [HttpGet("{id}")]
-        public IActionResult GetUniCardDetailsById(int id)
+        [HttpGet()]
+        public IActionResult GetUniCardDetailsById()
         {
             var UniCard = dbContext.MyUniCard
                 .Include(card => card.Events)
@@ -135,7 +130,18 @@ public IActionResult UpdateOnlyProgramname(int uniCardId, int programNameId, [Fr
                         ProgramNames = s.ProgramNames.Select(pn => new
                         {
                             pn.Id,
-                            pn.ProgramName
+                            pn.ProgramName,
+                            pn.Jobs,
+                            pn.SwavlebisEna,
+                            pn.Kvalifikacia,
+                            pn.Dafinanseba,
+                            pn.KreditebisRaodenoba,
+                            pn.AdgilebisRaodenoba,
+                            pn.Fasi,
+                            pn.Kodi,
+                            pn.ProgramisAgwera,
+                            pn.Mizani
+
                         }).ToList()
                     }).ToList()
                 })
