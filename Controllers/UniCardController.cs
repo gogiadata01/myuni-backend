@@ -38,9 +38,9 @@ namespace MyUni.Controllers
                     Labs = card.Labs,
                     StudentsLife = card.StudentsLife,
                     PaymentMethods = card.PaymentMethods,
-                    Events = card.Events,
-                    Sections = card.Sections,
-                    Sections2 = card.Sections2,
+                    // Events = card.Events,
+                    // Sections = card.Sections,
+                    // Sections2 = card.Sections2,
                     ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi,
                     Events = card.Events.Select(e => new
                     {
