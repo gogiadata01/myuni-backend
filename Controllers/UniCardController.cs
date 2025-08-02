@@ -41,7 +41,7 @@ namespace MyUni.Controllers
                     Events = card.Events,
                     Sections = card.Sections,
                     Sections2 = card.Sections2,
-                    ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi
+                    ArchevitiSavaldebuloSaganebi = card.ArchevitiSavaldebuloSaganebi,
                     Events = card.Events.Select(e => new
                     {
                         e.Id,
