@@ -38,7 +38,11 @@ public class UserController : ControllerBase
                 user.Coin,
                 user.Type,
                 user.Password,
-                user.RemainingTime
+                user.RemainingTime,
+                user.Token,
+                user.Quizes,
+                
+
             })
             .ToList();
 
