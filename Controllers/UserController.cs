@@ -37,6 +37,7 @@ public class UserController : ControllerBase
                 user.Img,
                 user.Coin,
                 user.Type,
+                user.Password,
                 user.RemainingTime
             })
             .ToList();
