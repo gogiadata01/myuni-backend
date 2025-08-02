@@ -49,7 +49,7 @@ namespace MyUni.Controllers
                         e.Time_en,
                         e.Link_en
                     }).ToList(),
-                    Section_en = card.Section_en.Select(s => new
+                    Sections_en = card.Sections_en.Select(s => new
                     {
                         s.Id,
                         s.Title_en,
@@ -65,7 +65,7 @@ namespace MyUni.Controllers
                             pn.AdgilebisRaodenoba_en,
                             pn.Fasi_en,
                             pn.Kodi_en,
-                            pn.ProgramisAgwera_en,
+                            pn.ProgramisAgwera_en
                         }).ToList()
                     }).ToList()
                 })
